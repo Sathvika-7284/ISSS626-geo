@@ -1,0 +1,22 @@
+---
+title: "Hands-on Exercise 1"
+author: "Sathvika Subramanian"
+date: "Aug 23, 2025"
+date-modified: "last-modified"
+format: html
+execute: 
+ echo: true
+ eval: true
+ warning: false
+ freeze: true
+---
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+```{r}
+
+```
+
+

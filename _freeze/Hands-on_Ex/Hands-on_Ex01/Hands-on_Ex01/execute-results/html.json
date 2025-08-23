@@ -1,0 +1,15 @@
+{
+  "hash": "3a5bd9aa401c3affa4a9de8c35a6604f",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on Exercise 1\"\nauthor: \"Sathvika Subramanian\"\ndate: \"Aug 23, 2025\"\ndate-modified: \"last-modified\"\nformat: html\nexecute: \n echo: true\n eval: true\n warning: false\n freeze: true\n---\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tidyverse)\n```\n:::\n\n::: {.cell}\n\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
