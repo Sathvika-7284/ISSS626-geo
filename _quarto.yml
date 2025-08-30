@@ -3,21 +3,33 @@ project:
 
 website:
   title: "ISSS626"
-  navbar: 
-    left:
-      - menu: 
-        - text: Hands-on Exercise
-        - text: In-class Exercise
-    right: 
+  navbar:
+    left: 
+      - text: "Hands-on Exercise"
+        menu:
+         - text: "Hands-on Exercise 1-1"
+           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex1-1.html"
+         - text: "Hands-on Exercise 1-2"
+           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex1-2.html"
+    right:
       - href: index.qmd
         text: Home
       - about.qmd
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
+    theme: sandstone
+    backgroundcolor: '#ADD8E6'
+    light: cosmo
     toc: true
+    smooth-scroll: true
+    code-line-numbers: true
+    code-block-bg: true
+    code-block-border-left: "#FFA500"
+    highlight-style: gruvbox
+    code-links:
+      - text: GitHub Repo
+        icon: file-code
+        href: https://github.com/Sathvika-7284/ISSS626-geo
 
 editor: visual
-
