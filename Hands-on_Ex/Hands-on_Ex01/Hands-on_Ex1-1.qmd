@@ -134,7 +134,7 @@ listings_sf <- st_as_sf(listings,
 glimpse(listings_sf)
 ```
 
-## 1.6  Geoprocessing with sf package
+## 1.6 Geoprocessing with sf package
 
 ### 1.6.1 Use case 1: Land acquisition analysis
 

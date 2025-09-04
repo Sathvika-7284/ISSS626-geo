@@ -55,7 +55,7 @@ G_tm = Gest(childcare_tm_ppp, correction = "best")
 plot(G_tm)
 ```
 
-#### 2.1.2.2  Performing Complete Spatial Randomness Test
+#### 2.1.2.2 Performing Complete Spatial Randomness Test
 
 ```{r}
 G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
@@ -63,6 +63,25 @@ G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
 
 ```{r}
 plot(G_tm.csr)
+```
+
+### 2.1.3 Punggol planning area
+
+#### 2.1.3.1 Computing G-function estimation
+
+```{r}
+G_pg = Gest(childcare_pg_ppp, correction = "best")
+plot(G_pg)
+```
+
+#### 2.1.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+G_pg.csr <- envelope(childcare_pg_ppp, Gest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(G_pg.csr)
 ```
 
 
@@ -77,7 +96,7 @@ F_CK = Fest(childcare_ck_ppp)
 plot(F_CK)
 ```
 
-### 2.2.2 Performing Complete Spatial Randomness Test
+#### 2.2.1.2 Performing Complete Spatial Randomness Test
 
 ```{r}
 F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
@@ -87,16 +106,16 @@ F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
 plot(F_CK.csr)
 ```
 
-### 2.2.3 Tampines planning area
+### 2.2.2 Tampines planning area
 
-#### 2.2.3.1 Computing F-function estimation
+#### 2.2.2.1 Computing F-function estimation
 
 ```{r}
 F_tm = Fest(childcare_tm_ppp, correction = "best")
 plot(F_tm)
 ```
 
-#### 2.2.3.2 Performing Complete Spatial Randomness Test
+#### 2.2.2.2 Performing Complete Spatial Randomness Test
 
 ```{r}
 F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
@@ -106,12 +125,30 @@ F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
 plot(F_tm.csr)
 ```
 
+### 2.2.3 Punngol planning area
+
+#### 2.2.3.1 Computing F-function estimation
+
+```{r}
+F_pg = Fest(childcare_pg_ppp, correction = "best")
+plot(F_pg)
+```
+
+#### 2.2.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+F_pg.csr <- envelope(childcare_pg_ppp, Fest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(F_pg.csr)
+```
 
 ## 2.3 Analysing Spatial Point Process Using K-Function
 
 ### 2.3.1 Choa Chu Kang planning area
 
-#### 2.3.1.1  Computing K-fucntion estimate
+#### 2.3.1.1 Computing K-fucntion estimate
 
 ```{r}
 K_ck = Kest(childcare_ck_ppp, correction = "Ripley")
@@ -147,6 +184,28 @@ K_tm.csr <- envelope(childcare_tm_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
 
 ```{r}
 plot(K_tm.csr, . - r ~ r, 
+     xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
+
+### 2.3.3 Punngol planning area
+
+#### 2.3.3.1 Computing K-fucntion estimation
+
+```{r}
+K_pg = Kest(childcare_pg_ppp, correction = "Ripley")
+plot(K_pg, . -r ~ r, 
+     ylab= "K(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.3.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+K_pg.csr <- envelope(childcare_pg_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_pg.csr, . - r ~ r, 
      xlab="d", ylab="K(d)-r", xlim=c(0,500))
 ```
 
@@ -191,5 +250,27 @@ L_tm.csr <- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 
 ```{r}
 plot(L_tm.csr, . - r ~ r, 
+     xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
+
+### 2.4.3 Punngol planning area
+
+#### 2.4.3.1 Computing L-fucntion estimate
+
+```{r}
+L_pg = Lest(childcare_pg_ppp, correction = "Ripley")
+plot(L_pg, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.4.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+L_pg.csr <- envelope(childcare_pg_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_pg.csr, . - r ~ r, 
      xlab="d", ylab="L(d)-r", xlim=c(0,500))
 ```

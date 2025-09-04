@@ -20,7 +20,6 @@ pacman::p_load(sf, terra, spatstat,
                tmap, rvest, tidyverse)
 ```
 
-
 # 2.Importing and Wrangling Geospatial Data Sets
 
 ```{r}
@@ -227,6 +226,7 @@ plot(kde_childcareSG.ppl, main = "bw.ppl")
 
 ```{r}
 #| code-fold: show
+#| fig-width: 12
 
 par(mfrow=c(2,2))
 plot(density(childcareSG_ppp_km, 
@@ -345,8 +345,10 @@ jw <- mpsz_cl %>%
 ```
 
 ```{r}
+#| fig-width: 12
+
 par(mfrow=c(2,2))
-plot(st_geometry(pg), main = "Ponggol")
+plot(st_geometry(pg), main = "Punggol")
 plot(st_geometry(tm), main = "Tampines")
 plot(st_geometry(ck), main = "Choa Chu Kang")
 plot(st_geometry(jw), main = "Jurong West")
@@ -378,6 +380,8 @@ childcare_jw_ppp.km = rescale.ppp(childcare_jw_ppp, 1000, "km")
 ```
 
 ```{r}
+#| fig-width: 12
+
 par(mfrow=c(2,2))
 plot(unmark(childcare_pg_ppp.km), 
   main="Punggol")
@@ -389,7 +393,7 @@ plot(unmark(childcare_jw_ppp.km),
   main="Jurong West")
 ```
 
-### 4.8.2  Clark and Evans Test
+### 4.8.2 Clark and Evans Test
 
 #### 4.8.2.1 Choa Chu Kang planning area
 
@@ -425,6 +429,7 @@ clarkevans.test(childcare_jw_ppp,
 
 ```{r}
 #| code-fold: show
+#| fig-width: 12
 
 par(mfrow=c(2,2))
 plot(density(childcare_pg_ppp.km, 
@@ -448,24 +453,3 @@ plot(density(childcare_jw_ppp.km,
              kernel="gaussian"),
      main="Jurong West")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
