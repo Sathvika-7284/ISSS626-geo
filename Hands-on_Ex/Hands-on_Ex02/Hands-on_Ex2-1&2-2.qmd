@@ -1,5 +1,5 @@
 ---
-title: "Hands-on Exercise 2-1"
+title: "Hands-on Exercise 2-1 & 2-2"
 author: "Sathvika Subramanian"
 date: "Aug 23, 2025"
 date-modified: "last-modified"
