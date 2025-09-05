@@ -22,6 +22,7 @@ pacman::p_load(sf, tmap, tidyverse, rvest)
 ## 2. Importing Data into R
 
 ### 2.1 Importing Geospatial Data into R
+
 ```{r}
 mpsz <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
 ```
@@ -161,7 +162,7 @@ tm_shape(mpsz_pop2024)+
   tm_polygons(fill = "DEPENDENCY")
 ```
 
-##### 2.4.2.3 Drawing a choropleth map using tm_fill() and *tm_border()**
+##### 2.4.2.3 Drawing a choropleth map using tm_fill() and \*tm_border()\*\*
 
 ```{r}
 tm_shape(mpsz_pop2024)+
@@ -433,7 +434,6 @@ tm_shape(outlier_sf) +
   tm_text("SUBZONE_N", col = "red", size = 0.7) +
   tm_layout(asp = 0.8)
 ```
-
 
 ### 2.8 Creating Interactive Map
 

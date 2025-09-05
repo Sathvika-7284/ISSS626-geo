@@ -64,7 +64,7 @@ head(mpsz, n=5)
 ## 1.3 Plotting the Geospatial Data
 
 ```{r}
-plot(mpsz)
+plot(mpsz, max.plot = 15)
 ```
 
 ```{r}
@@ -86,15 +86,15 @@ plot(st_geometry(preschool),
 ### 1.4.1 Assigning EPSG code to a simple feature data frame
 
 ```{r}
-st_crs(mpsz)
+st_transform(mpsz)
 ```
 
 ```{r}
-mpsz <- st_set_crs(mpsz, 3414)
+mpsz <- st_transform(mpsz, 3414)
 ```
 
 ```{r}
-st_crs(mpsz)
+st_transform(mpsz)
 ```
 
 ### 1.4.2 Transforming the projection of preschool from wgs84 to svy21
@@ -125,8 +125,7 @@ list(listings)
 
 ```{r}
 listings_sf <- st_as_sf(listings, 
-                       coords = c("longitude", "latitude"),
-                       crs=4326) %>%
+                       coords = c("longitude", "latitude"), crs=4326) %>%
   st_transform(crs = 3414)
 ```
 
@@ -201,7 +200,7 @@ ggplot(data=mpsz,
        aes(x= as.numeric(`PreSch Density`)))+
   geom_histogram(bins=20, 
                  color="black", 
-                 fill="light blue") +
+                 fill="orange") +
   labs(title = "Are pre-school even distributed in Singapore?",
        subtitle= "There are many planning subzones with a single pre-school, on the other hand, \nthere are seven planning subzones with at least 30 or more pre-schools",
       x = "Pre-school density (per km sq)",
@@ -215,7 +214,7 @@ ggplot(data=mpsz,
        aes(y = `PreSch Count`, 
            x= as.numeric(`PreSch Density`)))+
   geom_point(color="black", 
-             fill="light blue") +
+             fill="orange") +
   xlim(0, 40) +
   ylim(0, 40) +
   labs(title = "",

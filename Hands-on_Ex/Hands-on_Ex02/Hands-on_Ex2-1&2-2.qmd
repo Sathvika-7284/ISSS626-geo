@@ -1,0 +1,743 @@
+---
+title: "Hands-on Exercise 2-1"
+author: "Sathvika Subramanian"
+date: "Aug 23, 2025"
+date-modified: "last-modified"
+format: html
+execute: 
+ echo: true
+ eval: true
+ warning: false
+ freeze: true
+---
+
+# First-order Spatial Point Patterns Analysis Methods
+
+# 1.Installing and Loading the R packages
+
+```{r}
+pacman::p_load(sf, terra, spatstat, 
+               tmap, rvest, tidyverse)
+```
+
+# 2.Importing and Wrangling Geospatial Data Sets
+
+```{r}
+mpsz_sf <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaGEOJSON.geojson") %>% 
+  st_zm(drop = TRUE, what = "ZM") %>% st_transform(crs = 3414)
+```
+
+```{r}
+#| code-fold: show
+
+extract_kml_field <- function(html_text, field_name) {
+  if (is.na(html_text) || html_text == "") return(NA_character_)
+  
+  page <- read_html(html_text)
+  rows <- page %>% html_elements("tr")
+  
+  value <- rows %>%
+    keep(~ html_text2(html_element(.x, "th")) == field_name) %>%
+    html_element("td") %>%
+    html_text2()
+  
+  if (length(value) == 0) NA_character_ else value
+}
+```
+
+```{r}
+#| code-fold: show
+
+mpsz_sf <- mpsz_sf %>%
+  mutate(
+    REGION_N = map_chr(Description, extract_kml_field, "REGION_N"),
+    PLN_AREA_N = map_chr(Description, extract_kml_field, "PLN_AREA_N"),
+    SUBZONE_N = map_chr(Description, extract_kml_field, "SUBZONE_N"),
+    SUBZONE_C = map_chr(Description, extract_kml_field, "SUBZONE_C")
+  ) %>%
+  select(-Name, -Description) %>%
+  relocate(geometry, .after = last_col())
+```
+
+```{r}
+mpsz_cl <- mpsz_sf %>%
+  filter(SUBZONE_N != "SOUTHERN GROUP",
+         PLN_AREA_N != "WESTERN ISLANDS",
+         PLN_AREA_N != "NORTH-EASTERN ISLANDS")
+```
+
+```{r}
+write_rds(mpsz_cl, 
+          "data/mpsz_cl.rds")
+```
+
+```{r}
+childcare_sf <- st_read("data/ChildCareServices.geojson") %>% 
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 3414)
+```
+
+# 3. Mapping the geospatial data sets
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare_sf)+
+  tm_dots()
+```
+
+```{r}
+tmap_mode('plot')
+```
+
+# 4. Geospatial Data wrangling
+
+## 4.1 Converting sf data frames to ppp class
+
+```{r}
+childcare_ppp <- as.ppp(childcare_sf)
+```
+
+```{r}
+class(childcare_ppp)
+```
+
+```{r}
+summary(childcare_ppp)
+```
+
+## 4.2 Creating owin object
+
+```{r}
+sg_owin <- as.owin(mpsz_cl)
+```
+
+```{r}
+class(sg_owin)
+```
+
+```{r}
+plot(sg_owin)
+```
+
+## 4.3 Combining point events object and owin object
+
+```{r}
+childcareSG_ppp = childcare_ppp[sg_owin]
+```
+
+```{r}
+childcareSG_ppp
+```
+
+## 4.4 Clark-Evan Test for Nearest Neighbour Analysis
+
+### 4.4.1 Perform the Clark-Evans test without CSR
+
+```{r}
+clarkevans.test(childcareSG_ppp,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"))
+```
+
+### 4.4.2 Perform the Clark-Evans test with CSR
+
+```{r}
+clarkevans.test(childcareSG_ppp,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                method="MonteCarlo",
+                nsim=99)
+```
+
+## 4.5 Kernel Density Estimation Method
+
+### 4.5.1 Working with automatic bandwidth selection method
+
+```{r}
+kde_SG_diggle <- density(
+  childcareSG_ppp,
+  sigma=bw.diggle,
+  edge=TRUE,
+  kernel="gaussian") 
+```
+
+```{r}
+plot(kde_SG_diggle)
+```
+
+```{r}
+summary(kde_SG_diggle)
+```
+
+```{r}
+bw <- bw.diggle(childcareSG_ppp)
+bw
+```
+
+### 4.5.2 Rescalling KDE values
+
+```{r}
+childcareSG_ppp_km <- rescale.ppp(
+  childcareSG_ppp, 1000, "km")
+```
+
+```{r}
+kde_childcareSG_km <- density(childcareSG_ppp_km,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                              kernel="gaussian")
+```
+
+```{r}
+plot(kde_childcareSG_km)
+```
+
+## 4.5.3 Working with different automatic badwidth methods
+
+```{r}
+bw.CvL(childcareSG_ppp_km)
+```
+
+```{r}
+bw.scott(childcareSG_ppp_km)
+```
+
+```{r}
+bw.ppl(childcareSG_ppp_km)
+```
+
+```{r}
+bw.diggle(childcareSG_ppp_km)
+```
+
+```{r}
+kde_childcareSG.ppl <- density(childcareSG_ppp_km, 
+                               sigma=bw.ppl, 
+                               edge=TRUE,
+                               kernel="gaussian")
+par(mfrow=c(1,2))
+plot(kde_childcareSG_km, main = "bw.diggle")
+plot(kde_childcareSG.ppl, main = "bw.ppl")
+```
+
+### 4.5.4 Working with different kernel methods
+
+```{r}
+#| code-fold: show
+#| fig-width: 12
+
+par(mfrow=c(2,2))
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="gaussian"), 
+     main="Gaussian")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="epanechnikov"), 
+     main="Epanechnikov")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="quartic"), 
+     main="Quartic")
+plot(density(childcareSG_ppp_km, 
+             sigma=0.2959712, 
+             edge=TRUE, 
+             kernel="disc"), 
+     main="Disc")
+```
+
+## 4.6 Fixed and Adaptive KDE
+
+### 4.6.1 Computing KDE by using fixed bandwidth
+
+```{r}
+kde_childcareSG_fb <- density(childcareSG_ppp_km,
+                              sigma=0.6, 
+                              edge=TRUE,
+                              kernel="gaussian")
+plot(kde_childcareSG_fb)
+```
+
+### 4.6.2 Computing KDE by using adaptive bandwidth
+
+```{r}
+kde_childcareSG_ab <- adaptive.density(
+  childcareSG_ppp_km, 
+  method="kernel")
+plot(kde_childcareSG_ab)
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(kde_childcareSG_fb, main = "Fixed bandwidth")
+plot(kde_childcareSG_ab, main = "Adaptive bandwidth")
+```
+
+## 4.7 Plotting cartographic quality KDE map
+
+### 4.7.1 Converting gridded output into raster
+
+```{r}
+kde_childcareSG_bw_terra <- rast(kde_childcareSG_km)
+```
+
+```{r}
+class(kde_childcareSG_bw_terra)
+```
+
+```{r}
+kde_childcareSG_bw_terra
+```
+
+### 4.7.2 Assigning projection systems
+
+```{r}
+crs(kde_childcareSG_bw_terra) <- "EPSG:3414"
+```
+
+```{r}
+kde_childcareSG_bw_terra
+```
+
+### 4.7.3 Plotting KDE map with tmap
+
+```{r}
+#| code-fold: show
+
+tm_shape(kde_childcareSG_bw_terra) + 
+  tm_raster(col.scale = 
+              tm_scale_continuous(
+                values = "viridis"),
+            col.legend = tm_legend(
+            title = "Density values",
+            title.size = 0.7,
+            text.size = 0.7,
+            bg.color = "white",
+            bg.alpha = 0.7,
+            position = tm_pos_in(
+              "right", "bottom"),
+            frame = TRUE)) +
+  tm_graticules(labels.size = 0.7) +
+  tm_compass() +
+  tm_layout(scale = 1.0)
+```
+
+## 4.8 First Order SPPA at the Planning Subzone Level
+
+### 4.8.1 Geospatial data wrangling
+
+#### 4.8.1.1 Extracting study area
+
+```{r}
+pg <- mpsz_cl %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+tm <- mpsz_cl %>%
+  filter(PLN_AREA_N == "TAMPINES")
+ck <- mpsz_cl %>%
+  filter(PLN_AREA_N == "CHOA CHU KANG")
+jw <- mpsz_cl %>%
+  filter(PLN_AREA_N == "JURONG WEST")
+bk <- mpsz_cl %>%
+  filter(PLN_AREA_N == "BUKIT BATOK")
+```
+
+```{r}
+#| fig-width: 12
+
+par(mfrow=c(2,2))
+plot(st_geometry(pg), main = "Punggol")
+plot(st_geometry(tm), main = "Tampines")
+plot(st_geometry(ck), main = "Choa Chu Kang")
+plot(st_geometry(jw), main = "Jurong West")
+plot(st_geometry(bk), main = "Bukit Batok")
+```
+
+#### 4.8.1.2 Creating owin object
+
+```{r}
+pg_owin = as.owin(pg)
+tm_owin = as.owin(tm)
+ck_owin = as.owin(ck)
+jw_owin = as.owin(jw)
+bk_owin = as.owin(bk)
+```
+
+#### 4.8.1.3 Combining point events object and owin object
+
+```{r}
+childcare_pg_ppp = childcare_ppp[pg_owin]
+childcare_tm_ppp = childcare_ppp[tm_owin]
+childcare_ck_ppp = childcare_ppp[ck_owin]
+childcare_jw_ppp = childcare_ppp[jw_owin]
+childcare_bk_ppp = childcare_ppp[bk_owin]
+```
+
+```{r}
+childcare_pg_ppp.km = rescale.ppp(childcare_pg_ppp, 1000, "km")
+childcare_tm_ppp.km = rescale.ppp(childcare_tm_ppp, 1000, "km")
+childcare_ck_ppp.km = rescale.ppp(childcare_ck_ppp, 1000, "km")
+childcare_jw_ppp.km = rescale.ppp(childcare_jw_ppp, 1000, "km")
+childcare_bk_ppp.km = rescale.ppp(childcare_bk_ppp, 1000, "km")
+```
+
+```{r}
+#| fig-width: 12
+
+par(mfrow=c(2,2))
+plot(unmark(childcare_pg_ppp.km), 
+  main="Punggol")
+plot(unmark(childcare_tm_ppp.km), 
+  main="Tampines")
+plot(unmark(childcare_ck_ppp.km), 
+  main="Choa Chu Kang")
+plot(unmark(childcare_jw_ppp.km), 
+  main="Jurong West")
+plot(unmark(childcare_bk_ppp.km), 
+  main="Bukit Batok")
+```
+
+### 4.8.2 Clark and Evans Test
+
+#### 4.8.2.1 Choa Chu Kang planning area
+
+```{r}
+clarkevans.test(childcare_ck_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+#### 4.8.2.2 Tampines planning area
+
+```{r}
+clarkevans.test(childcare_tm_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+#### 4.8.2.3 Jurong west planning area
+
+```{r}
+clarkevans.test(childcare_jw_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+#### 4.8.2.4 Bukit Batok planning area
+
+```{r}
+clarkevans.test(childcare_bk_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+### 4.8.3 Computing KDE surfaces by planning area
+
+```{r}
+#| code-fold: show
+#| fig-width: 12
+
+par(mfrow=c(2,2))
+plot(density(childcare_pg_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Punggol")
+plot(density(childcare_tm_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Tempines")
+plot(density(childcare_ck_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Choa Chu Kang")
+plot(density(childcare_jw_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Jurong West")
+plot(density(childcare_bk_ppp.km, 
+             sigma=bw.diggle, 
+             edge=TRUE, 
+             kernel="gaussian"),
+     main="Bukit Batok")
+```
+
+
+# 2nd Order Spatial Point Patterns Analysis Methods
+
+# 1. Installing and Loading the R packages
+
+```{r}
+pacman::p_load(sf, spatstat, tmap, tidyverse)
+```
+
+# 2. Second-order Spatial Point Patterns Analysis
+
+## 2.1 Analysing Spatial Point Process Using G-Function
+
+### 2.1.1 Choa Chu Kang planning area
+
+#### 2.1.1.1 Computing G-function estimation
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+G_CK = Gest(childcare_ck_ppp, correction = "border")
+plot(G_CK, xlim=c(0,500))
+```
+
+#### 2.1.1.2 Performing Complete Spatial Randomness Test
+
+```{r}
+G_CK.csr <- envelope(childcare_ck_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_CK.csr)
+```
+
+### 2.1.2 Tampines planning area
+
+#### 2.1.2.1 Computing G-function estimation
+
+```{r}
+G_tm = Gest(childcare_tm_ppp, correction = "best")
+plot(G_tm)
+```
+
+#### 2.1.2.2 Performing Complete Spatial Randomness Test
+
+```{r}
+G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(G_tm.csr)
+```
+
+### 2.1.3 Punggol planning area
+
+#### 2.1.3.1 Computing G-function estimation
+
+```{r}
+G_pg = Gest(childcare_pg_ppp, correction = "best")
+plot(G_pg)
+```
+
+#### 2.1.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+G_pg.csr <- envelope(childcare_pg_ppp, Gest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(G_pg.csr)
+```
+
+
+## 2.2 Analysing Spatial Point Process Using F-Function
+
+### 2.2.1 Choa Chu Kang planning area
+
+#### 2.2.1.1 Computing F-function estimation
+
+```{r}
+F_CK = Fest(childcare_ck_ppp)
+plot(F_CK)
+```
+
+#### 2.2.1.2 Performing Complete Spatial Randomness Test
+
+```{r}
+F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
+```
+
+```{r}
+plot(F_CK.csr)
+```
+
+### 2.2.2 Tampines planning area
+
+#### 2.2.2.1 Computing F-function estimation
+
+```{r}
+F_tm = Fest(childcare_tm_ppp, correction = "best")
+plot(F_tm)
+```
+
+#### 2.2.2.2 Performing Complete Spatial Randomness Test
+
+```{r}
+F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(F_tm.csr)
+```
+
+### 2.2.3 Punngol planning area
+
+#### 2.2.3.1 Computing F-function estimation
+
+```{r}
+F_pg = Fest(childcare_pg_ppp, correction = "best")
+plot(F_pg)
+```
+
+#### 2.2.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+F_pg.csr <- envelope(childcare_pg_ppp, Fest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(F_pg.csr)
+```
+
+## 2.3 Analysing Spatial Point Process Using K-Function
+
+### 2.3.1 Choa Chu Kang planning area
+
+#### 2.3.1.1 Computing K-fucntion estimate
+
+```{r}
+K_ck = Kest(childcare_ck_ppp, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+```
+
+#### 2.3.1.2 Performing Complete Spatial Randomness Test
+
+```{r}
+K_ck.csr <- envelope(childcare_ck_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_ck.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
+
+### 2.3.2 Tampines planning area
+
+#### 2.3.2.1 Computing K-fucntion estimation
+
+```{r}
+K_tm = Kest(childcare_tm_ppp, correction = "Ripley")
+plot(K_tm, . -r ~ r, 
+     ylab= "K(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.3.2.2 Performing Complete Spatial Randomness Test
+
+```{r}
+K_tm.csr <- envelope(childcare_tm_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_tm.csr, . - r ~ r, 
+     xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
+
+### 2.3.3 Punngol planning area
+
+#### 2.3.3.1 Computing K-fucntion estimation
+
+```{r}
+K_pg = Kest(childcare_pg_ppp, correction = "Ripley")
+plot(K_pg, . -r ~ r, 
+     ylab= "K(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.3.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+K_pg.csr <- envelope(childcare_pg_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(K_pg.csr, . - r ~ r, 
+     xlab="d", ylab="K(d)-r", xlim=c(0,500))
+```
+
+## 2.4 Analysing Spatial Point Process Using L-Function
+
+### 2.4.1 Choa Chu Kang planning area
+
+#### 2.4.1.1 Computing L Fucntion estimation
+
+```{r}
+L_ck = Lest(childcare_ck_ppp, correction = "Ripley")
+plot(L_ck, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+```
+
+#### 2.4.1.2 Performing Complete Spatial Randomness Test
+
+```{r}
+L_ck.csr <- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_ck.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```
+
+### 2.4.2 Tampines planning area
+
+#### 2.4.2.1 Computing L-fucntion estimate
+
+```{r}
+L_tm = Lest(childcare_tm_ppp, correction = "Ripley")
+plot(L_tm, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.4.2.2 Performing Complete Spatial Randomness Test
+
+```{r}
+L_tm.csr <- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_tm.csr, . - r ~ r, 
+     xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
+
+### 2.4.3 Punngol planning area
+
+#### 2.4.3.1 Computing L-fucntion estimate
+
+```{r}
+L_pg = Lest(childcare_pg_ppp, correction = "Ripley")
+plot(L_pg, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)", 
+     xlim=c(0,1000))
+```
+
+#### 2.4.3.2 Performing Complete Spatial Randomness Test
+
+```{r}
+L_pg.csr <- envelope(childcare_pg_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_pg.csr, . - r ~ r, 
+     xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
+
