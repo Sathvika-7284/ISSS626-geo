@@ -86,15 +86,15 @@ plot(st_geometry(preschool),
 ### 1.4.1 Assigning EPSG code to a simple feature data frame
 
 ```{r}
-st_transform(mpsz)
+st_crs(mpsz)
 ```
 
 ```{r}
-mpsz <- st_transform(mpsz, 3414)
+mpsz <- st_set_crs(mpsz, 3414)
 ```
 
 ```{r}
-st_transform(mpsz)
+st_crs(mpsz)
 ```
 
 ### 1.4.2 Transforming the projection of preschool from wgs84 to svy21
@@ -102,6 +102,10 @@ st_transform(mpsz)
 ```{r}
 preschool <- st_transform(preschool, 
                               crs = 3414)
+```
+
+```{r}
+st_geometry(preschool)
 ```
 
 ```{r}
@@ -133,6 +137,12 @@ listings_sf <- st_as_sf(listings,
 glimpse(listings_sf)
 ```
 
+```{r}
+plot(st_geometry(mpsz))
+plot(st_geometry(listings_sf), add = TRUE)
+```
+
+
 ## 1.6 Geoprocessing with sf package
 
 ### 1.6.1 Use case 1: Land acquisition analysis
@@ -161,9 +171,36 @@ mpsz_selected <- mpsz %>%
 ```
 
 ```{r}
-#buffer_cycling_selected <- st_intersection(
-  #buffer_cycling, mpsz_selected)
+st_crs(buffer_cycling) 
 ```
+
+```{r}
+buffer_cycling_tf <- st_transform(buffer_cycling, 
+                              crs = 3414)
+```
+
+```{r}
+st_crs(buffer_cycling_tf) 
+```
+
+```{r}
+st_crs(mpsz_selected)
+```
+
+```{r}
+mpsz_selected_tf <- st_transform(mpsz_selected, 
+                              crs = 3414)
+```
+
+```{r}
+buffer_cycling_selected <- st_intersection(
+  buffer_cycling_tf, mpsz_selected_tf)
+```
+
+```{r}
+plot(buffer_cycling_selected)
+```
+
 
 ### 1.6.2 Use case 2: To determine the number of pre-schools by planning subzone
 
