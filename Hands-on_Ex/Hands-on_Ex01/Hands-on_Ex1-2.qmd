@@ -307,6 +307,7 @@ tmap_style("white")
 
 ```{r}
 #| code-fold: show
+#| fig-width: 12
 
 tm_shape(mpsz_pop2024) + 
   tm_polygons(
@@ -326,6 +327,7 @@ tm_shape(mpsz_pop2024) +
 
 ```{r}
 #| code-fold: show
+#| fig-width: 12
 
 youngmap <- tm_shape(mpsz_pop2024)+ 
   tm_polygons(fill = "YOUNG",
