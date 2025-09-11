@@ -28,11 +28,123 @@
     "text": "mpsz &lt;- st_read(\"data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml\")\n\nReading layer `URA_MP19_SUBZONE_NO_SEA_PL' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Hands-on_Ex\\Hands-on_Ex01\\data\\geospatial\\MasterPlan2019SubzoneBoundaryNoSeaKML.kml' \n  using driver `KML'\nSimple feature collection with 332 features and 2 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775\nGeodetic CRS:  WGS 84\n\n\n\n\n\n\nCode\nextract_kml_field &lt;- function(html_text, field_name) {\n  if (is.na(html_text) || html_text == \"\") return(NA_character_)\n  \n  page &lt;- read_html(html_text)\n  rows &lt;- page %&gt;% html_elements(\"tr\")\n  \n  value &lt;- rows %&gt;%\n    keep(~ html_text2(html_element(.x, \"th\")) == field_name) %&gt;%\n    html_element(\"td\") %&gt;%\n    html_text2()\n  \n  if (length(value) == 0) NA_character_ else value\n}\n\n\n\n\nCode\nmpsz &lt;- mpsz %&gt;%\n  mutate(\n    REGION_N = map_chr(Description, extract_kml_field, \"REGION_N\"),\n    PLN_AREA_N = map_chr(Description, extract_kml_field, \"PLN_AREA_N\"),\n    SUBZONE_N = map_chr(Description, extract_kml_field, \"SUBZONE_N\"),\n    SUBZONE_C = map_chr(Description, extract_kml_field, \"SUBZONE_C\")\n  ) %&gt;%\n  select(-Name, -Description) %&gt;%\n  relocate(geometry, .after = last_col())\n\n\n\nmpsz\n\nSimple feature collection with 332 features and 4 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775\nGeodetic CRS:  WGS 84\nFirst 10 features:\n         REGION_N    PLN_AREA_N           SUBZONE_N SUBZONE_C\n1  CENTRAL REGION   BUKIT MERAH          DEPOT ROAD    BMSZ12\n2  CENTRAL REGION   BUKIT MERAH         BUKIT MERAH    BMSZ02\n3  CENTRAL REGION        OUTRAM           CHINATOWN    OTSZ03\n4  CENTRAL REGION DOWNTOWN CORE             PHILLIP    DTSZ04\n5  CENTRAL REGION DOWNTOWN CORE       RAFFLES PLACE    DTSZ05\n6  CENTRAL REGION        OUTRAM        CHINA SQUARE    OTSZ04\n7  CENTRAL REGION   BUKIT MERAH         TIONG BAHRU    BMSZ10\n8  CENTRAL REGION DOWNTOWN CORE    BAYFRONT SUBZONE    DTSZ12\n9  CENTRAL REGION   BUKIT MERAH TIONG BAHRU STATION    BMSZ04\n10 CENTRAL REGION DOWNTOWN CORE       CLIFFORD PIER    DTSZ06\n                         geometry\n1  MULTIPOLYGON (((103.8145 1....\n2  MULTIPOLYGON (((103.8221 1....\n3  MULTIPOLYGON (((103.8438 1....\n4  MULTIPOLYGON (((103.8496 1....\n5  MULTIPOLYGON (((103.8525 1....\n6  MULTIPOLYGON (((103.8486 1....\n7  MULTIPOLYGON (((103.8311 1....\n8  MULTIPOLYGON (((103.8589 1....\n9  MULTIPOLYGON (((103.8283 1....\n10 MULTIPOLYGON (((103.8552 1....\n\n\n\n\n\n\n\npopdata &lt;- read_csv(\"data/aspatial/respopagesextod2024.csv\")\n\n\n\n\n\n\n\n\nCode\npopdata2024 &lt;- popdata %&gt;%\n  group_by(PA, SZ, AG) %&gt;%\n  summarise(`POP` = sum(`Pop`)) %&gt;%\n  ungroup()%&gt;%\n  pivot_wider(names_from=AG, \n              values_from=POP) %&gt;%\n  mutate(YOUNG = rowSums(.[3:6])\n         +rowSums(.[12])) %&gt;%\nmutate(`ECONOMY ACTIVE` = rowSums(.[7:11])+\nrowSums(.[13:15]))%&gt;%\nmutate(`AGED`=rowSums(.[16:21])) %&gt;%\nmutate(`TOTAL`=rowSums(.[3:21])) %&gt;%  \nmutate(`DEPENDENCY` = (`YOUNG` + `AGED`)\n/`ECONOMY ACTIVE`) %&gt;%\n  select(`PA`, `SZ`, `YOUNG`, \n       `ECONOMY ACTIVE`, `AGED`, \n       `TOTAL`, `DEPENDENCY`)\n\n\n\n\n\n\npopdata2024 &lt;- popdata2024 %&gt;%\n  mutate_at(.vars = vars(PA, SZ), \n          .funs = list(toupper)) %&gt;%\n  filter(`ECONOMY ACTIVE` &gt; 0)\n\n\nmpsz_pop2024 &lt;- left_join(mpsz, popdata2024,\n                          by = c(\"SUBZONE_N\" = \"SZ\"))\n\n\nwrite_rds(mpsz_pop2024, \"data/rds/mpsz_pop2024.rds\")\n\n\n\n\n\n\n\n\ntmap_mode(\"plot\")\nqtm(shp = mpsz_pop2024, \n    fill = \"DEPENDENCY\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\", \n                n = 5,\n                values = \"brewer.blues\"),\n              fill.legend = tm_legend(\n                title = \"Dependency ratio\")) +\n  tm_title(\"Distribution of Dependency Ratio by planning subzone\") +\n  tm_layout(frame = TRUE) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scalebar() +\n  tm_grid(alpha =0.2) +\n  tm_credits(\"Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\\n and Population data from Department of Statistics DOS\", \n             position = c(\"left\", \"bottom\"))\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons()\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024)+\n  tm_polygons(fill = \"DEPENDENCY\")\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024)+\n  tm_fill(\"DEPENDENCY\")\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024)+\n  tm_fill(\"DEPENDENCY\") +\n  tm_borders()\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024)+\n  tm_fill(\"DEPENDENCY\") +\n  tm_borders(col = \"grey60\",\n             lwd = 0.1,\n             lty = \"dashed\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5)) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"equal\",\n                n = 5)) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\n\n\n\nsummary(mpsz_pop2024$DEPENDENCY)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's \n 0.1905  0.7450  0.8377  0.8738  0.9366 12.7500      94 \n\n\n\ntm_shape(mpsz_pop2024)+\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00))) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5,\n                values = \"brewer.greens\")) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5,\n                values = \"-brewer.greens\")) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5)) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scalebar() +\n  tm_grid(lwd = 0.1, alpha = 0.2) +\n  tm_credits(\"Source: data.gov.sg & singstat\",\n             position = c(\"left\", \"bottom\"))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5),\n              fill.legend = tm_legend(\n                title = \"Dependency ratio\")) +\n  tm_pos_auto_in() +\n  tm_borders(fill_alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scalebar() +\n  tm_grid(lwd = 0.1, alpha = 0.2) +\n  tm_credits(\"Source: data.gov.sg & singstat\",\n             position = c(\"left\", \"bottom\"))\n\n\n\n\n\n\n\n\n\n\n\n\n\ntm_shape(mpsz_pop2024) +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5,\n                values = \"-brewer.greens\")) + \n  tm_borders(fill_alpha = 0.5) + \n  tmap_style(\"natural\")\n\n\n\n\n\n\n\n\n\ntmap_style(\"white\")\n\n\n\n\n\n\n\n\n\n\nCode\ntm_shape(mpsz_pop2024) + \n  tm_polygons(\n    fill = c(\"YOUNG\", \"AGED\"),\n    fill.legend = \n      tm_legend(position = tm_pos_in(\n        \"right\", \"bottom\")),\n    fill.scale = tm_scale_intervals(\n      style = \"equal\", \n      n = 5,\n      values = \"brewer.blues\")) +\n  tm_borders(fill_alpha = 0.5) +\n  tmap_style(\"natural\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nyoungmap &lt;- tm_shape(mpsz_pop2024)+ \n  tm_polygons(fill = \"YOUNG\",\n              fill.legend = tm_legend(\n                position = tm_pos_in(\n                  \"right\", \"bottom\"),\n                  item.height = 0.8),\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\", \n                values = \"brewer.blues\")) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_title(\"Distribution of young population\")\n                \nagedmap &lt;- tm_shape(mpsz_pop2024)+ \n  tm_polygons(fill = \"AGED\",\n              fill.legend = tm_legend(\n                position = tm_pos_in(\n                  \"right\", \"bottom\"),\n                item.height = 0.8),\n              fill.scale = tm_scale_intervals(\n              style = \"quantile\", \n              values = \"brewer.blues\")) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_title(\"Distribution of aged population\")\n\ntmap_arrange(youngmap, agedmap, asp=1, ncol=2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\ntm_shape(mpsz_pop2024) +\n  tm_fill(fill = \"DEPENDENCY\",\n          fill.scale = tm_scale_intervals(\n            style = \"quantile\",\n            values = \"brewer.blues\")) + \n  tm_facets(by = \"REGION_N\",\n            nrow = 2, \n            ncols = 3,\n            free.coords=TRUE, \n            drop.units=TRUE) +\n  tm_layout(legend.show = TRUE,\n            title.position = c(\"center\", \"center\"), \n            title.size = 20) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nmpsz_pop2024 %&gt;%\n  filter(REGION_N == \"CENTRAL REGION\") %&gt;%\n  tm_shape() +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\", \n                values = \"brewer.greens\"),\n              fill.legend = tm_legend()) +\n  tm_borders(fill_alpha = 0.5)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nmpsz_pop2024 %&gt;%\n  filter(REGION_N == \"CENTRAL REGION\") %&gt;%\n  tm_shape() +\n  tm_polygons(fill = \"DEPENDENCY\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\", \n                values = \"brewer.greens\"),\n              fill.legend = tm_legend(),\n              fill.chart = tm_chart_box()) +\n  tm_borders() +\n  tm_layout(asp = 0.8)\n\n\n\n\n\n\n\n\n\n\n\nCode\nmpsz_selected &lt;- mpsz_pop2024 %&gt;%\n  filter(REGION_N == \"CENTRAL REGION\")\n\nstats &lt;- boxplot.stats(mpsz_selected$DEPENDENCY)\n\noutlier_vals &lt;- stats$out\n\noutlier_sf &lt;- mpsz_selected[mpsz_selected$DEPENDENCY %in% outlier_vals, ]\n\ntm_shape(mpsz_selected) +\n  tm_polygons(fill = \"DEPENDENCY\",\n          fill.scale = tm_scale_intervals(\n            style = \"quantile\", \n            values = \"brewer.blues\"),\n          fill.legend = tm_legend(),\n          fill.chart = tm_chart_box()) +\n  tm_borders(fill_alpha = 0.5) +\ntm_shape(outlier_sf) +\n  tm_borders(col = \"red\", lwd = 2) +\n  tm_text(\"SUBZONE_N\", col = \"red\", size = 0.7) +\n  tm_layout(asp = 0.8)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCode\nregion_selected &lt;- mpsz_pop2024 %&gt;%\n  filter(REGION_N == \"CENTRAL REGION\")\nregion_bbox &lt;- st_bbox(region_selected)\n\nstats &lt;- boxplot.stats(region_selected$DEPENDENCY)\noutlier_vals &lt;- stats$out\noutlier_sf &lt;- region_selected[region_selected$DEPENDENCY %in% outlier_vals, ]\n\ntmap_mode(\"view\")\ntm_shape(region_selected, \n         bbox = region_bbox) +\n  tm_fill(\"DEPENDENCY\",\n          id = \"SUBZONE_N\",\n          popup.vars = c(\n            \"Name\" = \"SUBZONE_N\", \n            \"Dependency\" = \"DEPENDENCY\")) +\n  tm_borders() +\n  tm_shape(outlier_sf) +\n  tm_borders(col = \"red\", lwd = 2)\n\n\n\n\n\n\n\n\ntmap_mode(\"plot\")\n\n\nregion_selected &lt;- mpsz_pop2024 %&gt;%\n  filter(REGION_N == \"CENTRAL REGION\")\nregion_bbox &lt;- st_bbox(region_selected)\n\nstats &lt;- boxplot.stats(region_selected$DEPENDENCY)\noutlier_vals &lt;- stats$out\noutlier_sf &lt;- region_selected[region_selected$DEPENDENCY %in% outlier_vals, ]\n\ntmap_mode(\"view\")\n\ntm_shape(region_selected, \n         bbox = region_bbox) +\n  tm_fill(\"DEPENDENCY\",\n          id = \"SUBZONE_N\",\n          popup.vars = c(\n            \"Name\" = \"SUBZONE_N\", \n            \"Dependency\" = \"DEPENDENCY\")) +\n  tm_borders() +\n  tm_shape(outlier_sf) +\n  tm_borders(col = \"red\", lwd = 2) +\n  tm_view(set_zoom_limits = c(12,14))\n\n\n\n\n\n\n\ntmap_mode(\"plot\")"
   },
   {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#importing-study-area",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#importing-study-area",
+    "title": "Hands-on Exercise 3",
+    "section": "2.1 Importing study area",
+    "text": "2.1 Importing study area\n\nkbb &lt;- st_read(dsn=\"data/data/rawdata\",\n               layer = \"Kepulauan_Bangka_Belitung\") \n\nReading layer `Kepulauan_Bangka_Belitung' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Hands-on_Ex\\Hands-on-Ex03\\data\\data\\rawdata' \n  using driver `ESRI Shapefile'\nSimple feature collection with 297 features and 26 fields\nGeometry type: POLYGON\nDimension:     XYZ\nBounding box:  xmin: 105.1085 ymin: -3.116593 xmax: 106.8488 ymax: -1.501603\nz_range:       zmin: 0 zmax: 0\nGeodetic CRS:  WGS 84\n\n\n\nkbb_sf &lt;- st_read(dsn=\"data/data/rawdata\",\n               layer = \"Kepulauan_Bangka_Belitung\") %&gt;%\n  st_union() %&gt;%\n  st_zm(drop = TRUE, what = \"ZM\") %&gt;%\n  st_transform(crs = 32748)\n\nReading layer `Kepulauan_Bangka_Belitung' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Hands-on_Ex\\Hands-on-Ex03\\data\\data\\rawdata' \n  using driver `ESRI Shapefile'\nSimple feature collection with 297 features and 26 fields\nGeometry type: POLYGON\nDimension:     XYZ\nBounding box:  xmin: 105.1085 ymin: -3.116593 xmax: 106.8488 ymax: -1.501603\nz_range:       zmin: 0 zmax: 0\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#converting-owin",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#converting-owin",
+    "title": "Hands-on Exercise 3",
+    "section": "2.2 Converting OWIN",
+    "text": "2.2 Converting OWIN\n\nkbb_owin &lt;- as.owin(kbb_sf)\nkbb_owin\n\nwindow: polygonal boundary\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n\n\n\nclass(kbb_owin)\n\n[1] \"owin\""
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#overall-plot",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#overall-plot",
+    "title": "Hands-on Exercise 3",
+    "section": "4.1 Overall plot",
+    "text": "4.1 Overall plot\n\ntm_shape(kbb_sf)+\n  tm_polygons() +\ntm_shape(fire_sf) +\n  tm_dots()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#visuaising-geographic-distribution-of-forest-fires-by-month",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#visuaising-geographic-distribution-of-forest-fires-by-month",
+    "title": "Hands-on Exercise 3",
+    "section": "4.2 Visuaising geographic distribution of forest fires by month",
+    "text": "4.2 Visuaising geographic distribution of forest fires by month\n\ntm_shape(kbb_sf)+\n  tm_polygons() +\ntm_shape(fire_sf) +\n  tm_dots(size = 0.1) +\ntm_facets(by=\"Month_fac\", \n            free.coords=FALSE, \n            drop.units = TRUE)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#extracting-forest-fires-by-month",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#extracting-forest-fires-by-month",
+    "title": "Hands-on Exercise 3",
+    "section": "5.1 Extracting forest fires by month",
+    "text": "5.1 Extracting forest fires by month\n\nfire_month &lt;- fire_sf %&gt;% \n  select(Month_num)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp",
+    "title": "Hands-on Exercise 3",
+    "section": "5.2 Creating ppp",
+    "text": "5.2 Creating ppp\n\nfire_month_ppp &lt;- as.ppp(fire_month)\nfire_month_ppp\n\nMarked planar point pattern: 741 points\nmarks are numeric, of storage type  'double'\nwindow: rectangle = [521564.1, 695791] x [9658137, 9828767] units\n\n\n\nsummary(fire_month_ppp)\n\nMarked planar point pattern:  741 points\nAverage intensity 2.49258e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  1.000   8.000   9.000   8.579  10.000  12.000 \n\nWindow: rectangle = [521564.1, 695791] x [9658137, 9828767] units\n                    (174200 x 170600 units)\nWindow area = 29728200000 square units\n\n\n\nany(duplicated(fire_month_ppp))\n\n[1] FALSE"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object",
+    "title": "Hands-on Exercise 3",
+    "section": "5.3 Including Owin object",
+    "text": "5.3 Including Owin object\n\nfire_month_owin &lt;- fire_month_ppp[kbb_owin]\nsummary(fire_month_owin)\n\nMarked planar point pattern:  741 points\nAverage intensity 6.42469e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  1.000   8.000   9.000   8.579  10.000  12.000 \n\nWindow: polygonal boundary\nsingle connected closed polygon with 47493 vertices\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n                     (193500 x 178600 units)\nWindow area = 11533600000 square units\nFraction of frame area: 0.334\n\n\n\nplot(fire_month_owin)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde",
+    "title": "Hands-on Exercise 3",
+    "section": "5.4 Computing Spatio-temporal KDE",
+    "text": "5.4 Computing Spatio-temporal KDE\n\nst_kde &lt;- spattemp.density(fire_month_owin)\nsummary(st_kde)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 15102.47 (spatial)\n  lambda = 0.0304 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [1, 12]\n\nEvaluation\n  128 x 128 x 12 trivariate lattice\n  Density range: [1.233458e-27, 8.202976e-10]"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-spatio-temporal-kde-object",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-spatio-temporal-kde-object",
+    "title": "Hands-on Exercise 3",
+    "section": "5.5 Plotting the spatio-temporal KDE object",
+    "text": "5.5 Plotting the spatio-temporal KDE object\n\ntims &lt;- c(7,8,9,10,11,12)\npar(mfcol=c(2,3))\nfor(i in tims){ \n  plot(st_kde, i, \n       override.par=FALSE, \n       fix.range=TRUE, \n       main=paste(\"KDE at month\",i))\n}"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp-object",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp-object",
+    "title": "Hands-on Exercise 3",
+    "section": "6.1 Creating ppp object",
+    "text": "6.1 Creating ppp object\n\nfire_yday_ppp &lt;- fire_sf %&gt;% \n  select(DayofYear) %&gt;%\n  as.ppp()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object-1",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object-1",
+    "title": "Hands-on Exercise 3",
+    "section": "6.2 Including Owin object",
+    "text": "6.2 Including Owin object\n\nfire_yday_owin &lt;- fire_yday_ppp[kbb_owin]\nsummary(fire_yday_owin)\n\nMarked planar point pattern:  741 points\nAverage intensity 6.42469e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n   10.0   213.0   258.0   245.9   287.0   352.0 \n\nWindow: polygonal boundary\nsingle connected closed polygon with 47493 vertices\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n                     (193500 x 178600 units)\nWindow area = 11533600000 square units\nFraction of frame area: 0.334"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-1",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-1",
+    "title": "Hands-on Exercise 3",
+    "section": "6.3 Computing Spatio-temporal KDE",
+    "text": "6.3 Computing Spatio-temporal KDE\n\nkde_yday &lt;- spattemp.density(\n  fire_yday_owin)\nsummary(kde_yday)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 15102.47 (spatial)\n  lambda = 6.3198 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [10, 352]\n\nEvaluation\n  128 x 128 x 343 trivariate lattice\n  Density range: [3.959516e-27, 2.751287e-12]\n\n\n\nplot(kde_yday)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-2",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-2",
+    "title": "Hands-on Exercise 3",
+    "section": "7.1 Computing spatio-temporal KDE",
+    "text": "7.1 Computing spatio-temporal KDE\n\nkde_yday &lt;- spattemp.density(fire_yday_owin,\n                             h = 9000,\n                             lambda = 19)\nsummary(kde_yday)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 9000 (spatial)\n  lambda = 19 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [10, 352]\n\nEvaluation\n  128 x 128 x 343 trivariate lattice\n  Density range: [2.001642e-19, 2.445724e-12]"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-output-spatio-temporal-kde",
+    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-output-spatio-temporal-kde",
+    "title": "Hands-on Exercise 3",
+    "section": "7.2 Plotting the output spatio-temporal KDE",
+    "text": "7.2 Plotting the output spatio-temporal KDE\n\nplot(kde_yday)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/data/data/rawdata/Kepulauan_Bangka_Belitung.html",
+    "href": "Hands-on_Ex/Hands-on-Ex03/data/data/rawdata/Kepulauan_Bangka_Belitung.html",
+    "title": "ISSS626",
+    "section": "",
+    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     \n\n\n       GEOGCRS[“WGS 84”,ENSEMBLE[“World Geodetic System 1984 ensemble”,MEMBER[“World Geodetic System 1984 (Transit)”],MEMBER[“World Geodetic System 1984 (G730)”],MEMBER[“World Geodetic System 1984 (G873)”],MEMBER[“World Geodetic System 1984 (G1150)”],MEMBER[“World Geodetic System 1984 (G1674)”],MEMBER[“World Geodetic System 1984 (G1762)”],MEMBER[“World Geodetic System 1984 (G2139)”],MEMBER[“World Geodetic System 1984 (G2296)”],ELLIPSOID[“WGS 84”,6378137,298.257223563,LENGTHUNIT[“metre”,1]],ENSEMBLEACCURACY[2.0]],PRIMEM[“Greenwich”,0,ANGLEUNIT[“degree”,0.0174532925199433]],CS[ellipsoidal,2],AXIS[“geodetic latitude (Lat)”,north,ORDER[1],ANGLEUNIT[“degree”,0.0174532925199433]],AXIS[“geodetic longitude (Lon)”,east,ORDER[2],ANGLEUNIT[“degree”,0.0174532925199433]],USAGE[SCOPE[“Horizontal component of 3D system.”],AREA[“World.”],BBOX[-90,-180,90,180]],ID[“EPSG”,4326]] +proj=longlat +datum=WGS84 +no_defs 3452 4326 EPSG:4326 WGS 84 longlat EPSG:7030 true"
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on-Ex03/data/geospatial/SMEs.html",
+    "href": "Hands-on_Ex/Hands-on-Ex03/data/geospatial/SMEs.html",
+    "title": "ISSS626",
+    "section": "",
+    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     dataset\n\n\n                  0 0     false"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex1-1.html#importing-geospatial-data",
@@ -166,117 +278,5 @@
     "title": "Hands-on Exercise 2-1 & 2-2",
     "section": "2.4 Analysing Spatial Point Process Using L-Function",
     "text": "2.4 Analysing Spatial Point Process Using L-Function\n\n2.4.1 Choa Chu Kang planning area\n\n2.4.1.1 Computing L Fucntion estimation\n\nL_ck = Lest(childcare_ck_ppp, correction = \"Ripley\")\nplot(L_ck, . -r ~ r, \n     ylab= \"L(d)-r\", xlab = \"d(m)\")\n\n\n\n\n\n\n\n\n\n\n2.4.1.2 Performing Complete Spatial Randomness Test\n\nL_ck.csr &lt;- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)\n\nGenerating 99 simulations of CSR  ...\n1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,\n21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,\n41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,\n61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,\n81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, \n99.\n\nDone.\n\n\n\nplot(L_ck.csr, . - r ~ r, xlab=\"d\", ylab=\"L(d)-r\")\n\n\n\n\n\n\n\n\n\n\n\n2.4.2 Tampines planning area\n\n2.4.2.1 Computing L-fucntion estimate\n\nL_tm = Lest(childcare_tm_ppp, correction = \"Ripley\")\nplot(L_tm, . -r ~ r, \n     ylab= \"L(d)-r\", xlab = \"d(m)\", \n     xlim=c(0,1000))\n\n\n\n\n\n\n\n\n\n\n2.4.2.2 Performing Complete Spatial Randomness Test\n\nL_tm.csr &lt;- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)\n\nGenerating 99 simulations of CSR  ...\n1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,\n21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,\n41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,\n61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,\n81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, \n99.\n\nDone.\n\n\n\nplot(L_tm.csr, . - r ~ r, \n     xlab=\"d\", ylab=\"L(d)-r\", xlim=c(0,500))\n\n\n\n\n\n\n\n\n\n\n\n2.4.3 Punngol planning area\n\n2.4.3.1 Computing L-fucntion estimate\n\nL_pg = Lest(childcare_pg_ppp, correction = \"Ripley\")\nplot(L_pg, . -r ~ r, \n     ylab= \"L(d)-r\", xlab = \"d(m)\", \n     xlim=c(0,1000))\n\n\n\n\n\n\n\n\n\n\n2.4.3.2 Performing Complete Spatial Randomness Test\n\nL_pg.csr &lt;- envelope(childcare_pg_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)\n\nGenerating 99 simulations of CSR  ...\n1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,\n21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,\n41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,\n61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,\n81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, \n99.\n\nDone.\n\n\n\nplot(L_pg.csr, . - r ~ r, \n     xlab=\"d\", ylab=\"L(d)-r\", xlim=c(0,500))"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#importing-study-area",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#importing-study-area",
-    "title": "Hands-on Exercise 3",
-    "section": "2.1 Importing study area",
-    "text": "2.1 Importing study area\n\nkbb &lt;- st_read(dsn=\"data/data/rawdata\",\n               layer = \"Kepulauan_Bangka_Belitung\") \n\nReading layer `Kepulauan_Bangka_Belitung' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Hands-on_Ex\\Hands-on-Ex03\\data\\data\\rawdata' \n  using driver `ESRI Shapefile'\nSimple feature collection with 297 features and 26 fields\nGeometry type: POLYGON\nDimension:     XYZ\nBounding box:  xmin: 105.1085 ymin: -3.116593 xmax: 106.8488 ymax: -1.501603\nz_range:       zmin: 0 zmax: 0\nGeodetic CRS:  WGS 84\n\n\n\nkbb_sf &lt;- st_read(dsn=\"data/data/rawdata\",\n               layer = \"Kepulauan_Bangka_Belitung\") %&gt;%\n  st_union() %&gt;%\n  st_zm(drop = TRUE, what = \"ZM\") %&gt;%\n  st_transform(crs = 32748)\n\nReading layer `Kepulauan_Bangka_Belitung' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Hands-on_Ex\\Hands-on-Ex03\\data\\data\\rawdata' \n  using driver `ESRI Shapefile'\nSimple feature collection with 297 features and 26 fields\nGeometry type: POLYGON\nDimension:     XYZ\nBounding box:  xmin: 105.1085 ymin: -3.116593 xmax: 106.8488 ymax: -1.501603\nz_range:       zmin: 0 zmax: 0\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#converting-owin",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#converting-owin",
-    "title": "Hands-on Exercise 3",
-    "section": "2.2 Converting OWIN",
-    "text": "2.2 Converting OWIN\n\nkbb_owin &lt;- as.owin(kbb_sf)\nkbb_owin\n\nwindow: polygonal boundary\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n\n\n\nclass(kbb_owin)\n\n[1] \"owin\""
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#overall-plot",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#overall-plot",
-    "title": "Hands-on Exercise 3",
-    "section": "4.1 Overall plot",
-    "text": "4.1 Overall plot\n\ntm_shape(kbb_sf)+\n  tm_polygons() +\ntm_shape(fire_sf) +\n  tm_dots()"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#visuaising-geographic-distribution-of-forest-fires-by-month",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#visuaising-geographic-distribution-of-forest-fires-by-month",
-    "title": "Hands-on Exercise 3",
-    "section": "4.2 Visuaising geographic distribution of forest fires by month",
-    "text": "4.2 Visuaising geographic distribution of forest fires by month\n\ntm_shape(kbb_sf)+\n  tm_polygons() +\ntm_shape(fire_sf) +\n  tm_dots(size = 0.1) +\ntm_facets(by=\"Month_fac\", \n            free.coords=FALSE, \n            drop.units = TRUE)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#extracting-forest-fires-by-month",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#extracting-forest-fires-by-month",
-    "title": "Hands-on Exercise 3",
-    "section": "5.1 Extracting forest fires by month",
-    "text": "5.1 Extracting forest fires by month\n\nfire_month &lt;- fire_sf %&gt;% \n  select(Month_num)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp",
-    "title": "Hands-on Exercise 3",
-    "section": "5.2 Creating ppp",
-    "text": "5.2 Creating ppp\n\nfire_month_ppp &lt;- as.ppp(fire_month)\nfire_month_ppp\n\nMarked planar point pattern: 741 points\nmarks are numeric, of storage type  'double'\nwindow: rectangle = [521564.1, 695791] x [9658137, 9828767] units\n\n\n\nsummary(fire_month_ppp)\n\nMarked planar point pattern:  741 points\nAverage intensity 2.49258e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  1.000   8.000   9.000   8.579  10.000  12.000 \n\nWindow: rectangle = [521564.1, 695791] x [9658137, 9828767] units\n                    (174200 x 170600 units)\nWindow area = 29728200000 square units\n\n\n\nany(duplicated(fire_month_ppp))\n\n[1] FALSE"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object",
-    "title": "Hands-on Exercise 3",
-    "section": "5.3 Including Owin object",
-    "text": "5.3 Including Owin object\n\nfire_month_owin &lt;- fire_month_ppp[kbb_owin]\nsummary(fire_month_owin)\n\nMarked planar point pattern:  741 points\nAverage intensity 6.42469e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n  1.000   8.000   9.000   8.579  10.000  12.000 \n\nWindow: polygonal boundary\nsingle connected closed polygon with 47493 vertices\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n                     (193500 x 178600 units)\nWindow area = 11533600000 square units\nFraction of frame area: 0.334\n\n\n\nplot(fire_month_owin)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde",
-    "title": "Hands-on Exercise 3",
-    "section": "5.4 Computing Spatio-temporal KDE",
-    "text": "5.4 Computing Spatio-temporal KDE\n\nst_kde &lt;- spattemp.density(fire_month_owin)\nsummary(st_kde)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 15102.47 (spatial)\n  lambda = 0.0304 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [1, 12]\n\nEvaluation\n  128 x 128 x 12 trivariate lattice\n  Density range: [1.233458e-27, 8.202976e-10]"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-spatio-temporal-kde-object",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-spatio-temporal-kde-object",
-    "title": "Hands-on Exercise 3",
-    "section": "5.5 Plotting the spatio-temporal KDE object",
-    "text": "5.5 Plotting the spatio-temporal KDE object\n\ntims &lt;- c(7,8,9,10,11,12)\npar(mfcol=c(2,3))\nfor(i in tims){ \n  plot(st_kde, i, \n       override.par=FALSE, \n       fix.range=TRUE, \n       main=paste(\"KDE at month\",i))\n}"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp-object",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#creating-ppp-object",
-    "title": "Hands-on Exercise 3",
-    "section": "6.1 Creating ppp object",
-    "text": "6.1 Creating ppp object\n\nfire_yday_ppp &lt;- fire_sf %&gt;% \n  select(DayofYear) %&gt;%\n  as.ppp()"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object-1",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#including-owin-object-1",
-    "title": "Hands-on Exercise 3",
-    "section": "6.2 Including Owin object",
-    "text": "6.2 Including Owin object\n\nfire_yday_owin &lt;- fire_yday_ppp[kbb_owin]\nsummary(fire_yday_owin)\n\nMarked planar point pattern:  741 points\nAverage intensity 6.42469e-08 points per square unit\n\nCoordinates are given to 10 decimal places\n\nmarks are numeric, of type 'double'\nSummary:\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n   10.0   213.0   258.0   245.9   287.0   352.0 \n\nWindow: polygonal boundary\nsingle connected closed polygon with 47493 vertices\nenclosing rectangle: [512066.8, 705559.4] x [9655398, 9834006] units\n                     (193500 x 178600 units)\nWindow area = 11533600000 square units\nFraction of frame area: 0.334"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-1",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-1",
-    "title": "Hands-on Exercise 3",
-    "section": "6.3 Computing Spatio-temporal KDE",
-    "text": "6.3 Computing Spatio-temporal KDE\n\nkde_yday &lt;- spattemp.density(\n  fire_yday_owin)\nsummary(kde_yday)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 15102.47 (spatial)\n  lambda = 6.3198 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [10, 352]\n\nEvaluation\n  128 x 128 x 343 trivariate lattice\n  Density range: [3.959516e-27, 2.751287e-12]\n\n\n\nplot(kde_yday)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-2",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#computing-spatio-temporal-kde-2",
-    "title": "Hands-on Exercise 3",
-    "section": "7.1 Computing spatio-temporal KDE",
-    "text": "7.1 Computing spatio-temporal KDE\n\nkde_yday &lt;- spattemp.density(fire_yday_owin,\n                             h = 9000,\n                             lambda = 19)\nsummary(kde_yday)\n\nSpatiotemporal Kernel Density Estimate\n\nBandwidths\n  h = 9000 (spatial)\n  lambda = 19 (temporal)\n\nNo. of observations\n  741 \n\nSpatial bound\n  Type: polygonal\n  2D enclosure: [512066.8, 705559.4] x [9655398, 9834006]\n\nTemporal bound\n  [10, 352]\n\nEvaluation\n  128 x 128 x 343 trivariate lattice\n  Density range: [2.001642e-19, 2.445724e-12]"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-output-spatio-temporal-kde",
-    "href": "Hands-on_Ex/Hands-on-Ex03/Hands-on_Ex3.html#plotting-the-output-spatio-temporal-kde",
-    "title": "Hands-on Exercise 3",
-    "section": "7.2 Plotting the output spatio-temporal KDE",
-    "text": "7.2 Plotting the output spatio-temporal KDE\n\nplot(kde_yday)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/data/data/rawdata/Kepulauan_Bangka_Belitung.html",
-    "href": "Hands-on_Ex/Hands-on-Ex03/data/data/rawdata/Kepulauan_Bangka_Belitung.html",
-    "title": "ISSS626",
-    "section": "",
-    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     \n\n\n       GEOGCRS[“WGS 84”,ENSEMBLE[“World Geodetic System 1984 ensemble”,MEMBER[“World Geodetic System 1984 (Transit)”],MEMBER[“World Geodetic System 1984 (G730)”],MEMBER[“World Geodetic System 1984 (G873)”],MEMBER[“World Geodetic System 1984 (G1150)”],MEMBER[“World Geodetic System 1984 (G1674)”],MEMBER[“World Geodetic System 1984 (G1762)”],MEMBER[“World Geodetic System 1984 (G2139)”],MEMBER[“World Geodetic System 1984 (G2296)”],ELLIPSOID[“WGS 84”,6378137,298.257223563,LENGTHUNIT[“metre”,1]],ENSEMBLEACCURACY[2.0]],PRIMEM[“Greenwich”,0,ANGLEUNIT[“degree”,0.0174532925199433]],CS[ellipsoidal,2],AXIS[“geodetic latitude (Lat)”,north,ORDER[1],ANGLEUNIT[“degree”,0.0174532925199433]],AXIS[“geodetic longitude (Lon)”,east,ORDER[2],ANGLEUNIT[“degree”,0.0174532925199433]],USAGE[SCOPE[“Horizontal component of 3D system.”],AREA[“World.”],BBOX[-90,-180,90,180]],ID[“EPSG”,4326]] +proj=longlat +datum=WGS84 +no_defs 3452 4326 EPSG:4326 WGS 84 longlat EPSG:7030 true"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on-Ex03/data/geospatial/SMEs.html",
-    "href": "Hands-on_Ex/Hands-on-Ex03/data/geospatial/SMEs.html",
-    "title": "ISSS626",
-    "section": "",
-    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     dataset\n\n\n                  0 0     false"
   }
 ]
