@@ -17,8 +17,10 @@ website:
            href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex3.html"
       - text: "In-class Exercise"
         menu:
-         - text: "In-class Exercise 3"
+         - text: "In-class Exercise 3a"
            href: "Inclass_Ex/In_class_Ex3/In-class_Ex03a.html"
+         - text: "In-class Exercise 3b"
+           href: "Inclass_Ex/In_class_Ex3/In-class_Ex03b.html"
     right:
       - href: index.qmd
         text: Home
