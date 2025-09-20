@@ -49,6 +49,10 @@ preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
 st_geometry(mpsz)
 ```
 
+```{r}
+st_geometry(preschool)
+```
+
 ### 1.2.2 Working with glimpse()
 
 ```{r}
@@ -137,11 +141,12 @@ listings_sf <- st_as_sf(listings,
 glimpse(listings_sf)
 ```
 
+### DIY
+
 ```{r}
 plot(st_geometry(mpsz))
 plot(st_geometry(listings_sf), add = TRUE)
 ```
-
 
 ## 1.6 Geoprocessing with sf package
 
@@ -200,7 +205,6 @@ buffer_cycling_selected <- st_intersection(
 ```{r}
 plot(buffer_cycling_selected)
 ```
-
 
 ### 1.6.2 Use case 2: To determine the number of pre-schools by planning subzone
 

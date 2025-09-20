@@ -193,3 +193,40 @@ summary(kde_yday)
 ```{r}
 plot(kde_yday)
 ```
+
+# 8. Spatio-temporal Point Patterns Analysis: stpp methods
+
+## 8.1 Preparing spatio-temporal point process object of stpp
+
+```{r}
+coords <- st_coordinates(fire_sf)
+```
+
+```{r}
+fire_df <- data.frame(
+  x = coords[, 1],  
+  y = coords[, 2],
+  t = fire_sf$`DayofYear`)
+```
+
+```{r}
+fire_stpp <- as.3dpoints(fire_df)
+```
+
+```{r}
+class(fire_stpp)
+```
+
+```{r}
+plot(fire_stpp)
+```
+
+## 8.2 Computing spatio-temporal k-function
+
+```{r}
+kbb_stik <- STIKhat(fire_stpp)
+```
+
+```{r}
+plotK(kbb_stik)
+```

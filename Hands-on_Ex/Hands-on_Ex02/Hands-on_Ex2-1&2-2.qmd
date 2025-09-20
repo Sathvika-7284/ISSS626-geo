@@ -80,6 +80,11 @@ childcare_sf <- st_read("data/ChildCareServices.geojson") %>%
 # 3. Mapping the geospatial data sets
 
 ```{r}
+plot(st_geometry(mpsz_cl))
+plot(st_geometry(childcare_sf), add = TRUE)
+```
+
+```{r}
 tmap_mode('view')
 tm_shape(childcare_sf)+
   tm_dots()

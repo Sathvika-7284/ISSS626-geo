@@ -114,14 +114,14 @@ head(coords)
 
 ```{r}
 plot(hunan$geometry, border="lightgrey")
-plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "red")
+plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "blue")
 ```
 
 ### 4.3.2 Plotting Rook contiguity based neighbours map
 
 ```{r}
 plot(hunan$geometry, border="lightgrey")
-plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
+plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "blue")
 ```
 
 ### 4.3.3 Plotting both Queen and Rook contiguity based neighbours maps
@@ -129,9 +129,9 @@ plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
 ```{r}
 par(mfrow=c(1,2))
 plot(hunan$geometry, border="lightgrey", main="Queen Contiguity")
-plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "red")
+plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "blue")
 plot(hunan$geometry, border="lightgrey", main="Rook Contiguity")
-plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "red")
+plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "blue")
 ```
 
 # 5. Computing distance based neighbours
