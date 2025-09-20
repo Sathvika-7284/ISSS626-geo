@@ -437,6 +437,7 @@ clarkevans.test(childcare_jw_ppp,
                 alternative=c("two.sided"),
                 nsim=999)
 ```
+
 #### 4.8.2.4 Bukit Batok planning area
 
 ```{r}
@@ -480,7 +481,6 @@ plot(density(childcare_bk_ppp.km,
              kernel="gaussian"),
      main="Bukit Batok")
 ```
-
 
 # 2nd Order Spatial Point Patterns Analysis Methods
 
@@ -554,7 +554,6 @@ G_pg.csr <- envelope(childcare_pg_ppp, Gest, correction = "all", nsim = 999)
 ```{r}
 plot(G_pg.csr)
 ```
-
 
 ## 2.2 Analysing Spatial Point Process Using F-Function
 
@@ -745,4 +744,3 @@ L_pg.csr <- envelope(childcare_pg_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 plot(L_pg.csr, . - r ~ r, 
      xlab="d", ylab="L(d)-r", xlim=c(0,500))
 ```
-

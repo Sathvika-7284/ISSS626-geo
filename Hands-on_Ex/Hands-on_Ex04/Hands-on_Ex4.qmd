@@ -28,7 +28,7 @@ hunan <- st_read(dsn = "data/geospatial",
                  layer = "Hunan")
 ```
 
-## 2.2  Import csv file into r environment
+## 2.2 Import csv file into r environment
 
 ```{r}
 hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
@@ -384,4 +384,3 @@ hunan %>%
 w_sum_gdppc <- qtm(hunan, "w_sum GDPPC")
 tmap_arrange(lag_sum_gdppc, w_sum_gdppc, asp=1, ncol=2)
 ```
-  

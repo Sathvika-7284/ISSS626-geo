@@ -235,6 +235,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#computing-spatio-temporal-kde-2" id="toc-computing-spatio-temporal-kde-2" class="nav-link" data-scroll-target="#computing-spatio-temporal-kde-2">7.1 Computing spatio-temporal KDE</a></li>
   <li><a href="#plotting-the-output-spatio-temporal-kde" id="toc-plotting-the-output-spatio-temporal-kde" class="nav-link" data-scroll-target="#plotting-the-output-spatio-temporal-kde">7.2 Plotting the output spatio-temporal KDE</a></li>
   </ul></li>
+  <li><a href="#spatio-temporal-point-patterns-analysis-stpp-methods" id="toc-spatio-temporal-point-patterns-analysis-stpp-methods" class="nav-link" data-scroll-target="#spatio-temporal-point-patterns-analysis-stpp-methods">8. Spatio-temporal Point Patterns Analysis: stpp methods</a>
+  <ul class="collapse">
+  <li><a href="#preparing-spatio-temporal-point-process-object-of-stpp" id="toc-preparing-spatio-temporal-point-process-object-of-stpp" class="nav-link" data-scroll-target="#preparing-spatio-temporal-point-process-object-of-stpp">8.1 Preparing spatio-temporal point process object of stpp</a></li>
+  <li><a href="#computing-spatio-temporal-k-function" id="toc-computing-spatio-temporal-k-function" class="nav-link" data-scroll-target="#computing-spatio-temporal-k-function">8.2 Computing spatio-temporal k-function</a></li>
+  </ul></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></nav>
     </div>
@@ -5478,6 +5483,39 @@ Evaluation
 </figure>
 </div>
 </div>
+</div>
+</section>
+</section>
+<section id="spatio-temporal-point-patterns-analysis-stpp-methods" class="level1">
+<h1>8. Spatio-temporal Point Patterns Analysis: stpp methods</h1>
+<section id="preparing-spatio-temporal-point-process-object-of-stpp" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-spatio-temporal-point-process-object-of-stpp">8.1 Preparing spatio-temporal point process object of stpp</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(fire_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>fire_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="at">x =</span> coords[, <span class="dv">1</span>],  </span>
+<span id="cb40-3"><a href="#cb40-3"></a>  <span class="at">y =</span> coords[, <span class="dv">2</span>],</span>
+<span id="cb40-4"><a href="#cb40-4"></a>  <span class="at">t =</span> fire_sf<span class="sc">$</span><span class="st">`</span><span class="at">DayofYear</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="co">#fire_stpp &lt;- as.3dpoints(fire_df)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="co">#class(fire_stpp)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="co">#plot(fire_stpp)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="computing-spatio-temporal-k-function" class="level2">
+<h2 class="anchored" data-anchor-id="computing-spatio-temporal-k-function">8.2 Computing spatio-temporal k-function</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="co">#kbb_stik &lt;- STIKhat(fire_stpp)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="co">#plotK(kbb_stik)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

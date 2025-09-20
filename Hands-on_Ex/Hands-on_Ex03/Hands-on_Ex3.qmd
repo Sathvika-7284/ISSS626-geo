@@ -210,23 +210,23 @@ fire_df <- data.frame(
 ```
 
 ```{r}
-fire_stpp <- as.3dpoints(fire_df)
+#fire_stpp <- as.3dpoints(fire_df)
 ```
 
 ```{r}
-class(fire_stpp)
+#class(fire_stpp)
 ```
 
 ```{r}
-plot(fire_stpp)
+#plot(fire_stpp)
 ```
 
 ## 8.2 Computing spatio-temporal k-function
 
 ```{r}
-kbb_stik <- STIKhat(fire_stpp)
+#kbb_stik <- STIKhat(fire_stpp)
 ```
 
 ```{r}
-plotK(kbb_stik)
+#plotK(kbb_stik)
 ```
