@@ -92,7 +92,6 @@ found <- found %>%
   select(1:10)
 ```
 
-
 ## Appending the location information
 
 ```{r}
@@ -105,6 +104,12 @@ biz_56111 = biz_56111 %>%
 
 ```{r}
 write_rds(biz_56111, "data/rds/biz_56111.rds")
+```
+
+```{r}
+#biz_56111 <- read_rds("data/rds/biz_56111.rds")
+
+#plot(biz_56111)
 ```
 
 ## Converting into SF data frame

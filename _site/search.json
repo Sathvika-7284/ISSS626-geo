@@ -60,7 +60,7 @@
     "href": "Inclass_Ex/In_class_Ex3/In-class_Ex03b.html#saving-the-data",
     "title": "In-class_Ex03b",
     "section": "Saving the data",
-    "text": "Saving the data\n\nwrite_rds(biz_56111, \"data/rds/biz_56111.rds\")"
+    "text": "Saving the data\n\nwrite_rds(biz_56111, \"data/rds/biz_56111.rds\")\n\n\n#biz_56111 &lt;- read_rds(\"data/rds/biz_56111.rds\")\n\n#plot(biz_56111)"
   },
   {
     "objectID": "Inclass_Ex/In_class_Ex3/In-class_Ex03b.html#converting-into-sf-data-frame",
@@ -481,5 +481,75 @@
     "title": "Hands-on Exercise 3",
     "section": "8.2 Computing spatio-temporal k-function",
     "text": "8.2 Computing spatio-temporal k-function\n\n#kbb_stik &lt;- STIKhat(fire_stpp)\n\n\n#plotK(kbb_stik)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html",
+    "title": "In-class_Ex04",
+    "section": "",
+    "text": "pacman::p_load(sf, ggstatsplot, tmap,tidyverse, knitr, GWmodel)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#import-libraries",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#import-libraries",
+    "title": "In-class_Ex04",
+    "section": "",
+    "text": "pacman::p_load(sf, ggstatsplot, tmap,tidyverse, knitr, GWmodel)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#importing-hunan-table",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#importing-hunan-table",
+    "title": "In-class_Ex04",
+    "section": "Importing ‘Hunan’ table",
+    "text": "Importing ‘Hunan’ table\n\nhunan_sf &lt;- st_read(dsn = \"data/geospatial\", layer = \"Hunan\")\n\nReading layer `Hunan' from data source \n  `C:\\Sathvika-7284\\ISSS626-geo\\Inclass_Ex\\In_class_Ex4\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n\n\n\nhunan_2012 &lt;- read_csv(\"data/aspatial/Hunan_2012.csv\")"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#joining-hunan-and-hunan_2012",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#joining-hunan-and-hunan_2012",
+    "title": "In-class_Ex04",
+    "section": "Joining Hunan and Hunan_2012",
+    "text": "Joining Hunan and Hunan_2012\n\nhunan_sf &lt;- left_join(hunan_sf, hunan_2012) %&gt;% \n  select(1:3, 7, 15, 16, 31, 32)\n\n\nhunan_sp &lt;- hunan_sf %&gt;%\n  as_Spatial()"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#cross-validation",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#cross-validation",
+    "title": "In-class_Ex04",
+    "section": "Cross-Validation",
+    "text": "Cross-Validation\n\nbw_CV &lt;- bw.gwr(GDPPC ~ 1,\n                data = hunan_sp,\n                approach = \"CV\",\n                adaptive = FALSE,\n                kernel = \"bisquare\",\n                longlat = T)\n\nFixed bandwidth: 357.4897 CV score: 16265191728 \nFixed bandwidth: 220.985 CV score: 14954930931 \nFixed bandwidth: 136.6204 CV score: 14134185837 \nFixed bandwidth: 84.48025 CV score: 13693362460 \nFixed bandwidth: 52.25585 CV score: Inf \nFixed bandwidth: 104.396 CV score: 13891052305 \nFixed bandwidth: 72.17162 CV score: 13577893677 \nFixed bandwidth: 64.56447 CV score: 14681160609 \nFixed bandwidth: 76.8731 CV score: 13444716890 \nFixed bandwidth: 79.77877 CV score: 13503296834 \nFixed bandwidth: 75.07729 CV score: 13452450771 \nFixed bandwidth: 77.98296 CV score: 13457916138 \nFixed bandwidth: 76.18716 CV score: 13442911302 \nFixed bandwidth: 75.76323 CV score: 13444600639 \nFixed bandwidth: 76.44916 CV score: 13442994078 \nFixed bandwidth: 76.02523 CV score: 13443285248 \nFixed bandwidth: 76.28724 CV score: 13442844774 \nFixed bandwidth: 76.34909 CV score: 13442864995 \nFixed bandwidth: 76.24901 CV score: 13442855596 \nFixed bandwidth: 76.31086 CV score: 13442847019 \nFixed bandwidth: 76.27264 CV score: 13442846793 \nFixed bandwidth: 76.29626 CV score: 13442844829 \nFixed bandwidth: 76.28166 CV score: 13442845238 \nFixed bandwidth: 76.29068 CV score: 13442844678 \nFixed bandwidth: 76.29281 CV score: 13442844691 \nFixed bandwidth: 76.28937 CV score: 13442844698 \nFixed bandwidth: 76.2915 CV score: 13442844676 \nFixed bandwidth: 76.292 CV score: 13442844679 \nFixed bandwidth: 76.29119 CV score: 13442844676 \nFixed bandwidth: 76.29099 CV score: 13442844676 \nFixed bandwidth: 76.29131 CV score: 13442844676 \nFixed bandwidth: 76.29138 CV score: 13442844676 \nFixed bandwidth: 76.29126 CV score: 13442844676 \nFixed bandwidth: 76.29123 CV score: 13442844676 \n\nbw_CV\n\n[1] 76.29126"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#aic",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#aic",
+    "title": "In-class_Ex04",
+    "section": "AIC",
+    "text": "AIC\n\nbw_AIC &lt;- bw.gwr(GDPPC ~ 1,\n                data = hunan_sp,\n                approach = \"AIC\",\n                adaptive = FALSE,\n                kernel = \"bisquare\",\n                longlat = T)\n\nFixed bandwidth: 357.4897 AICc value: 1927.631 \nFixed bandwidth: 220.985 AICc value: 1921.547 \nFixed bandwidth: 136.6204 AICc value: 1919.993 \nFixed bandwidth: 84.48025 AICc value: 1940.603 \nFixed bandwidth: 168.8448 AICc value: 1919.457 \nFixed bandwidth: 188.7606 AICc value: 1920.007 \nFixed bandwidth: 156.5362 AICc value: 1919.41 \nFixed bandwidth: 148.929 AICc value: 1919.527 \nFixed bandwidth: 161.2377 AICc value: 1919.392 \nFixed bandwidth: 164.1433 AICc value: 1919.403 \nFixed bandwidth: 159.4419 AICc value: 1919.393 \nFixed bandwidth: 162.3475 AICc value: 1919.394 \nFixed bandwidth: 160.5517 AICc value: 1919.391 \n\nbw_AIC\n\n[1] 160.5517"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#summary-statistics",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#summary-statistics",
+    "title": "In-class_Ex04",
+    "section": "Summary Statistics",
+    "text": "Summary Statistics\n\n#with CV\ngwstat_CV &lt;- gwss(data = hunan_sp,\n               vars = \"GDPPC\",\n               bw = bw_CV,\n               kernel = \"bisquare\",\n               adaptive = FALSE,\n               longlat = T)\n\n\n#with AIC\ngwstat &lt;- gwss(data = hunan_sp,\n               vars = \"GDPPC\",\n               bw = bw_AIC,\n               kernel = \"bisquare\",\n               adaptive = FALSE,\n               longlat = T)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#extracting-sdf-data-table-from-gwss-object-output-from-gwss",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#extracting-sdf-data-table-from-gwss-object-output-from-gwss",
+    "title": "In-class_Ex04",
+    "section": "Extracting SDF data table from gwss object output from gwss()",
+    "text": "Extracting SDF data table from gwss object output from gwss()\n\ngwstat_df &lt;- as.data.frame(gwstat$SDF)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#combine-with-hunan-data",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#combine-with-hunan-data",
+    "title": "In-class_Ex04",
+    "section": "Combine with Hunan data",
+    "text": "Combine with Hunan data\n\nhunan_gstat &lt;- cbind(hunan_sf,gwstat_df)\n#doing column append from gwstat_df to hunan_sf\n#use cbind when joining table without unique identifier, only when row sequence are the same\n\n\nbasemap &lt;- tm_shape(hunan_gstat) +\n  tm_polygons() +\n  tm_text(\"NAME_3\", size=0.5)\n\ngdppc &lt;- qtm(hunan_gstat, \"GDPPC\") +\n  tm_layout(\n    legend.position = c(\"left\", \"bottom\"))\ntmap_arrange(basemap, gdppc, asp=1, ncol=2)"
+  },
+  {
+    "objectID": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#visualising-geographically",
+    "href": "Inclass_Ex/In_class_Ex4/In-class_Ex04.html#visualising-geographically",
+    "title": "In-class_Ex04",
+    "section": "Visualising geographically",
+    "text": "Visualising geographically\n\ntm_shape(hunan_gstat) +\n  tm_fill(\"GDPPC_LM\",\n          n = 5,\n          style = \"quantile\") +\n  tm_borders(alpha = 0.5) +\n  tm_layout(main.title = \"Distribution of geographically weighted mean\",\n            main.title.position = \"center\",\n            main.title.size = 1.8,\n            legend.text.size = 1.2,\n            legend.height = 1.50,\n            legend.width = 1.50,\n            frame = TRUE)"
   }
 ]
