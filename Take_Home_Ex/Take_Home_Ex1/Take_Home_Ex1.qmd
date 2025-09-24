@@ -386,7 +386,7 @@ This choropleth map visualizes the number of businesses within each subzone of S
 
 -   Subzone Boundaries: The use of static 2019 Masterplan subzone boundaries may not fully reflect the dynamic changes in the urban landscape.
 
-# 14. Future Improvements
+# 14 . Future Improvements
 
 -   Real Geocodes: Conducting the analysis with real latitude and longitude coordinates for enhanced spatial precision.
 
