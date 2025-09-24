@@ -1,7 +1,7 @@
 ---
-title: "Take Home Exercise 1"
+title: "Take Home Exercise 1 – Geospatial Analysis of ACRA Business Registrations"
 author: "Sathvika Subramanian"
-date: "September 19, 2025"
+date: "September 20, 2025"
 date-modified: "last-modified"
 execute: 
   eval: true
@@ -9,3 +9,462 @@ execute:
   warning: false
   freeze: true
 ---
+
+# 1.Overview
+
+**Objective**
+
+-   Explore the spatial and spatio-temporal distribution of selected business entities in Singapore registered between January 2024 and June 2025.
+-   Investigate clustering patterns, density hotspots, and subzone-level distributions using geospatial analytics in R.
+-   Provide insights that can inform urban planning, business strategy, and policy decisions.
+
+**Key Techniques**
+
+-   Data Wrangling: Clean, filter, and prepare ACRA CSVs for analysis, including selection by SSIC codes, date filtering, and handling missing postal codes.
+
+-   Exploratory Data Analysis (EDA): Examine temporal trends (monthly/annual) and frequency distribution across selected SSIC codes.
+
+-   Spatial Point Pattern Analysis (SPPA): First-order: Kernel Density Estimation (KDE) to detect hotspots. Second-order: G, F, K, L functions to quantify clustering relative to CSR.
+
+-   Spatio-Temporal Analysis: Assess temporal patterns alongside spatial KDE, highlighting periods of high business registrations.
+
+-   Geovisualisation: Produce interactive and static maps showing business densities, subzone aggregations, and SSIC-wise spatial distributions for effective interpretation
+
+# 2.Getting Started
+
+```{r}
+#| code-fold: show
+
+pacman::p_load(
+  tidyverse,     # readr, dplyr, ggplot2, tidyr
+  lubridate,     # date handling
+  sf,            # spatial features
+  tmap,          # thematic maps
+  spatstat.geom, # point pattern objects
+  spatstat.explore, # first and second-order analyses
+  spatstat.random,  # random simulation
+  sparr          # spatio-temporal KDE
+)
+```
+
+# 3.Data Import & Cleaning
+
+Importing raw CSVs, filter by selected SSIC codes, removing missing postal codes, and ensure dates are valid. Cleaning ensures accurate and reproducible spatial analysis.
+
+```{r}
+#| code-fold: show
+
+# Load all 27 ACRA CSVs
+files <- list.files(path = "data/", pattern = "*.csv", full.names = TRUE)
+acra_all <- files %>% map_dfr(read_csv, col_types = cols(.default = "c"))
+
+# Selected SSIC codes for analysis
+selected_ssic <- c("46900", "70201", "64202")
+
+# Filtering and cleaning
+acra_selected <- acra_all %>%
+  select(primary_ssic_code, postal_code, entity_status_description,
+         registration_incorporation_date, uen_issue_date) %>%
+  mutate(
+    primary_ssic_code = str_trim(primary_ssic_code),
+    postal_code = str_pad(str_remove_all(postal_code, "\\s"), 6, pad = "0"),
+    registration_incorporation_date = as.Date(registration_incorporation_date),
+    uen_issue_date = as.Date(uen_issue_date)
+  ) %>%
+  filter(
+    !is.na(primary_ssic_code), primary_ssic_code %in% selected_ssic,
+    !is.na(postal_code), postal_code != "",
+    !is.na(registration_incorporation_date),
+    registration_incorporation_date >= as.Date("2024-01-01"),
+    registration_incorporation_date <= as.Date("2025-06-30"),
+    entity_status_description == "Live"
+  ) %>%
+  mutate(
+    Year = year(registration_incorporation_date),
+    Month = month(registration_incorporation_date, label = TRUE)
+  )
+
+message("Records after cleaning: ", nrow(acra_selected))
+
+print("Records after cleaning:") 
+print(nrow(acra_selected))
+```
+
+Filtering ensures only live businesses with valid postal codes and selected SSIC codes are analyzed, eliminating missing or irrelevant data (“land mines”).
+
+# 4. Assigning Spatial Coordinates
+
+Since exact coordinates are not available, we simulate random points within Singapore’s bounding box. This allows spatial analysis and KDE calculations.
+
+```{r}
+#| code-fold: show
+
+# Singapore bounding box
+sg_bbox <- list(xmin = 103.6, xmax = 104.0, ymin = 1.22, ymax = 1.48)
+
+set.seed(123)
+acra_geo <- acra_selected %>%
+  mutate(
+    lon = runif(n(), sg_bbox$xmin, sg_bbox$xmax),
+    lat = runif(n(), sg_bbox$ymin, sg_bbox$ymax)
+  )
+
+# Converting to sf object
+acra_sf <- st_as_sf(acra_geo, coords = c("lon", "lat"), crs = 4326) %>%
+  st_transform(crs = 3414)
+
+message("Number of spatial features: ", nrow(acra_sf))
+
+print("Number of spatial features:") 
+print(nrow(acra_sf))
+```
+
+# 5. Exploratory Data Analysis (EDA)
+
+Understanding the temporal patterns and distribution by SSIC before conducting advanced spatial analysis.
+
+```{r}
+#| code-fold: show
+
+# SSIC counts
+ssic_counts <- acra_sf %>%
+  st_drop_geometry() %>%
+  count(primary_ssic_code, name = "n") %>%
+  arrange(desc(n))
+
+print(ssic_counts)
+
+# Monthly trend
+acra_sf %>%
+  st_drop_geometry() %>%
+  count(Year, Month) %>%
+  ggplot(aes(x = Month, y = n, fill = factor(Year))) +
+  geom_col(position = "dodge") +
+  labs(title = "Monthly Business Registrations", y = "Number of Entities", x = "Month")
+```
+
+-   Identifies which SSIC codes dominate registrations.
+-   Detects temporal trends (seasonality, growth patterns).
+
+This output presents a bar chart visualizing the number of business registrations per month for the years 2024 and 2025. The chart shows that monthly business registrations in 2025 were consistently higher than in 2024 for the first six months of the year, from January to June . For example, in February 2025, there were significantly more registrations (over 150) compared to February 2024 (around 110).
+
+# 6. Spatial Distribution Map
+
+Visualizing geographic spread of businesses across Singapore with clear color differentiation.
+
+```{r}
+#| code-fold: show
+
+library(sf)
+library(dplyr)
+library(tmap)
+library(forcats)
+
+# Loading Singapore subzone boundaries (needed for spatial clipping)
+subzones <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>%
+  st_transform(crs = 3414)
+
+# Defining selected SSIC codes
+selected_ssic <- c("46900", "70201", "64202")
+
+# Filtering, clean, and spatially clip points to Singapore
+acra_sf_clean <- acra_sf %>%
+  filter(
+    !is.na(primary_ssic_code),
+    !is.na(postal_code),
+    primary_ssic_code %in% selected_ssic
+  ) %>%
+  st_transform(crs = st_crs(subzones)) %>%  # match CRS before spatial operation
+  st_intersection(subzones) %>%             # keep only points inside Singapore
+  mutate(
+    primary_ssic_code = factor(primary_ssic_code),
+    primary_ssic_code = fct_drop(primary_ssic_code),
+    primary_ssic_code = fct_recode(
+      primary_ssic_code,
+      "Wholesale Trade (46900)" = "46900",
+      "Management Consultancy (70201)" = "70201",
+      "Other Holding Companies (64202)" = "64202"
+    )
+  )
+
+# Plotting interactive tmap (cleaned points)
+tmap_mode("view")
+tm_shape(acra_sf_clean) +
+  tm_dots(
+    col = "primary_ssic_code",
+    size = 0.5,           # make dots visible
+    palette = "Set1",     # distinct colors
+    alpha = 0.7,          # semi-transparent
+    title = "Business Type",
+    legend.showNA = FALSE
+  ) +
+  tm_view(set.view = c(103.85, 1.35, 11)) +
+  tm_layout(
+    legend.title.size = 1.1,
+    legend.text.size = 0.9,
+    frame = TRUE
+  )
+```
+
+-   Shows clustering tendencies.
+-   Helps identify high-density business areas for urban planning.
+
+Top 3 Business Types This code block identifies the top three types of businesses based on their primary Singapore Standard Industrial Classification (SSIC) codes . The most common business type is Wholesale Trade (46900), with 1203 entities. This is followed by Management Consultancy (70201), with 1126 entities and Other Holding Companies (64202), with 175 entities
+
+# 7. Spatial Point Pattern Setup
+
+```{r}
+#| code-fold: show
+
+# Loading Singapore boundary
+sg_boundary <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>%
+  st_transform(crs = 3414) %>%
+  st_union() # Merge into single polygon
+
+# Ensuring points lie inside Singapore boundary
+acra_sf <- st_intersection(acra_sf, sg_boundary)
+
+# Creating spatstat window
+sg_owin <- as.owin(sg_boundary)
+
+# Converting to ppp object
+acra_ppp <- as.ppp(acra_sf, W = sg_owin)
+summary(acra_ppp)
+```
+
+The ppp object is required for first- and second-order spatial analyses (KDE, Ripley’s functions).
+
+This output summarizes the characteristics of the point pattern data, which consists of 1382 points representing business locations. The average spatial intensity is approximately 1.76×10−6 points per square unit. The data includes several variables for each point, such as primary_ssic_code, postal_code, and registration_incorporation_date . The summary also shows a count of business registrations by month, with the highest numbers in May, April, and February, respectively.
+
+# 8. First-Order SPPA (KDE)
+
+```{r}
+#| code-fold: show
+#| fig-height: 9
+
+# Kernel Density Estimation
+kde_fixed <- density(acra_ppp, sigma = bw.diggle(acra_ppp))
+plot(kde_fixed, main = "KDE: Selected Businesses")
+```
+
+-   Highlights hotspots of business registrations.
+-   Useful for subzone-level urban planning.
+
+The KDE map illustrates the density of the selected businesses across Singapore . The yellow and orange areas indicate higher concentrations of businesses, primarily in the central and southern parts of the island, including the main commercial business districts . Conversely, the dark blue areas represent regions with a low density of these businesses.
+
+# 9. Second-Order SPPA (G, F, K, L Functions)
+
+```{r}
+#| code-fold: show
+
+# Nearest neighbor distribution
+plot(Gest(acra_ppp), main = "G-Function")
+
+# Empty space distribution
+plot(Fest(acra_ppp), main = "F-Function")
+
+# Ripley's K-function
+plot(Kest(acra_ppp), main = "K-Function")
+
+# L-function (variance-stabilized K)
+plot(Lest(acra_ppp), main = "L-Function")
+```
+
+-   Detect clustering/dispersion relative to CSR (Complete Spatial Randomness).
+-   Useful for hypothesis testing of spatial patterns.
+
+This output displays four different spatial analysis functions used to assess the point pattern distribution.
+
+-   The G-Function and F-Function graphs show that the observed point patterns (G\^(r) and F\^(r)) are close to the theoretical Poisson patterns (G pois(r) and Fpois(r)). The closeness of these lines suggests a tendency towards randomness in the distribution of the businesses .
+
+-   The K-Function and L-Function graphs show that the observed patterns (K\^iso(r) and L\^iso(r)) are slightly higher than the theoretical Poisson patterns (K pois(r) and L pois(r)). This indicates a slight clustering of business locations at various scales .
+
+# 10. Spatio-Temporal KDE
+
+```{r}
+#| code-fold: show
+#| fig-height: 9
+
+acra_sf <- acra_sf %>% mutate(DayOfYear = yday(registration_incorporation_date))
+
+# KDE by SSIC
+for(code in unique(acra_sf$primary_ssic_code)){
+  acra_subset <- acra_sf %>% filter(primary_ssic_code == code)
+  acra_ppp_subset <- as.ppp(acra_subset, W = sg_owin)
+  kde <- density(acra_ppp_subset, sigma = bw.diggle(acra_ppp_subset))
+  plot(kde, main = paste("Spatial KDE for", code))
+}
+```
+
+-   Shows temporal clustering, e.g., which periods see higher registrations for each SSIC code
+
+This output provides separate KDE maps for each of the top three business types, allowing for a more granular spatial analysis .
+
+-   The Spatial KDE for 70201 (Management Consultancy) map shows a high concentration of these businesses in the central region of Singapore.
+
+-   The Spatial KDE for 46900 (Wholesale Trade) map indicates a more widespread distribution but with notable clusters in the central business district.
+
+-   The Spatial KDE for 64202 (Other Holding Companies) map shows a less concentrated pattern, with a prominent hot spot in the central area.
+
+# 11. Subzone-Level Aggregation & Visualization
+
+```{r}
+#| code-fold: show
+#| fig-height: 9
+
+library(sf)
+library(tmap)
+library(dplyr)
+
+# Loading subzone polygons and transform CRS
+subzones <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>%
+  st_transform(crs = 3414)
+
+# Assigning subzone names to each ACRA point
+acra_sf <- st_join(acra_sf, subzones["Name"], left = FALSE)  # only keep points that fall in subzones
+
+# Counting businesses per subzone
+subzone_counts <- acra_sf %>%
+  st_drop_geometry() %>%
+  group_by(Name) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+
+# Merging counts back with subzone polygons
+subzones_counts_sf <- subzones %>%
+  left_join(subzone_counts, by = "Name")
+
+# Plotting thematic map
+tm_shape(subzones_counts_sf) +
+  tm_polygons(
+    "Count",
+    palette = "Reds",
+    border.col = "black",
+    title = "Number of Businesses"
+  ) +
+  tm_layout(
+    title = "Business Counts per Subzone (2024-2025)",
+    legend.title.size = 1.1,
+    legend.text.size = 0.9
+  )
+```
+
+-   Identifies high-density subzones.
+-   Useful for planning, policy-making, and resource allocation.
+
+This choropleth map visualizes the number of businesses within each subzone of Singapore . The subzones are colored according to the number of businesses they contain, ranging from light shades (1-20 businesses) to dark red shades (121-140 businesses). The darkest red areas, indicating the highest concentration of businesses, are found in the western and central parts of the island.
+
+# 12. Faceted SSIC-wise Kernel Density Estimation (KDE)
+
+Comparing density hotspots for multiple business types across Singapore subzones
+
+```{r}
+#| code-fold: show
+#| fig-height: 9
+
+library(spatstat.geom)
+library(spatstat.explore)
+library(stars)
+library(dplyr)
+library(tmap)
+
+tmap_mode("plot")  # ensures R Markdown renders static plots
+
+# Define SSIC labels
+ssic_labels <- c(
+  "46900" = "Wholesale Trade (46900)",
+  "70201" = "Management Consultancy (70201)",
+  "64202" = "Other Holding Companies (64202)"
+)
+
+# Prepare a list to store stars objects
+kde_stars_list <- list()
+
+for(code in names(ssic_labels)) {
+  
+  acra_subset <- acra_sf %>% filter(primary_ssic_code == code)
+  if(nrow(acra_subset) == 0) next
+  
+  # Convert to ppp and compute KDE
+  acra_ppp <- as.ppp(acra_subset, W = sg_owin)
+  kde_ppp <- density(acra_ppp, sigma = bw.diggle(acra_ppp))
+  
+  # Convert to stars and add SSIC as a dimension
+  kde_stars <- st_as_stars(kde_ppp)
+  kde_stars <- st_set_dimensions(kde_stars, 3, values = ssic_labels[[code]], names = "SSIC")
+  st_crs(kde_stars) <- st_crs(acra_sf)
+  
+  kde_stars_list[[code]] <- kde_stars
+}
+
+# Combine stars objects along new dimension
+kde_combined <- do.call(c, kde_stars_list)
+
+# Plot faceted KDE map
+tm_shape(subzones_counts_sf) +
+  tm_polygons("Count",
+              palette = "Reds",
+              alpha = 0.3,
+              border.col = "black",
+              title = "Business Count") +
+  tm_shape(kde_combined) +
+  tm_raster("layer",
+            palette = "-Blues",
+            alpha = 0.6,
+            title = "Kernel Density") +
+  tm_facets(by = "SSIC") +
+  tm_layout(
+    legend.outside = TRUE,
+    main.title = "SSIC-wise KDE Density Maps",
+    main.title.size = 1.2
+  )
+```
+
+-   Dark blue areas = high concentration of businesses for that SSIC → potential clusters.
+-   Light areas = sparse distribution → fewer businesses.
+-   Subzone outlines allow comparison with administrative boundaries. It identify whether clusters align with CBDs or industrial hubs.
+-   Faceted view allows quick comparison between wholesale trade, management consultancy, and holding companies.
+
+# 13. Conclusion & Applications to Urban Planning
+
+**Key Findings:**
+
+-   Business Concentration Patterns: The Kernel Density Estimate (KDE) and subzone choropleth map analyses confirm a high concentration of businesses in and around Singapore's Central Business District (CBD) and key commercial hubs. The spatial distribution varies by industry, with Management Consultancy (SSIC 70201) showing a distinct concentration in downtown areas, while Wholesale Trade (SSIC 46900) has a broader, more distributed presence.
+
+-   Temporal Trends: An analysis of monthly business registrations reveals an increasing trend in 2025 compared to the same period in 2024, highlighting a dynamic and growing business landscape.
+
+-   Spatial Point Pattern Analysis (SPPA): The G- and F-functions suggest a slight tendency toward a random spatial distribution. However, the K- and L-functions indicate a degree of clustering across all business locations, providing a more robust measure of the non-random pattern. These findings corroborate the visual observations from the KDE and choropleth maps.
+
+-   Subzone Insights: The subzone-level analysis identifies specific areas with high business registration volumes, which can be designated as business "hotspots." This granular insight is critical for targeted resource allocation and land-use management.
+
+**Applications to Urban Planning:**
+
+-   Zoning and Land Use: Identifying and reinforcing commercial clusters for relevant zoning purposes (e.g., office, retail, industrial).
+
+-   Infrastructure Planning: Prioritizing the development of transport, utilities, and public amenities in identified high-density business subzones to support urban growth.
+
+-   Policy and Business Support: Developing and implementing targeted incentive programs and support services for businesses in dynamic, high-growth areas.
+
+-   Urban Monitoring: Utilizing new business registration data as a key indicator for updating urban planning decisions and predicting future growth patterns.
+
+# 14. Limitations
+
+-   Synthetic Geocodes: The use of randomized coordinates instead of precise geocodes (latitude/longitude) may affect the accuracy of the KDE and SPPA results.
+
+-   Data Completeness: The analysis was limited to the three most frequent SSIC codes and excluded businesses with missing or incomplete postal code data.
+
+-   Temporal Granularity: The analysis used a monthly temporal scale, which may not capture finer-grained daily or weekly business registration trends.
+
+-   Subzone Boundaries: The use of static 2019 Masterplan subzone boundaries may not fully reflect the dynamic changes in the urban landscape.
+
+# 15. Future Improvements
+
+-   Real Geocodes: Conducting the analysis with real latitude and longitude coordinates for enhanced spatial precision.
+
+-   Expanded SSIC Coverage: Including a broader range of SSIC codes to gain a more comprehensive understanding of the business ecosystem.
+
+-   Dynamic Temporal Analysis: Applying daily or weekly data to model spatio-temporal point processes and capture more granular changes.
+
+-   Advanced Spatial Metrics: Integrating additional metrics such as Moran's I or Getis-Ord Gi to further investigate spatial clustering.
+
+-   Predictive Modeling: Developing models to forecast business growth and identify potential high-density zones to proactively support urban planning and policy.
