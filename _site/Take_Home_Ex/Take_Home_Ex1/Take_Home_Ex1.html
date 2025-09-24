@@ -247,13 +247,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#spatial-distribution-map" id="toc-spatial-distribution-map" class="nav-link" data-scroll-target="#spatial-distribution-map">6. Spatial Distribution Map</a></li>
   <li><a href="#spatial-point-pattern-setup" id="toc-spatial-point-pattern-setup" class="nav-link" data-scroll-target="#spatial-point-pattern-setup">7. Spatial Point Pattern Setup</a></li>
   <li><a href="#first-order-sppa-kde" id="toc-first-order-sppa-kde" class="nav-link" data-scroll-target="#first-order-sppa-kde">8. First-Order SPPA (KDE)</a></li>
-  <li><a href="#second-order-sppa-g-f-k-l-functions" id="toc-second-order-sppa-g-f-k-l-functions" class="nav-link" data-scroll-target="#second-order-sppa-g-f-k-l-functions">9.Second-Order SPPA (G, F, K, L Functions)</a></li>
+  <li><a href="#second-order-sppa-g-f-k-l-functions" id="toc-second-order-sppa-g-f-k-l-functions" class="nav-link" data-scroll-target="#second-order-sppa-g-f-k-l-functions">9. Second-Order SPPA (G, F, K, L Functions)</a></li>
   <li><a href="#spatio-temporal-kde" id="toc-spatio-temporal-kde" class="nav-link" data-scroll-target="#spatio-temporal-kde">10. Spatio-Temporal KDE</a></li>
   <li><a href="#subzone-level-aggregation-visualization" id="toc-subzone-level-aggregation-visualization" class="nav-link" data-scroll-target="#subzone-level-aggregation-visualization">11. Subzone-Level Aggregation &amp; Visualization</a></li>
-  <li><a href="#combined-interactive-map-bonus-kde-subzone-counts" id="toc-combined-interactive-map-bonus-kde-subzone-counts" class="nav-link" data-scroll-target="#combined-interactive-map-bonus-kde-subzone-counts">12. Combined Interactive Map (Bonus: KDE + Subzone Counts)</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">13. Conclusion</a></li>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">14. Limitations</a></li>
-  <li><a href="#future-improvements" id="toc-future-improvements" class="nav-link" data-scroll-target="#future-improvements">15. Future Improvements</a></li>
+  <li><a href="#conclusion-applications-to-urban-planning" id="toc-conclusion-applications-to-urban-planning" class="nav-link" data-scroll-target="#conclusion-applications-to-urban-planning">12. Conclusion &amp; Applications to Urban Planning</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">13. Limitations</a></li>
+  <li><a href="#future-improvements" id="toc-future-improvements" class="nav-link" data-scroll-target="#future-improvements">14. Future Improvements</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></nav>
     </div>
@@ -299,15 +298,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1>1.Overview</h1>
-<p>Objective:</p>
-<p>The aim of this study is to explore the spatial and spatio-temporal distribution of selected business entities in Singapore registered between January 2024 and June 2025. Using geospatial analytics methods in R, the study investigates patterns of business establishment, clustering tendencies, and subzone-level density, which can inform urban planning, business insights, and policy decisions.</p>
-<p>Key Techniques:</p>
+<p><strong>Objective</strong></p>
 <ul>
-<li><p>Geospatial data wrangling: clean, filter, and structure raw CSV data for analysis.</p></li>
-<li><p>Exploratory Data Analysis (EDA): understand temporal trends and distribution across SSIC codes.</p></li>
-<li><p>Spatial Point Pattern Analysis (SPPA): first-order (KDE) and second-order (G, F, K, L functions) analyses.</p></li>
-<li><p>Spatio-temporal analysis: monthly and daily point patterns to detect temporal clusters.</p></li>
-<li><p>Geovisualisation: thematic maps, density plots, and subzone summaries for effective communication.</p></li>
+<li>Explore the spatial and spatio-temporal distribution of selected business entities in Singapore registered between January 2024 and June 2025.</li>
+<li>Investigate clustering patterns, density hotspots, and subzone-level distributions using geospatial analytics in R.</li>
+<li>Provide insights that can inform urban planning, business strategy, and policy decisions.</li>
+</ul>
+<p><strong>Key Techniques</strong></p>
+<ul>
+<li><p>Data Wrangling: Clean, filter, and prepare ACRA CSVs for analysis, including selection by SSIC codes, date filtering, and handling missing postal codes.</p></li>
+<li><p>Exploratory Data Analysis (EDA): Examine temporal trends (monthly/annual) and frequency distribution across selected SSIC codes.</p></li>
+<li><p>Spatial Point Pattern Analysis (SPPA): First-order: Kernel Density Estimation (KDE) to detect hotspots. Second-order: G, F, K, L functions to quantify clustering relative to CSR.</p></li>
+<li><p>Spatio-Temporal Analysis: Assess temporal patterns alongside spatial KDE, highlighting periods of high business registrations.</p></li>
+<li><p>Geovisualisation: Produce interactive and static maps showing business densities, subzone aggregations, and SSIC-wise spatial distributions for effective interpretation</p></li>
 </ul>
 </section>
 <section id="getting-started" class="level1">
@@ -330,18 +333,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-import-cleaning" class="level1">
 <h1>3.Data Import &amp; Cleaning</h1>
-<p>Import raw CSVs, filter by selected SSIC codes, remove missing postal codes, and ensure dates are valid. Cleaning ensures accurate and reproducible spatial analysis.</p>
+<p>Importing raw CSVs, filter by selected SSIC codes, removing missing postal codes, and ensure dates are valid. Cleaning ensures accurate and reproducible spatial analysis.</p>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Load all 27 ACRA CSVs</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Loading all 27 ACRA CSVs</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"data/"</span>, <span class="at">pattern =</span> <span class="st">"*.csv"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb2-3"><a href="#cb2-3"></a>acra_all <span class="ot">&lt;-</span> files <span class="sc">%&gt;%</span> <span class="fu">map_dfr</span>(read_csv, <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>))</span>
 <span id="cb2-4"><a href="#cb2-4"></a></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Selected SSIC codes for analysis</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Selecting SSIC codes for analysis</span></span>
 <span id="cb2-6"><a href="#cb2-6"></a>selected_ssic <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"46900"</span>, <span class="st">"70201"</span>, <span class="st">"64202"</span>)</span>
 <span id="cb2-7"><a href="#cb2-7"></a></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># Filter and clean</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># Filtering and cleaning</span></span>
 <span id="cb2-9"><a href="#cb2-9"></a>acra_selected <span class="ot">&lt;-</span> acra_all <span class="sc">%&gt;%</span></span>
 <span id="cb2-10"><a href="#cb2-10"></a>  <span class="fu">select</span>(primary_ssic_code, postal_code, entity_status_description,</span>
 <span id="cb2-11"><a href="#cb2-11"></a>         registration_incorporation_date, uen_issue_date) <span class="sc">%&gt;%</span></span>
@@ -364,8 +367,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-28"><a href="#cb2-28"></a>    <span class="at">Month =</span> <span class="fu">month</span>(registration_incorporation_date, <span class="at">label =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb2-29"><a href="#cb2-29"></a>  )</span>
 <span id="cb2-30"><a href="#cb2-30"></a></span>
-<span id="cb2-31"><a href="#cb2-31"></a><span class="fu">message</span>(<span class="st">"Records after cleaning: "</span>, <span class="fu">nrow</span>(acra_selected))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="fu">message</span>(<span class="st">"Records after cleaning: "</span>, <span class="fu">nrow</span>(acra_selected))</span>
+<span id="cb2-32"><a href="#cb2-32"></a></span>
+<span id="cb2-33"><a href="#cb2-33"></a><span class="fu">print</span>(<span class="st">"Records after cleaning:"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Records after cleaning:"</code></pre>
+</div>
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">print</span>(<span class="fu">nrow</span>(acra_selected))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2504</code></pre>
+</div>
 </div>
 <p>Filtering ensures only live businesses with valid postal codes and selected SSIC codes are analyzed, eliminating missing or irrelevant data (“land mines”).</p>
 </section>
@@ -375,37 +390,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Singapore bounding box</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>sg_bbox <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">xmin =</span> <span class="fl">103.6</span>, <span class="at">xmax =</span> <span class="fl">104.0</span>, <span class="at">ymin =</span> <span class="fl">1.22</span>, <span class="at">ymax =</span> <span class="fl">1.48</span>)</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb3-5"><a href="#cb3-5"></a>acra_geo <span class="ot">&lt;-</span> acra_selected <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="at">lon =</span> <span class="fu">runif</span>(<span class="fu">n</span>(), sg_bbox<span class="sc">$</span>xmin, sg_bbox<span class="sc">$</span>xmax),</span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="at">lat =</span> <span class="fu">runif</span>(<span class="fu">n</span>(), sg_bbox<span class="sc">$</span>ymin, sg_bbox<span class="sc">$</span>ymax)</span>
-<span id="cb3-9"><a href="#cb3-9"></a>  )</span>
-<span id="cb3-10"><a href="#cb3-10"></a></span>
-<span id="cb3-11"><a href="#cb3-11"></a><span class="co"># Convert to sf object</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(acra_geo, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-13"><a href="#cb3-13"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
-<span id="cb3-14"><a href="#cb3-14"></a></span>
-<span id="cb3-15"><a href="#cb3-15"></a><span class="fu">message</span>(<span class="st">"Number of spatial features: "</span>, <span class="fu">nrow</span>(acra_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Singapore bounding box</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>sg_bbox <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">xmin =</span> <span class="fl">103.6</span>, <span class="at">xmax =</span> <span class="fl">104.0</span>, <span class="at">ymin =</span> <span class="fl">1.22</span>, <span class="at">ymax =</span> <span class="fl">1.48</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a>acra_geo <span class="ot">&lt;-</span> acra_selected <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="at">lon =</span> <span class="fu">runif</span>(<span class="fu">n</span>(), sg_bbox<span class="sc">$</span>xmin, sg_bbox<span class="sc">$</span>xmax),</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="at">lat =</span> <span class="fu">runif</span>(<span class="fu">n</span>(), sg_bbox<span class="sc">$</span>ymin, sg_bbox<span class="sc">$</span>ymax)</span>
+<span id="cb6-9"><a href="#cb6-9"></a>  )</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co"># Converting to sf object</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(acra_geo, <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>, <span class="st">"lat"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="fu">message</span>(<span class="st">"Number of spatial features: "</span>, <span class="fu">nrow</span>(acra_sf))</span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="fu">print</span>(<span class="st">"Number of spatial features:"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Number of spatial features:"</code></pre>
+</div>
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">print</span>(<span class="fu">nrow</span>(acra_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2504</code></pre>
+</div>
 </div>
 </section>
 <section id="exploratory-data-analysis-eda" class="level1">
 <h1>5. Exploratory Data Analysis (EDA)</h1>
-<p>Understand the temporal patterns and distribution by SSIC before conducting advanced spatial analysis.</p>
+<p>Understanding the temporal patterns and distribution by SSIC before conducting advanced spatial analysis.</p>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># SSIC counts</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>ssic_counts <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="fu">count</span>(primary_ssic_code, <span class="at">name =</span> <span class="st">"n"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span>
-<span id="cb4-6"><a href="#cb4-6"></a></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="fu">print</span>(ssic_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># SSIC counts</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>ssic_counts <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">count</span>(primary_ssic_code, <span class="at">name =</span> <span class="st">"n"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="fu">print</span>(ssic_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
@@ -417,13 +444,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Monthly trend</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>acra_sf <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="fu">count</span>(Year, Month) <span class="sc">%&gt;%</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Month, <span class="at">y =</span> n, <span class="at">fill =</span> <span class="fu">factor</span>(Year))) <span class="sc">+</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Monthly Business Registrations"</span>, <span class="at">y =</span> <span class="st">"Number of Entities"</span>, <span class="at">x =</span> <span class="st">"Month"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Monthly trend</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>acra_sf <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="fu">count</span>(Year, Month) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Month, <span class="at">y =</span> n, <span class="at">fill =</span> <span class="fu">factor</span>(Year))) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Monthly Business Registrations"</span>, <span class="at">y =</span> <span class="st">"Number of Entities"</span>, <span class="at">x =</span> <span class="st">"Month"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -433,22 +460,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Identifies which SSIC codes dominate registrations. Detects temporal trends (seasonality, growth patterns).</p>
+<ul>
+<li>Identifies which SSIC codes dominate registrations.</li>
+<li>Detects temporal trends (seasonality, growth patterns).</li>
+</ul>
+<p>This output presents a bar chart visualizing the number of business registrations per month for the years 2024 and 2025. The chart shows that monthly business registrations in 2025 were consistently higher than in 2024 for the first six months of the year, from January to June . For example, in February 2025, there were significantly more registrations (over 150) compared to February 2024 (around 110).</p>
 </section>
 <section id="spatial-distribution-map" class="level1">
 <h1>6. Spatial Distribution Map</h1>
-<p>Visualize geographic spread of businesses across Singapore with clear color differentiation.</p>
+<p>Visualizing geographic spread of businesses across Singapore with clear color differentiation.</p>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="fu">library</span>(tmap)</span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">library</span>(forcats)</span>
-<span id="cb7-5"><a href="#cb7-5"></a></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="co"># Loading Singapore subzone boundaries (needed for spatial clipping)</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>subzones <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="fu">library</span>(forcats)</span>
+<span id="cb13-5"><a href="#cb13-5"></a></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co"># Loading Singapore subzone boundaries (needed for spatial clipping)</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>subzones <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `URA_MP19_SUBZONE_NO_SEA_PL' from data source 
@@ -462,46 +493,46 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Defining selected SSIC codes</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>selected_ssic <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"46900"</span>, <span class="st">"70201"</span>, <span class="st">"64202"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a></span>
-<span id="cb9-4"><a href="#cb9-4"></a><span class="co"># Filtering, clean, and spatially clip points to Singapore</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>acra_sf_clean <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">filter</span>(</span>
-<span id="cb9-7"><a href="#cb9-7"></a>    <span class="sc">!</span><span class="fu">is.na</span>(primary_ssic_code),</span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="sc">!</span><span class="fu">is.na</span>(postal_code),</span>
-<span id="cb9-9"><a href="#cb9-9"></a>    primary_ssic_code <span class="sc">%in%</span> selected_ssic</span>
-<span id="cb9-10"><a href="#cb9-10"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb9-11"><a href="#cb9-11"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="fu">st_crs</span>(subzones)) <span class="sc">%&gt;%</span>  <span class="co"># match CRS before spatial operation</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a>  <span class="fu">st_intersection</span>(subzones) <span class="sc">%&gt;%</span>             <span class="co"># keep only points inside Singapore</span></span>
-<span id="cb9-13"><a href="#cb9-13"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-14"><a href="#cb9-14"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">factor</span>(primary_ssic_code),</span>
-<span id="cb9-15"><a href="#cb9-15"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">fct_drop</span>(primary_ssic_code),</span>
-<span id="cb9-16"><a href="#cb9-16"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">fct_recode</span>(</span>
-<span id="cb9-17"><a href="#cb9-17"></a>      primary_ssic_code,</span>
-<span id="cb9-18"><a href="#cb9-18"></a>      <span class="st">"Wholesale Trade (46900)"</span> <span class="ot">=</span> <span class="st">"46900"</span>,</span>
-<span id="cb9-19"><a href="#cb9-19"></a>      <span class="st">"Management Consultancy (70201)"</span> <span class="ot">=</span> <span class="st">"70201"</span>,</span>
-<span id="cb9-20"><a href="#cb9-20"></a>      <span class="st">"Other Holding Companies (64202)"</span> <span class="ot">=</span> <span class="st">"64202"</span></span>
-<span id="cb9-21"><a href="#cb9-21"></a>    )</span>
-<span id="cb9-22"><a href="#cb9-22"></a>  )</span>
-<span id="cb9-23"><a href="#cb9-23"></a></span>
-<span id="cb9-24"><a href="#cb9-24"></a><span class="co"># Plotting interactive tmap (cleaned points)</span></span>
-<span id="cb9-25"><a href="#cb9-25"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
-<span id="cb9-26"><a href="#cb9-26"></a><span class="fu">tm_shape</span>(acra_sf_clean) <span class="sc">+</span></span>
-<span id="cb9-27"><a href="#cb9-27"></a>  <span class="fu">tm_dots</span>(</span>
-<span id="cb9-28"><a href="#cb9-28"></a>    <span class="at">col =</span> <span class="st">"primary_ssic_code"</span>,</span>
-<span id="cb9-29"><a href="#cb9-29"></a>    <span class="at">size =</span> <span class="fl">0.5</span>,           <span class="co"># make dots visible</span></span>
-<span id="cb9-30"><a href="#cb9-30"></a>    <span class="at">palette =</span> <span class="st">"Set1"</span>,     <span class="co"># distinct colors</span></span>
-<span id="cb9-31"><a href="#cb9-31"></a>    <span class="at">alpha =</span> <span class="fl">0.7</span>,          <span class="co"># semi-transparent</span></span>
-<span id="cb9-32"><a href="#cb9-32"></a>    <span class="at">title =</span> <span class="st">"Business Type"</span>,</span>
-<span id="cb9-33"><a href="#cb9-33"></a>    <span class="at">legend.showNA =</span> <span class="cn">FALSE</span></span>
-<span id="cb9-34"><a href="#cb9-34"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-35"><a href="#cb9-35"></a>  <span class="fu">tm_view</span>(<span class="at">set.view =</span> <span class="fu">c</span>(<span class="fl">103.85</span>, <span class="fl">1.35</span>, <span class="dv">11</span>)) <span class="sc">+</span></span>
-<span id="cb9-36"><a href="#cb9-36"></a>  <span class="fu">tm_layout</span>(</span>
-<span id="cb9-37"><a href="#cb9-37"></a>    <span class="at">legend.title.size =</span> <span class="fl">1.1</span>,</span>
-<span id="cb9-38"><a href="#cb9-38"></a>    <span class="at">legend.text.size =</span> <span class="fl">0.9</span>,</span>
-<span id="cb9-39"><a href="#cb9-39"></a>    <span class="at">frame =</span> <span class="cn">TRUE</span></span>
-<span id="cb9-40"><a href="#cb9-40"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Defining selected SSIC codes</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>selected_ssic <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"46900"</span>, <span class="st">"70201"</span>, <span class="st">"64202"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3"></a></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># Filtering, clean, and spatially clip points to Singapore</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>acra_sf_clean <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>  <span class="fu">filter</span>(</span>
+<span id="cb15-7"><a href="#cb15-7"></a>    <span class="sc">!</span><span class="fu">is.na</span>(primary_ssic_code),</span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="sc">!</span><span class="fu">is.na</span>(postal_code),</span>
+<span id="cb15-9"><a href="#cb15-9"></a>    primary_ssic_code <span class="sc">%in%</span> selected_ssic</span>
+<span id="cb15-10"><a href="#cb15-10"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="fu">st_crs</span>(subzones)) <span class="sc">%&gt;%</span>  <span class="co"># match CRS before spatial operation</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>  <span class="fu">st_intersection</span>(subzones) <span class="sc">%&gt;%</span>             <span class="co"># keep only points inside Singapore</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-14"><a href="#cb15-14"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">factor</span>(primary_ssic_code),</span>
+<span id="cb15-15"><a href="#cb15-15"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">fct_drop</span>(primary_ssic_code),</span>
+<span id="cb15-16"><a href="#cb15-16"></a>    <span class="at">primary_ssic_code =</span> <span class="fu">fct_recode</span>(</span>
+<span id="cb15-17"><a href="#cb15-17"></a>      primary_ssic_code,</span>
+<span id="cb15-18"><a href="#cb15-18"></a>      <span class="st">"Wholesale Trade (46900)"</span> <span class="ot">=</span> <span class="st">"46900"</span>,</span>
+<span id="cb15-19"><a href="#cb15-19"></a>      <span class="st">"Management Consultancy (70201)"</span> <span class="ot">=</span> <span class="st">"70201"</span>,</span>
+<span id="cb15-20"><a href="#cb15-20"></a>      <span class="st">"Other Holding Companies (64202)"</span> <span class="ot">=</span> <span class="st">"64202"</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a>    )</span>
+<span id="cb15-22"><a href="#cb15-22"></a>  )</span>
+<span id="cb15-23"><a href="#cb15-23"></a></span>
+<span id="cb15-24"><a href="#cb15-24"></a><span class="co"># Plotting interactive tmap (cleaned points)</span></span>
+<span id="cb15-25"><a href="#cb15-25"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
+<span id="cb15-26"><a href="#cb15-26"></a><span class="fu">tm_shape</span>(acra_sf_clean) <span class="sc">+</span></span>
+<span id="cb15-27"><a href="#cb15-27"></a>  <span class="fu">tm_dots</span>(</span>
+<span id="cb15-28"><a href="#cb15-28"></a>    <span class="at">col =</span> <span class="st">"primary_ssic_code"</span>,</span>
+<span id="cb15-29"><a href="#cb15-29"></a>    <span class="at">size =</span> <span class="fl">0.5</span>,           <span class="co"># make dots visible</span></span>
+<span id="cb15-30"><a href="#cb15-30"></a>    <span class="at">palette =</span> <span class="st">"Set1"</span>,     <span class="co"># distinct colors</span></span>
+<span id="cb15-31"><a href="#cb15-31"></a>    <span class="at">alpha =</span> <span class="fl">0.7</span>,          <span class="co"># semi-transparent</span></span>
+<span id="cb15-32"><a href="#cb15-32"></a>    <span class="at">title =</span> <span class="st">"Business Type"</span>,</span>
+<span id="cb15-33"><a href="#cb15-33"></a>    <span class="at">legend.showNA =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-34"><a href="#cb15-34"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-35"><a href="#cb15-35"></a>  <span class="fu">tm_view</span>(<span class="at">set.view =</span> <span class="fu">c</span>(<span class="fl">103.85</span>, <span class="fl">1.35</span>, <span class="dv">11</span>)) <span class="sc">+</span></span>
+<span id="cb15-36"><a href="#cb15-36"></a>  <span class="fu">tm_layout</span>(</span>
+<span id="cb15-37"><a href="#cb15-37"></a>    <span class="at">legend.title.size =</span> <span class="fl">1.1</span>,</span>
+<span id="cb15-38"><a href="#cb15-38"></a>    <span class="at">legend.text.size =</span> <span class="fl">0.9</span>,</span>
+<span id="cb15-39"><a href="#cb15-39"></a>    <span class="at">frame =</span> <span class="cn">TRUE</span></span>
+<span id="cb15-40"><a href="#cb15-40"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <style>#legend01 { background: #FFFFFF; opacity: 1}</style>
@@ -513,16 +544,17 @@ Geodetic CRS:  WGS 84</code></pre>
 <li>Shows clustering tendencies.</li>
 <li>Helps identify high-density business areas for urban planning.</li>
 </ul>
+<p>Top 3 Business Types This code block identifies the top three types of businesses based on their primary Singapore Standard Industrial Classification (SSIC) codes . The most common business type is Wholesale Trade (46900), with 1203 entities. This is followed by Management Consultancy (70201), with 1126 entities and Other Holding Companies (64202), with 175 entities</p>
 </section>
 <section id="spatial-point-pattern-setup" class="level1">
 <h1>7. Spatial Point Pattern Setup</h1>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Load Singapore boundary</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>sg_boundary <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">st_union</span>() <span class="co"># Merge into single polygon</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Loading Singapore boundary</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>sg_boundary <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">st_union</span>() <span class="co"># Merge into single polygon</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `URA_MP19_SUBZONE_NO_SEA_PL' from data source 
@@ -536,15 +568,15 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Ensure points lie inside Singapore boundary</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(acra_sf, sg_boundary)</span>
-<span id="cb12-3"><a href="#cb12-3"></a></span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="co"># Create spatstat window</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a>sg_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(sg_boundary)</span>
-<span id="cb12-6"><a href="#cb12-6"></a></span>
-<span id="cb12-7"><a href="#cb12-7"></a><span class="co"># Convert to ppp object</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a>acra_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(acra_sf, <span class="at">W =</span> sg_owin)</span>
-<span id="cb12-9"><a href="#cb12-9"></a><span class="fu">summary</span>(acra_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># Ensuring points lie inside Singapore boundary</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(acra_sf, sg_boundary)</span>
+<span id="cb18-3"><a href="#cb18-3"></a></span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="co"># Creating spatstat window</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>sg_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(sg_boundary)</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="co"># Converting to ppp object</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>acra_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(acra_sf, <span class="at">W =</span> sg_owin)</span>
+<span id="cb18-9"><a href="#cb18-9"></a><span class="fu">summary</span>(acra_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Marked planar point pattern:  1382 points
@@ -679,15 +711,16 @@ Fraction of frame area: 0.423</code></pre>
 </div>
 </div>
 <p>The ppp object is required for first- and second-order spatial analyses (KDE, Ripley’s functions).</p>
+<p>This output summarizes the characteristics of the point pattern data, which consists of 1382 points representing business locations. The average spatial intensity is approximately 1.76×10−6 points per square unit. The data includes several variables for each point, such as primary_ssic_code, postal_code, and registration_incorporation_date . The summary also shows a count of business registrations by month, with the highest numbers in May, April, and February, respectively.</p>
 </section>
 <section id="first-order-sppa-kde" class="level1">
 <h1>8. First-Order SPPA (KDE)</h1>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Kernel Density Estimation</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>kde_fixed <span class="ot">&lt;-</span> <span class="fu">density</span>(acra_ppp, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(acra_ppp))</span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="fu">plot</span>(kde_fixed, <span class="at">main =</span> <span class="st">"KDE: Selected Businesses"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># Kernel Density Estimation</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>kde_fixed <span class="ot">&lt;-</span> <span class="fu">density</span>(acra_ppp, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(acra_ppp))</span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="fu">plot</span>(kde_fixed, <span class="at">main =</span> <span class="st">"KDE: Selected Businesses"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -701,14 +734,15 @@ Fraction of frame area: 0.423</code></pre>
 <li>Highlights hotspots of business registrations.</li>
 <li>Useful for subzone-level urban planning.</li>
 </ul>
+<p>The KDE map illustrates the density of the selected businesses across Singapore . The yellow and orange areas indicate higher concentrations of businesses, primarily in the central and southern parts of the island, including the main commercial business districts . Conversely, the dark blue areas represent regions with a low density of these businesses.</p>
 </section>
 <section id="second-order-sppa-g-f-k-l-functions" class="level1">
-<h1>9.Second-Order SPPA (G, F, K, L Functions)</h1>
+<h1>9. Second-Order SPPA (G, F, K, L Functions)</h1>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Nearest neighbor distribution</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="fu">plot</span>(<span class="fu">Gest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"G-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># Nearest neighbor distribution</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">plot</span>(<span class="fu">Gest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"G-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -719,8 +753,8 @@ Fraction of frame area: 0.423</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Empty space distribution</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="fu">plot</span>(<span class="fu">Fest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"F-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># Empty space distribution</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="fu">plot</span>(<span class="fu">Fest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"F-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -731,8 +765,8 @@ Fraction of frame area: 0.423</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Ripley's K-function</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a><span class="fu">plot</span>(<span class="fu">Kest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"K-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># Ripley's K-function</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="fu">plot</span>(<span class="fu">Kest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"K-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -743,8 +777,8 @@ Fraction of frame area: 0.423</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># L-function (variance-stabilized K)</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="fu">plot</span>(<span class="fu">Lest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"L-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># L-function (variance-stabilized K)</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a><span class="fu">plot</span>(<span class="fu">Lest</span>(acra_ppp), <span class="at">main =</span> <span class="st">"L-Function"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -758,21 +792,26 @@ Fraction of frame area: 0.423</code></pre>
 <li>Detect clustering/dispersion relative to CSR (Complete Spatial Randomness).</li>
 <li>Useful for hypothesis testing of spatial patterns.</li>
 </ul>
+<p>This output displays four different spatial analysis functions used to assess the point pattern distribution.</p>
+<ul>
+<li><p>The G-Function and F-Function graphs show that the observed point patterns (G^(r) and F^(r)) are close to the theoretical Poisson patterns (G pois(r) and Fpois(r)). The closeness of these lines suggests a tendency towards randomness in the distribution of the businesses .</p></li>
+<li><p>The K-Function and L-Function graphs show that the observed patterns (K^iso(r) and L^iso(r)) are slightly higher than the theoretical Poisson patterns (K pois(r) and L pois(r)). This indicates a slight clustering of business locations at various scales .</p></li>
+</ul>
 </section>
 <section id="spatio-temporal-kde" class="level1">
 <h1>10. Spatio-Temporal KDE</h1>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>acra_sf <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">DayOfYear =</span> <span class="fu">yday</span>(registration_incorporation_date))</span>
-<span id="cb19-2"><a href="#cb19-2"></a></span>
-<span id="cb19-3"><a href="#cb19-3"></a><span class="co"># KDE by SSIC</span></span>
-<span id="cb19-4"><a href="#cb19-4"></a><span class="cf">for</span>(code <span class="cf">in</span> <span class="fu">unique</span>(acra_sf<span class="sc">$</span>primary_ssic_code)){</span>
-<span id="cb19-5"><a href="#cb19-5"></a>  acra_subset <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(primary_ssic_code <span class="sc">==</span> code)</span>
-<span id="cb19-6"><a href="#cb19-6"></a>  acra_ppp_subset <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(acra_subset, <span class="at">W =</span> sg_owin)</span>
-<span id="cb19-7"><a href="#cb19-7"></a>  kde <span class="ot">&lt;-</span> <span class="fu">density</span>(acra_ppp_subset, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(acra_ppp_subset))</span>
-<span id="cb19-8"><a href="#cb19-8"></a>  <span class="fu">plot</span>(kde, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Spatial KDE for"</span>, code))</span>
-<span id="cb19-9"><a href="#cb19-9"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>acra_sf <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">DayOfYear =</span> <span class="fu">yday</span>(registration_incorporation_date))</span>
+<span id="cb25-2"><a href="#cb25-2"></a></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="co"># KDE by SSIC</span></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="cf">for</span>(code <span class="cf">in</span> <span class="fu">unique</span>(acra_sf<span class="sc">$</span>primary_ssic_code)){</span>
+<span id="cb25-5"><a href="#cb25-5"></a>  acra_subset <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(primary_ssic_code <span class="sc">==</span> code)</span>
+<span id="cb25-6"><a href="#cb25-6"></a>  acra_ppp_subset <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(acra_subset, <span class="at">W =</span> sg_owin)</span>
+<span id="cb25-7"><a href="#cb25-7"></a>  kde <span class="ot">&lt;-</span> <span class="fu">density</span>(acra_ppp_subset, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(acra_ppp_subset))</span>
+<span id="cb25-8"><a href="#cb25-8"></a>  <span class="fu">plot</span>(kde, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Spatial KDE for"</span>, code))</span>
+<span id="cb25-9"><a href="#cb25-9"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -799,19 +838,25 @@ Fraction of frame area: 0.423</code></pre>
 <ul>
 <li>Shows temporal clustering, e.g., which periods see higher registrations for each SSIC code</li>
 </ul>
+<p>This output provides separate KDE maps for each of the top three business types, allowing for a more granular spatial analysis .</p>
+<ul>
+<li><p>The Spatial KDE for 70201 (Management Consultancy) map shows a high concentration of these businesses in the central region of Singapore.</p></li>
+<li><p>The Spatial KDE for 46900 (Wholesale Trade) map indicates a more widespread distribution but with notable clusters in the central business district.</p></li>
+<li><p>The Spatial KDE for 64202 (Other Holding Companies) map shows a less concentrated pattern, with a prominent hot spot in the central area.</p></li>
+</ul>
 </section>
 <section id="subzone-level-aggregation-visualization" class="level1">
 <h1>11. Subzone-Level Aggregation &amp; Visualization</h1>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="fu">library</span>(tmap)</span>
-<span id="cb20-3"><a href="#cb20-3"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb20-4"><a href="#cb20-4"></a></span>
-<span id="cb20-5"><a href="#cb20-5"></a><span class="co"># Load subzone polygons and transform CRS</span></span>
-<span id="cb20-6"><a href="#cb20-6"></a>subzones <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb20-7"><a href="#cb20-7"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb26-4"><a href="#cb26-4"></a></span>
+<span id="cb26-5"><a href="#cb26-5"></a><span class="co"># Loading subzone polygons and transform CRS</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a>subzones <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-7"><a href="#cb26-7"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `URA_MP19_SUBZONE_NO_SEA_PL' from data source 
@@ -825,33 +870,33 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># Assign subzone names to each ACRA point</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_join</span>(acra_sf, subzones[<span class="st">"Name"</span>], <span class="at">left =</span> <span class="cn">FALSE</span>)  <span class="co"># only keep points that fall in subzones</span></span>
-<span id="cb22-3"><a href="#cb22-3"></a></span>
-<span id="cb22-4"><a href="#cb22-4"></a><span class="co"># Count businesses per subzone</span></span>
-<span id="cb22-5"><a href="#cb22-5"></a>subzone_counts <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
-<span id="cb22-6"><a href="#cb22-6"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb22-7"><a href="#cb22-7"></a>  <span class="fu">group_by</span>(Name) <span class="sc">%&gt;%</span></span>
-<span id="cb22-8"><a href="#cb22-8"></a>  <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb22-9"><a href="#cb22-9"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Count))</span>
-<span id="cb22-10"><a href="#cb22-10"></a></span>
-<span id="cb22-11"><a href="#cb22-11"></a><span class="co"># Merge counts back with subzone polygons</span></span>
-<span id="cb22-12"><a href="#cb22-12"></a>subzones_counts_sf <span class="ot">&lt;-</span> subzones <span class="sc">%&gt;%</span></span>
-<span id="cb22-13"><a href="#cb22-13"></a>  <span class="fu">left_join</span>(subzone_counts, <span class="at">by =</span> <span class="st">"Name"</span>)</span>
-<span id="cb22-14"><a href="#cb22-14"></a></span>
-<span id="cb22-15"><a href="#cb22-15"></a><span class="co"># Plot thematic map</span></span>
-<span id="cb22-16"><a href="#cb22-16"></a><span class="fu">tm_shape</span>(subzones_counts_sf) <span class="sc">+</span></span>
-<span id="cb22-17"><a href="#cb22-17"></a>  <span class="fu">tm_polygons</span>(</span>
-<span id="cb22-18"><a href="#cb22-18"></a>    <span class="st">"Count"</span>,</span>
-<span id="cb22-19"><a href="#cb22-19"></a>    <span class="at">palette =</span> <span class="st">"Reds"</span>,</span>
-<span id="cb22-20"><a href="#cb22-20"></a>    <span class="at">border.col =</span> <span class="st">"black"</span>,</span>
-<span id="cb22-21"><a href="#cb22-21"></a>    <span class="at">title =</span> <span class="st">"Number of Businesses"</span></span>
-<span id="cb22-22"><a href="#cb22-22"></a>  ) <span class="sc">+</span></span>
-<span id="cb22-23"><a href="#cb22-23"></a>  <span class="fu">tm_layout</span>(</span>
-<span id="cb22-24"><a href="#cb22-24"></a>    <span class="at">title =</span> <span class="st">"Business Counts per Subzone (2024-2025)"</span>,</span>
-<span id="cb22-25"><a href="#cb22-25"></a>    <span class="at">legend.title.size =</span> <span class="fl">1.1</span>,</span>
-<span id="cb22-26"><a href="#cb22-26"></a>    <span class="at">legend.text.size =</span> <span class="fl">0.9</span></span>
-<span id="cb22-27"><a href="#cb22-27"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Assigning subzone names to each ACRA point</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>acra_sf <span class="ot">&lt;-</span> <span class="fu">st_join</span>(acra_sf, subzones[<span class="st">"Name"</span>], <span class="at">left =</span> <span class="cn">FALSE</span>)  <span class="co"># only keep points that fall in subzones</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a></span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="co"># Counting businesses per subzone</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a>subzone_counts <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="fu">group_by</span>(Name) <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a>  <span class="fu">summarise</span>(<span class="at">Count =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb28-9"><a href="#cb28-9"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Count))</span>
+<span id="cb28-10"><a href="#cb28-10"></a></span>
+<span id="cb28-11"><a href="#cb28-11"></a><span class="co"># Merging counts back with subzone polygons</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a>subzones_counts_sf <span class="ot">&lt;-</span> subzones <span class="sc">%&gt;%</span></span>
+<span id="cb28-13"><a href="#cb28-13"></a>  <span class="fu">left_join</span>(subzone_counts, <span class="at">by =</span> <span class="st">"Name"</span>)</span>
+<span id="cb28-14"><a href="#cb28-14"></a></span>
+<span id="cb28-15"><a href="#cb28-15"></a><span class="co"># Plotting thematic map</span></span>
+<span id="cb28-16"><a href="#cb28-16"></a><span class="fu">tm_shape</span>(subzones_counts_sf) <span class="sc">+</span></span>
+<span id="cb28-17"><a href="#cb28-17"></a>  <span class="fu">tm_polygons</span>(</span>
+<span id="cb28-18"><a href="#cb28-18"></a>    <span class="st">"Count"</span>,</span>
+<span id="cb28-19"><a href="#cb28-19"></a>    <span class="at">palette =</span> <span class="st">"Reds"</span>,</span>
+<span id="cb28-20"><a href="#cb28-20"></a>    <span class="at">border.col =</span> <span class="st">"black"</span>,</span>
+<span id="cb28-21"><a href="#cb28-21"></a>    <span class="at">title =</span> <span class="st">"Number of Businesses"</span></span>
+<span id="cb28-22"><a href="#cb28-22"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-23"><a href="#cb28-23"></a>  <span class="fu">tm_layout</span>(</span>
+<span id="cb28-24"><a href="#cb28-24"></a>    <span class="at">title =</span> <span class="st">"Business Counts per Subzone (2024-2025)"</span>,</span>
+<span id="cb28-25"><a href="#cb28-25"></a>    <span class="at">legend.title.size =</span> <span class="fl">1.1</span>,</span>
+<span id="cb28-26"><a href="#cb28-26"></a>    <span class="at">legend.text.size =</span> <span class="fl">0.9</span></span>
+<span id="cb28-27"><a href="#cb28-27"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <style>#legend01 { background: #FFFFFF; opacity: 1}</style>
@@ -863,101 +908,43 @@ Geodetic CRS:  WGS 84</code></pre>
 <li>Identifies high-density subzones.</li>
 <li>Useful for planning, policy-making, and resource allocation.</li>
 </ul>
+<p>This choropleth map visualizes the number of businesses within each subzone of Singapore . The subzones are colored according to the number of businesses they contain, ranging from light shades (1-20 businesses) to dark red shades (121-140 businesses). The darkest red areas, indicating the highest concentration of businesses, are found in the western and central parts of the island.</p>
 </section>
-<section id="combined-interactive-map-bonus-kde-subzone-counts" class="level1">
-<h1>12. Combined Interactive Map (Bonus: KDE + Subzone Counts)</h1>
-<p>This block performs Kernel Density Estimation (KDE) for selected SSIC codes. It identifies where businesses of each type (e.g., wholesale trade, consultancy) are most concentrated and visualizes these hotspots over Singapore’s subzones</p>
-<div class="cell">
-<details open="" class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="co"># SSIC-wise Kernel Density Estimation (KDE)</span></span>
-<span id="cb23-2"><a href="#cb23-2"></a></span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="fu">library</span>(spatstat.geom)</span>
-<span id="cb23-4"><a href="#cb23-4"></a><span class="fu">library</span>(spatstat.explore)</span>
-<span id="cb23-5"><a href="#cb23-5"></a><span class="fu">library</span>(stars)</span>
-<span id="cb23-6"><a href="#cb23-6"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb23-7"><a href="#cb23-7"></a><span class="fu">library</span>(tmap)</span>
-<span id="cb23-8"><a href="#cb23-8"></a></span>
-<span id="cb23-9"><a href="#cb23-9"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
-<span id="cb23-10"><a href="#cb23-10"></a></span>
-<span id="cb23-11"><a href="#cb23-11"></a><span class="co"># Define SSIC labels</span></span>
-<span id="cb23-12"><a href="#cb23-12"></a>ssic_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb23-13"><a href="#cb23-13"></a>  <span class="st">"46900"</span> <span class="ot">=</span> <span class="st">"Wholesale Trade (46900)"</span>,</span>
-<span id="cb23-14"><a href="#cb23-14"></a>  <span class="st">"70201"</span> <span class="ot">=</span> <span class="st">"Management Consultancy (70201)"</span>,</span>
-<span id="cb23-15"><a href="#cb23-15"></a>  <span class="st">"64202"</span> <span class="ot">=</span> <span class="st">"Other Holding Companies (64202)"</span></span>
-<span id="cb23-16"><a href="#cb23-16"></a>)</span>
-<span id="cb23-17"><a href="#cb23-17"></a></span>
-<span id="cb23-18"><a href="#cb23-18"></a><span class="co"># Create a list to store maps</span></span>
-<span id="cb23-19"><a href="#cb23-19"></a>kde_maps <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb23-20"><a href="#cb23-20"></a></span>
-<span id="cb23-21"><a href="#cb23-21"></a><span class="co"># Loop over each SSIC</span></span>
-<span id="cb23-22"><a href="#cb23-22"></a><span class="cf">for</span>(code <span class="cf">in</span> <span class="fu">names</span>(ssic_labels)) {</span>
-<span id="cb23-23"><a href="#cb23-23"></a>  </span>
-<span id="cb23-24"><a href="#cb23-24"></a>  acra_subset <span class="ot">&lt;-</span> acra_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(primary_ssic_code <span class="sc">==</span> code)</span>
-<span id="cb23-25"><a href="#cb23-25"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(acra_subset) <span class="sc">==</span> <span class="dv">0</span>) <span class="cf">next</span></span>
-<span id="cb23-26"><a href="#cb23-26"></a>  </span>
-<span id="cb23-27"><a href="#cb23-27"></a>  <span class="co"># Convert to ppp and compute KDE</span></span>
-<span id="cb23-28"><a href="#cb23-28"></a>  acra_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(acra_subset, <span class="at">W =</span> sg_owin)</span>
-<span id="cb23-29"><a href="#cb23-29"></a>  kde_ppp <span class="ot">&lt;-</span> <span class="fu">density</span>(acra_ppp, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(acra_ppp))</span>
-<span id="cb23-30"><a href="#cb23-30"></a>  </span>
-<span id="cb23-31"><a href="#cb23-31"></a>  <span class="co"># Convert to stars object</span></span>
-<span id="cb23-32"><a href="#cb23-32"></a>  kde_stars <span class="ot">&lt;-</span> <span class="fu">st_as_stars</span>(kde_ppp)</span>
-<span id="cb23-33"><a href="#cb23-33"></a>  <span class="fu">st_crs</span>(kde_stars) <span class="ot">&lt;-</span> <span class="fu">st_crs</span>(acra_sf)</span>
-<span id="cb23-34"><a href="#cb23-34"></a>  </span>
-<span id="cb23-35"><a href="#cb23-35"></a>  <span class="co"># Build map object and store it</span></span>
-<span id="cb23-36"><a href="#cb23-36"></a>  kde_maps[[code]] <span class="ot">&lt;-</span> </span>
-<span id="cb23-37"><a href="#cb23-37"></a>    <span class="fu">tm_shape</span>(subzones_counts_sf) <span class="sc">+</span></span>
-<span id="cb23-38"><a href="#cb23-38"></a>      <span class="fu">tm_polygons</span>(<span class="st">"Count"</span>,</span>
-<span id="cb23-39"><a href="#cb23-39"></a>                  <span class="at">palette =</span> <span class="st">"Reds"</span>,</span>
-<span id="cb23-40"><a href="#cb23-40"></a>                  <span class="at">border.col =</span> <span class="st">"black"</span>,</span>
-<span id="cb23-41"><a href="#cb23-41"></a>                  <span class="at">alpha =</span> <span class="fl">0.3</span>,</span>
-<span id="cb23-42"><a href="#cb23-42"></a>                  <span class="at">title =</span> <span class="st">"Business Count"</span>) <span class="sc">+</span></span>
-<span id="cb23-43"><a href="#cb23-43"></a>      <span class="fu">tm_shape</span>(kde_stars) <span class="sc">+</span></span>
-<span id="cb23-44"><a href="#cb23-44"></a>      <span class="fu">tm_raster</span>(<span class="at">palette =</span> <span class="st">"-Blues"</span>,</span>
-<span id="cb23-45"><a href="#cb23-45"></a>                <span class="at">alpha =</span> <span class="fl">0.6</span>,</span>
-<span id="cb23-46"><a href="#cb23-46"></a>                <span class="at">title =</span> <span class="st">"Kernel Density"</span>) <span class="sc">+</span></span>
-<span id="cb23-47"><a href="#cb23-47"></a>      <span class="fu">tm_layout</span>(</span>
-<span id="cb23-48"><a href="#cb23-48"></a>        <span class="at">legend.outside =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-49"><a href="#cb23-49"></a>        <span class="at">main.title =</span> <span class="fu">paste0</span>(ssic_labels[[code]], <span class="st">" - KDE Density Map"</span>),</span>
-<span id="cb23-50"><a href="#cb23-50"></a>        <span class="at">main.title.size =</span> <span class="fl">1.2</span></span>
-<span id="cb23-51"><a href="#cb23-51"></a>      )</span>
-<span id="cb23-52"><a href="#cb23-52"></a>}</span>
-<span id="cb23-53"><a href="#cb23-53"></a></span>
-<span id="cb23-54"><a href="#cb23-54"></a><span class="co"># Render each map explicitly</span></span>
-<span id="cb23-55"><a href="#cb23-55"></a><span class="cf">for</span>(map <span class="cf">in</span> kde_maps) {</span>
-<span id="cb23-56"><a href="#cb23-56"></a>  <span class="fu">print</span>(map)</span>
-<span id="cb23-57"><a href="#cb23-57"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
+<section id="conclusion-applications-to-urban-planning" class="level1">
+<h1>12. Conclusion &amp; Applications to Urban Planning</h1>
+<p><strong>Key Findings:</strong></p>
 <ul>
-<li>Dark blue areas = high concentration of businesses for that SSIC (potential clusters).</li>
-<li>Light areas = sparse distribution, fewer businesses in those subzones.</li>
-<li>Subzone outlines help relate density to administrative boundaries, allowing spatial insights such as whether clusters align with industrial zones or CBD areas.</li>
+<li><p>Business Concentration Patterns: The Kernel Density Estimate (KDE) and subzone choropleth map analyses confirm a high concentration of businesses in and around Singapore’s Central Business District (CBD) and key commercial hubs. The spatial distribution varies by industry, with Management Consultancy (SSIC 70201) showing a distinct concentration in downtown areas, while Wholesale Trade (SSIC 46900) has a broader, more distributed presence.</p></li>
+<li><p>Temporal Trends: An analysis of monthly business registrations reveals an increasing trend in 2025 compared to the same period in 2024, highlighting a dynamic and growing business landscape.</p></li>
+<li><p>Spatial Point Pattern Analysis (SPPA): The G- and F-functions suggest a slight tendency toward a random spatial distribution. However, the K- and L-functions indicate a degree of clustering across all business locations, providing a more robust measure of the non-random pattern. These findings corroborate the visual observations from the KDE and choropleth maps.</p></li>
+<li><p>Subzone Insights: The subzone-level analysis identifies specific areas with high business registration volumes, which can be designated as business “hotspots.” This granular insight is critical for targeted resource allocation and land-use management.</p></li>
+</ul>
+<p><strong>Applications to Urban Planning:</strong></p>
+<ul>
+<li><p>Zoning and Land Use: Identifying and reinforcing commercial clusters for relevant zoning purposes (e.g., office, retail, industrial).</p></li>
+<li><p>Infrastructure Planning: Prioritizing the development of transport, utilities, and public amenities in identified high-density business subzones to support urban growth.</p></li>
+<li><p>Policy and Business Support: Developing and implementing targeted incentive programs and support services for businesses in dynamic, high-growth areas.</p></li>
+<li><p>Urban Monitoring: Utilizing new business registration data as a key indicator for updating urban planning decisions and predicting future growth patterns.</p></li>
 </ul>
 </section>
-<section id="conclusion" class="level1">
-<h1>13. Conclusion</h1>
-<p>The analysis of business entity registrations in Singapore from January 2024 to June 2025 reveals distinct spatial and temporal patterns across selected SSIC codes (46900, 70201, 64202). Key findings include:</p>
-<p>Business Concentration Patterns: - Spatial KDE and subzone-level aggregation highlight that businesses are clustered around central business districts (CBDs) and commercial hubs. - Wholesale trade (46900) shows broader distribution, while Management Consultancy (70201) is concentrated in commercial areas.</p>
-<p>Temporal Trends: - Monthly registration trends reveal seasonal variations in business incorporations, potentially linked to economic cycles or policy incentives.</p>
-<p>Spatial Point Pattern Analysis (SPPA): - Clark-Evans, G, F, K, and L function analyses indicate that business locations deviate from complete spatial randomness, confirming clustering tendencies. - First- and second-order analyses quantitatively support observations from KDE and choropleth mapping.</p>
-<p>Subzone Insights: - Certain subzones emerge as hotspots for multiple business types, which could inform urban planning, land-use management, and infrastructure allocation.</p>
-<p>Overall, the combined geospatial and temporal analyses provide a comprehensive picture of business distribution, aiding both policy decision-making and market strategy for investors.</p>
-</section>
 <section id="limitations" class="level1">
-<h1>14. Limitations</h1>
-<p>Synthetic Coordinates: - Due to unavailable exact geocodes, randomized coordinates within Singapore’s bounding box were used. This may reduce spatial precision and can affect KDE and SPPA accuracy.</p>
-<p>Data Completeness: - Missing or inconsistent postal codes and SSIC codes required filtering, which may omit certain businesses. - Only selected SSIC codes were analyzed, limiting generalizability to all business sectors.</p>
-<p>Temporal Granularity: - Only monthly registration dates were used; daily fluctuations or intraday trends were not captured.</p>
-<p>Subzone Boundaries: - Analysis relies on static 2019 Masterplan subzone boundaries, which may not perfectly reflect real-time urban dynamics.</p>
+<h1>13. Limitations</h1>
+<ul>
+<li><p>Synthetic Geocodes: The use of randomized coordinates instead of precise geocodes (latitude/longitude) may affect the accuracy of the KDE and SPPA results.</p></li>
+<li><p>Data Completeness: The analysis was limited to the three most frequent SSIC codes and excluded businesses with missing or incomplete postal code data.</p></li>
+<li><p>Temporal Granularity: The analysis used a monthly temporal scale, which may not capture finer-grained daily or weekly business registration trends.</p></li>
+<li><p>Subzone Boundaries: The use of static 2019 Masterplan subzone boundaries may not fully reflect the dynamic changes in the urban landscape.</p></li>
+</ul>
 </section>
 <section id="future-improvements" class="level1">
-<h1>15. Future Improvements</h1>
-<p>Integration with Real Geocodes: - Using actual postal geocodes or latitude-longitude coordinates would improve spatial accuracy for KDE and SPPA.</p>
-<p>Expanded SSIC Coverage: - Include more SSIC codes to provide a holistic view of Singapore’s business landscape.</p>
-<p>Dynamic Temporal Analysis: - Extend to daily or weekly temporal resolutions, or apply spatio-temporal point process models for richer insights.</p>
-<p>Advanced Spatial Methods: - Incorporate spatial autocorrelation metrics (Moran’s I, Getis-Ord Gi) or network-based analyses to detect business clusters along transportation routes.</p>
-<p>Predictive Modeling: - Combine spatial and temporal patterns to forecast business growth or identify potential high-density zones, assisting in policy planning and investment decisions.</p>
+<h1>14. Future Improvements</h1>
+<ul>
+<li><p>Real Geocodes: Conducting the analysis with real latitude and longitude coordinates for enhanced spatial precision.</p></li>
+<li><p>Expanded SSIC Coverage: Including a broader range of SSIC codes to gain a more comprehensive understanding of the business ecosystem.</p></li>
+<li><p>Dynamic Temporal Analysis: Applying daily or weekly data to model spatio-temporal point processes and capture more granular changes.</p></li>
+<li><p>Advanced Spatial Metrics: Integrating additional metrics such as Moran’s I or Getis-Ord Gi to further investigate spatial clustering.</p></li>
+<li><p>Predictive Modeling: Developing models to forecast business growth and identify potential high-density zones to proactively support urban planning and policy.</p></li>
+</ul>
 
 
 </section>

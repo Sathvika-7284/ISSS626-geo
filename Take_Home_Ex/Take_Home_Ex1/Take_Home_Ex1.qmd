@@ -2,7 +2,7 @@
 title: "Take Home Exercise 1 – Geospatial Analysis of ACRA Business Registrations"
 author: "Sathvika Subramanian"
 date: "September 20, 2025"
-date-modified: "last-modified"
+date-modified: "September 24, 2025"
 execute: 
   eval: true
   echo: true
@@ -54,11 +54,11 @@ Importing raw CSVs, filter by selected SSIC codes, removing missing postal codes
 ```{r}
 #| code-fold: show
 
-# Load all 27 ACRA CSVs
+# Loading all 27 ACRA CSVs
 files <- list.files(path = "data/", pattern = "*.csv", full.names = TRUE)
 acra_all <- files %>% map_dfr(read_csv, col_types = cols(.default = "c"))
 
-# Selected SSIC codes for analysis
+# Selecting SSIC codes for analysis
 selected_ssic <- c("46900", "70201", "64202")
 
 # Filtering and cleaning
@@ -354,78 +354,7 @@ tm_shape(subzones_counts_sf) +
 
 This choropleth map visualizes the number of businesses within each subzone of Singapore . The subzones are colored according to the number of businesses they contain, ranging from light shades (1-20 businesses) to dark red shades (121-140 businesses). The darkest red areas, indicating the highest concentration of businesses, are found in the western and central parts of the island.
 
-# 12. Faceted SSIC-wise Kernel Density Estimation (KDE)
-
-Comparing density hotspots for multiple business types across Singapore subzones
-
-```{r}
-#| code-fold: show
-#| fig-height: 9
-
-library(spatstat.geom)
-library(spatstat.explore)
-library(stars)
-library(dplyr)
-library(tmap)
-
-tmap_mode("plot")  # ensures R Markdown renders static plots
-
-# Define SSIC labels
-ssic_labels <- c(
-  "46900" = "Wholesale Trade (46900)",
-  "70201" = "Management Consultancy (70201)",
-  "64202" = "Other Holding Companies (64202)"
-)
-
-# Prepare a list to store stars objects
-kde_stars_list <- list()
-
-for(code in names(ssic_labels)) {
-  
-  acra_subset <- acra_sf %>% filter(primary_ssic_code == code)
-  if(nrow(acra_subset) == 0) next
-  
-  # Convert to ppp and compute KDE
-  acra_ppp <- as.ppp(acra_subset, W = sg_owin)
-  kde_ppp <- density(acra_ppp, sigma = bw.diggle(acra_ppp))
-  
-  # Convert to stars and add SSIC as a dimension
-  kde_stars <- st_as_stars(kde_ppp)
-  kde_stars <- st_set_dimensions(kde_stars, 3, values = ssic_labels[[code]], names = "SSIC")
-  st_crs(kde_stars) <- st_crs(acra_sf)
-  
-  kde_stars_list[[code]] <- kde_stars
-}
-
-# Combine stars objects along new dimension
-kde_combined <- do.call(c, kde_stars_list)
-
-# Plot faceted KDE map
-tm_shape(subzones_counts_sf) +
-  tm_polygons("Count",
-              palette = "Reds",
-              alpha = 0.3,
-              border.col = "black",
-              title = "Business Count") +
-  tm_shape(kde_combined) +
-  tm_raster("layer",
-            palette = "-Blues",
-            alpha = 0.6,
-            title = "Kernel Density") +
-  tm_facets(by = "SSIC") +
-  tm_layout(
-    legend.outside = TRUE,
-    main.title = "SSIC-wise KDE Density Maps",
-    main.title.size = 1.2
-  )
-```
-
--   Dark blue areas = high concentration of businesses for that SSIC → potential clusters.
--   Light areas = sparse distribution → fewer businesses.
--   Subzone outlines allow comparison with administrative boundaries. It identify whether clusters align with CBDs or industrial hubs.
--   Faceted view allows quick comparison between wholesale trade, management consultancy, and holding companies.
-
-# 13. Conclusion & Applications to Urban Planning
+# 12. Conclusion & Applications to Urban Planning
 
 **Key Findings:**
 
@@ -447,7 +376,7 @@ tm_shape(subzones_counts_sf) +
 
 -   Urban Monitoring: Utilizing new business registration data as a key indicator for updating urban planning decisions and predicting future growth patterns.
 
-# 14. Limitations
+# 13. Limitations
 
 -   Synthetic Geocodes: The use of randomized coordinates instead of precise geocodes (latitude/longitude) may affect the accuracy of the KDE and SPPA results.
 
@@ -457,7 +386,7 @@ tm_shape(subzones_counts_sf) +
 
 -   Subzone Boundaries: The use of static 2019 Masterplan subzone boundaries may not fully reflect the dynamic changes in the urban landscape.
 
-# 15. Future Improvements
+# 14. Future Improvements
 
 -   Real Geocodes: Conducting the analysis with real latitude and longitude coordinates for enhanced spatial precision.
 
