@@ -149,6 +149,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex4.html">
  <span class="dropdown-text">Hands-on Exercise 4</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex5-1.html">
+ <span class="dropdown-text">Hands-on Exercise 5-1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex5-2.html">
+ <span class="dropdown-text">Hands-on Exercise 5-2</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -207,7 +215,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#import-libraries" id="toc-import-libraries" class="nav-link active" data-scroll-target="#import-libraries">Import libraries</a></li>
+  <li><a href="#geographically-weighted-summary-statistics---gwmodel-methods" id="toc-geographically-weighted-summary-statistics---gwmodel-methods" class="nav-link active" data-scroll-target="#geographically-weighted-summary-statistics---gwmodel-methods">Geographically Weighted Summary Statistics - gwModel methods</a>
+  <ul class="collapse">
+  <li><a href="#import-libraries" id="toc-import-libraries" class="nav-link" data-scroll-target="#import-libraries">Import libraries</a></li>
   <li><a href="#importing-hunan-table" id="toc-importing-hunan-table" class="nav-link" data-scroll-target="#importing-hunan-table">Importing ‘Hunan’ table</a></li>
   <li><a href="#joining-hunan-and-hunan_2012" id="toc-joining-hunan-and-hunan_2012" class="nav-link" data-scroll-target="#joining-hunan-and-hunan_2012">Joining Hunan and Hunan_2012</a></li>
   <li><a href="#cross-validation" id="toc-cross-validation" class="nav-link" data-scroll-target="#cross-validation">Cross-Validation</a></li>
@@ -215,7 +225,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#summary-statistics" id="toc-summary-statistics" class="nav-link" data-scroll-target="#summary-statistics">Summary Statistics</a></li>
   <li><a href="#extracting-sdf-data-table-from-gwss-object-output-from-gwss" id="toc-extracting-sdf-data-table-from-gwss-object-output-from-gwss" class="nav-link" data-scroll-target="#extracting-sdf-data-table-from-gwss-object-output-from-gwss">Extracting SDF data table from gwss object output from gwss()</a></li>
   <li><a href="#combine-with-hunan-data" id="toc-combine-with-hunan-data" class="nav-link" data-scroll-target="#combine-with-hunan-data">Combine with Hunan data</a></li>
-  <li><a href="#visualising-geographically" id="toc-visualising-geographically" class="nav-link" data-scroll-target="#visualising-geographically">Visualising geographically</a></li>
+  <li><a href="#visualising-geographically-weighted-summary-statistics" id="toc-visualising-geographically-weighted-summary-statistics" class="nav-link" data-scroll-target="#visualising-geographically-weighted-summary-statistics">Visualising geographically weighted summary statistics</a></li>
+  <li><a href="#geographically-weighted-correlation" id="toc-geographically-weighted-correlation" class="nav-link" data-scroll-target="#geographically-weighted-correlation">Geographically Weighted Correlation</a></li>
+  <li><a href="#geospatial-analytics-solution" id="toc-geospatial-analytics-solution" class="nav-link" data-scroll-target="#geospatial-analytics-solution">Geospatial analytics solution</a>
+  <ul class="collapse">
+  <li><a href="#determine-bandwidth" id="toc-determine-bandwidth" class="nav-link" data-scroll-target="#determine-bandwidth">Determine bandwidth</a></li>
+  </ul></li>
+  <li><a href="#computing-gwcorrelation" id="toc-computing-gwcorrelation" class="nav-link" data-scroll-target="#computing-gwcorrelation">Computing gwCorrelation</a></li>
+  <li><a href="#extracting-the-result" id="toc-extracting-the-result" class="nav-link" data-scroll-target="#extracting-the-result">Extracting the result</a></li>
+  <li><a href="#visualising-local-correlation" id="toc-visualising-local-correlation" class="nav-link" data-scroll-target="#visualising-local-correlation">Visualising Local Correlation</a></li>
+  </ul></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></nav>
     </div>
@@ -248,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 21, 2025</p>
+      <p class="date-modified">September 26, 2025</p>
     </div>
   </div>
     
@@ -259,6 +278,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="geographically-weighted-summary-statistics---gwmodel-methods" class="level1">
+<h1>Geographically Weighted Summary Statistics - gwModel methods</h1>
 <section id="import-libraries" class="level2">
 <h2 class="anchored" data-anchor-id="import-libraries">Import libraries</h2>
 <div class="cell">
@@ -428,8 +449,8 @@ Fixed bandwidth: 160.5517 AICc value: 1919.391 </code></pre>
 </div>
 </div>
 </section>
-<section id="visualising-geographically" class="level2">
-<h2 class="anchored" data-anchor-id="visualising-geographically">Visualising geographically</h2>
+<section id="visualising-geographically-weighted-summary-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-geographically-weighted-summary-statistics">Visualising geographically weighted summary statistics</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">tm_shape</span>(hunan_gstat) <span class="sc">+</span></span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tm_fill</span>(<span class="st">"GDPPC_LM"</span>,</span>
@@ -451,8 +472,103 @@ Fixed bandwidth: 160.5517 AICc value: 1919.391 </code></pre>
 </div>
 </div>
 </div>
+</section>
+<section id="geographically-weighted-correlation" class="level2">
+<h2 class="anchored" data-anchor-id="geographically-weighted-correlation">Geographically Weighted Correlation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">ggscatterstats</span>(</span>
+<span id="cb21-2"><a href="#cb21-2"></a>  <span class="at">data =</span> hunan_2012, </span>
+<span id="cb21-3"><a href="#cb21-3"></a>  <span class="at">x =</span> Agri, </span>
+<span id="cb21-4"><a href="#cb21-4"></a>  <span class="at">y =</span> GDPPC,</span>
+<span id="cb21-5"><a href="#cb21-5"></a>  <span class="at">xlab =</span> <span class="st">"Gross Agriculture Output"</span>, <span class="do">## label for the x-axis</span></span>
+<span id="cb21-6"><a href="#cb21-6"></a>  <span class="at">ylab =</span> <span class="st">"GDP per capita"</span>, </span>
+<span id="cb21-7"><a href="#cb21-7"></a>  <span class="at">label.var =</span> County, </span>
+<span id="cb21-8"><a href="#cb21-8"></a>  <span class="at">label.expression =</span> Agri <span class="sc">&gt;</span> <span class="dv">10000</span> <span class="sc">&amp;</span> GDPPC <span class="sc">&gt;</span> <span class="dv">50000</span>, </span>
+<span id="cb21-9"><a href="#cb21-9"></a>  <span class="at">point.label.args =</span> <span class="fu">list</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"grey50"</span>),</span>
+<span id="cb21-10"><a href="#cb21-10"></a>  <span class="at">xfill =</span> <span class="st">"#CC79A7"</span>, </span>
+<span id="cb21-11"><a href="#cb21-11"></a>  <span class="at">yfill =</span> <span class="st">"#009E73"</span>, </span>
+<span id="cb21-12"><a href="#cb21-12"></a>  <span class="at">title =</span> <span class="st">"Relationship between GDP PC and Gross Agriculture Output"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="In-class_Ex04_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="geospatial-analytics-solution" class="level2">
+<h2 class="anchored" data-anchor-id="geospatial-analytics-solution">Geospatial analytics solution</h2>
+<section id="determine-bandwidth" class="level3">
+<h3 class="anchored" data-anchor-id="determine-bandwidth">Determine bandwidth</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>bw <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(GDPPC <span class="sc">~</span> GIO, </span>
+<span id="cb22-2"><a href="#cb22-2"></a>             <span class="at">data =</span> hunan_sp, </span>
+<span id="cb22-3"><a href="#cb22-3"></a>             <span class="at">approach =</span> <span class="st">"AICc"</span>, </span>
+<span id="cb22-4"><a href="#cb22-4"></a>             <span class="at">adaptive =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Adaptive bandwidth (number of nearest neighbours): 62 AICc value: 1870.235 
+Adaptive bandwidth (number of nearest neighbours): 46 AICc value: 1870.852 
+Adaptive bandwidth (number of nearest neighbours): 72 AICc value: 1869.744 
+Adaptive bandwidth (number of nearest neighbours): 78 AICc value: 1869.713 
+Adaptive bandwidth (number of nearest neighbours): 82 AICc value: 1869.604 
+Adaptive bandwidth (number of nearest neighbours): 84 AICc value: 1869.537 
+Adaptive bandwidth (number of nearest neighbours): 86 AICc value: 1869.647 
+Adaptive bandwidth (number of nearest neighbours): 83 AICc value: 1869.567 
+Adaptive bandwidth (number of nearest neighbours): 84 AICc value: 1869.537 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="computing-gwcorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="computing-gwcorrelation">Computing gwCorrelation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>gwstats <span class="ot">&lt;-</span> <span class="fu">gwss</span>(hunan_sp, </span>
+<span id="cb24-2"><a href="#cb24-2"></a>                <span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"GDPPC"</span>, <span class="st">"GIO"</span>), </span>
+<span id="cb24-3"><a href="#cb24-3"></a>                <span class="at">bw =</span> bw,</span>
+<span id="cb24-4"><a href="#cb24-4"></a>                <span class="at">kernel =</span> <span class="st">"bisquare"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5"></a>                <span class="at">adaptive =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb24-6"><a href="#cb24-6"></a>                <span class="at">longlat =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extracting-the-result" class="level2">
+<h2 class="anchored" data-anchor-id="extracting-the-result">Extracting the result</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>gwstat_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(gwstats<span class="sc">$</span>SDF) <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">12</span>,<span class="dv">13</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a>  <span class="fu">rename</span>(<span class="at">gwCorr =</span> Corr_GDPPC.GIO,</span>
+<span id="cb25-4"><a href="#cb25-4"></a>         <span class="at">gwSpearman =</span> Spearman_rho_GDPPC.GIO)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>hunan_Corr <span class="ot">&lt;-</span> <span class="fu">cbind</span>(hunan_sf, gwstat_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="visualising-local-correlation" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-local-correlation">Visualising Local Correlation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">tm_shape</span>(hunan_Corr) <span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">tm_polygons</span>(<span class="at">fill =</span> <span class="st">"gwSpearman"</span>,</span>
+<span id="cb27-3"><a href="#cb27-3"></a>              <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
+<span id="cb27-4"><a href="#cb27-4"></a>                <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5"></a>                <span class="at">n =</span> <span class="dv">5</span>,</span>
+<span id="cb27-6"><a href="#cb27-6"></a>                <span class="at">values =</span> <span class="st">"brewer.blues"</span>),</span>
+<span id="cb27-7"><a href="#cb27-7"></a>              <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(</span>
+<span id="cb27-8"><a href="#cb27-8"></a>                <span class="at">title =</span> <span class="st">"local Spearman Rho"</span>)) <span class="sc">+</span></span>
+<span id="cb27-9"><a href="#cb27-9"></a>  <span class="fu">tm_borders</span>(<span class="at">fill_alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10"></a>  <span class="fu">tm_title</span>(<span class="st">"Local Spearman Rho"</span>, </span>
+<span id="cb27-11"><a href="#cb27-11"></a>  <span class="at">size =</span> <span class="fl">2.0</span>) <span class="sc">+</span></span>
+<span id="cb27-12"><a href="#cb27-12"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="In-class_Ex04_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
