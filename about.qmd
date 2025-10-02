@@ -2,8 +2,14 @@
 title: "About"
 ---
 
-About this site
+About this Site
 
-```{r}
-1 + 1
-```
+Sathvika's website for **ISSS626 Geospatial Analytics and Applications** course. Core objectives of this site is to:
+
+-  Performing geospatial data science tasks such as importing, tidying, manipulating, transforming, projecting and processing geospatial data programmatically,
+
+-  Visualising, analysing and describing geographical patterns and processes using appropriate geovisualisation and thematic mapping techniques,
+
+-  Conducting geospatial analysis by using appropriate spatial statistics and Geomachine learning methods and
+
+-  Communicating the geospatial analysis pipeline in a reproducible report.
