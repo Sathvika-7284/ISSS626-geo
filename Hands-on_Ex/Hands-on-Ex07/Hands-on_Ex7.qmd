@@ -193,7 +193,7 @@ ggarrange(AREA_SQM, AGE, PROX_CBD, PROX_CHILDCARE,
 ## 4.3 Drawing Statistical Point Map
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 ```
 
 ```{r}
@@ -341,7 +341,7 @@ rename(`MLR_RES` = `condo.mlr1.residuals`)
 ```
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 ```
 
 ```{r}
@@ -505,7 +505,7 @@ summary(gwr.adaptive$SDF$yhat)
 ## 6.5 Visualising local R2
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 tm_shape(mpsz_svy21)+
   tm_polygons(fill_alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
@@ -520,7 +520,7 @@ tmap_mode("plot")
 ## 6.6 Visualising coefficient estimates
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 AREA_SQM_SE <- tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
