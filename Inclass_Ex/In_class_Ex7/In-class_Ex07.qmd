@@ -529,18 +529,12 @@ gwr.adaptive <- gwr.basic(
 ```{r}
 gwr.adaptive
 ```
-Best model: Adaptive bandwidth (147 nearest neighbours, AIC method)
 
-Reason:
-Lowest AICc (42353) - best trade-off between fit and complexity
-Highest R² (0.756) - explains most variance
-Handles varying spatial density better than fixed bandwidth
-More stable in real-world urban datasets (like condo transactions)
+-   Fixed bandwidth (4062 m) assumes spatial processes vary uniformly — good for evenly spaced data, but may over-smooth dense urban areas.
+-   Adaptive bandwidth (147 nearest neighbours) adjusts the window size depending on data density — smaller in dense areas, larger in sparse ones.
+-   Both AIC and BIC results point to adaptive GWR (147 NN) as the best-performing and most realistic model for spatially heterogeneous housing data.
 
-- Fixed bandwidth GWR (CV/AIC) assumes uniform spatial data density — suitable for evenly distributed observations, but can underfit dense urban clusters.
-- Adaptive bandwidth GWR adjusts local window size based on data density — captures spatial heterogeneity more effectively.
-- Bandwidth = 147 nearest neighbours (AIC) produced the best diagnostic performance (AICc = 42353.27, R² = 0.756).
-- Therefore, the adaptive nearest neighbours approach (AIC-based) is the correct and most suitable nearest neighbour setting for this hedonic pricing model.
+Between fixed and adaptive bandwidth approaches, the adaptive GWR model using 147 nearest neighbours (BIC-selected) performed best. It achieved the lowest BIC (41278.47), higher R², and smaller residuals, indicating that local spatial variations in housing prices are better captured when the bandwidth adapts to data density. Therefore, the adaptive (BIC-based) approach represents the correct and optimal nearest-neighbour configuration for this pricing model.
 
 ## 6.3 Converting SDF into sf data.frame
 
@@ -561,7 +555,7 @@ summary(gwr.adaptive$SDF$yhat)
 ## 6.4 Visualising local R2
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 tm_shape(mpsz_svy21)+
   tm_polygons(fill_alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
@@ -601,4 +595,77 @@ tm_shape(condo_resale_filtered) +
             legend.outside = TRUE,
             frame = TRUE,
             bg.color = "white")
+```
+
+## Analyzing R² Distribution in Jurong East Planning Area
+
+```{r}
+# Extracting Jurong East Data
+
+# Extract Jurong East planning area boundary
+JurongEast_boundary <- mpsz_svy21 %>%
+ filter(PLN_AREA_N == "JURONG EAST")
+# Filter GWR results for Jurong East area
+JurongEast_gwr <- condo_resale.sf.adaptive %>%
+ st_join(JurongEast_boundary) %>%
+ filter(!is.na(PLN_AREA_N))
+# Checking the number of observations in Jurong East
+nrow(JurongEast_gwr)
+
+# Summary Statistics of R² in Jurong East
+# Summary of Local R² in Jurong East
+JurongEast_r2_summary <- summary(JurongEast_gwr$Local_R2)
+JurongEast_r2_summary
+# Additional statistics
+JurongEast_r2_stats <- JurongEast_gwr %>%
+ st_drop_geometry() %>%
+ summarise(
+   n = n(),
+   mean_r2 = mean(Local_R2),
+   median_r2 = median(Local_R2),
+   sd_r2 = sd(Local_R2),
+   min_r2 = min(Local_R2),
+   max_r2 = max(Local_R2),
+   q1_r2 = quantile(Local_R2, 0.25),
+   q3_r2 = quantile(Local_R2, 0.75)
+ )
+JurongEast_r2_stats
+# Visualizing R² Distribution in Jurong East
+# Histogram of Local R² in Jurong East
+ggplot(JurongEast_gwr, aes(x = Local_R2)) +
+ geom_histogram(bins = 15, fill = "lightblue", color = "black", alpha = 0.7) +
+ geom_vline(aes(xintercept = mean(Local_R2)), color = "red", linetype = "dashed", size = 1) +
+ labs(title = "Distribution of Local R² in Jurong East Planning Area",
+      x = "Local R²",
+      y = "Frequency") +
+ theme_minimal()
+# Spatial Distribution of R² in Jurong East
+# Map of Local R² in Jurong East
+tm_shape(JurongEast_boundary) +
+ tm_polygons(alpha = 0.3, col = "lightgray") +
+tm_shape(JurongEast_gwr) +
+ tm_dots(col = "Local_R2",
+         palette = "RdYlBu",
+         style = "quantile",
+         size = 0.8,
+         title = "Local R²") +
+ tm_layout(main.title = "Local R² Distribution in Jurong East Planning Area",
+           legend.outside = TRUE)
+# Comparison with Overall R² Distribution
+# Compare Jurong East with overall distribution
+overall_r2_stats <- condo_resale.sf.adaptive %>%
+ st_drop_geometry() %>%
+ summarise(
+   n = n(),
+   mean_r2 = mean(Local_R2),
+   median_r2 = median(Local_R2),
+   sd_r2 = sd(Local_R2)
+ )
+comparison <- data.frame(
+ Area = c("Jurong East", "Overall"),
+ Mean_R2 = c(JurongEast_r2_stats$mean_r2, overall_r2_stats$mean_r2),
+ Median_R2 = c(JurongEast_r2_stats$median_r2, overall_r2_stats$median_r2),
+ SD_R2 = c(JurongEast_r2_stats$sd_r2, overall_r2_stats$sd_r2)
+)
+comparison
 ```
