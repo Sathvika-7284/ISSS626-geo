@@ -77,7 +77,6 @@ mpsz = read_rds("data/rds/mpsz_sf.rds") %>%
 odbus <- read_csv("data/LTADataMall/origin_destination_bus_202508.csv")
 ```
 
-
 ## Plot of Bus Stop and Master Plan
 
 ```{r}
@@ -157,4 +156,3 @@ kable(head(bs_hex))
 trips <- inner_join(trips, bs_hex)
 kable(head(trips))
 ```
-

@@ -213,7 +213,7 @@ corrplot.mixed(cluster_vars.cor,
 
 # 5. Hierarchy Cluster Analysis
 
-## 5.1  Extracting clustering variables
+## 5.1 Extracting clustering variables
 
 ```{r}
 cluster_vars <- shan_sf %>%

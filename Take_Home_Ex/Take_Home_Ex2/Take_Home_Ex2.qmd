@@ -9,3 +9,412 @@ execute:
   warning: false
   freeze: true
 ---
+
+# Urban Mobility Analysis: LMSA & EHSA on Bus OD Data
+
+## 1. Load R packages
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, tmaptools, spdep, tidyverse, lubridate, trend, rvest, knitr, classInt)
+```
+
+## 2. Importing Data
+
+### 2.1 Bus Stop Location
+
+```{r}
+BusStop = st_read(dsn = "data/geospatial/LTADataMall/",
+                  layer = "BusStop") %>%
+  st_transform(crs = 3414)
+```
+
+### 2.2 Master Plan 2019 Subzone
+
+```{r}
+mpsz <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>% st_transform(3414)
+```
+
+### 2.3 Extract attributes from KML
+
+```{r}
+extract_kml_field <- function(html_text, field_name) {
+  if (is.na(html_text) || html_text == "") return(NA_character_)
+  
+  page <- read_html(html_text)
+  rows <- page %>% html_elements("tr")
+  
+  value <- rows %>%
+    keep(~ html_text2(html_element(.x, "th")) == field_name) %>%
+    html_element("td") %>%
+    html_text2()
+  
+  if(length(value) == 0) NA_character_ else value
+}
+
+mpsz <- mpsz %>%
+  mutate(
+    REGION_N = map_chr(Description, extract_kml_field, "REGION_N"),
+    PLN_AREA_N = map_chr(Description, extract_kml_field, "PLN_AREA_N"),
+    SUBZONE_N = map_chr(Description, extract_kml_field, "SUBZONE_N"),
+    SUBZONE_C = map_chr(Description, extract_kml_field, "SUBZONE_C")
+  ) %>%
+  select(-Name, -Description) %>%
+  relocate(geometry, .after = last_col())
+
+write_rds(mpsz, "data/rds/mpsz_sf.rds")
+mpsz <- read_rds("data/rds/mpsz_sf.rds") %>% st_transform(crs=3414)
+```
+
+### 2.4 O-D Bus Data
+
+```{r}
+odbus <- read_csv("data/aspatial/origin_destination_bus_202508.csv")
+```
+
+## 3. Preprocess Bus Stops
+
+```{r}
+BusStop <- BusStop %>% rename(ORIGIN_PT_CODE = BUS_STOP_N) %>%
+  select(ORIGIN_PT_CODE, geometry)
+
+# Extracting bus stops within Singapore
+BusStop_in_SG <- st_join(BusStop, mpsz, join = st_within, left = FALSE)
+
+cat("Number of bus stops in SG:", nrow(BusStop_in_SG), "\n")
+print(head(BusStop_in_SG))
+```
+
+## 4. Derive Analytical Hexagon Grid
+
+```{r}
+a_m <- 375
+s_m <- (2 / sqrt(3)) * a_m
+hex_grid <- st_make_grid(mpsz, cellsize = s_m, square = FALSE, flat_topped = TRUE) %>%
+  st_sf() %>%
+  rowid_to_column("Hexagon_ID")
+
+# Keeping only hexagons containing bus stops
+hex_grid$n_collisions <- lengths(st_intersects(hex_grid, BusStop_in_SG))
+hex_grid <- filter(hex_grid, n_collisions > 0)
+hex_grid$HEX_ID <- sprintf("H%04d", seq_len(nrow(hex_grid))) %>% as.factor()
+hex_grid <- hex_grid %>% select(-n_collisions)
+
+cat("Number of hexagons with bus stops:", nrow(hex_grid), "\n")
+print(head(hex_grid))
+```
+
+## 5. Classify Time Intervals
+
+```{r}
+classify_time <- function(day_type, time_hour){
+  if(day_type == "WEEKDAYS"){
+    if(time_hour >= 6 & time_hour <= 9) return("Weekday_AM_Peak")
+    if(time_hour >= 17 & time_hour <= 20) return("Weekday_PM_Peak")
+  } else if(day_type %in% c("WEEKENDS/HOLIDAY")){
+    if(time_hour >= 11 & time_hour <= 20) return("Weekend_Peak")
+  }
+  return("Other")
+}
+
+cat("Test classify_time function:\n")
+print(sapply(list(c("WEEKDAYS", 7), c("WEEKDAYS", 18), c("WEEKENDS/HOLIDAY", 15)), function(x) classify_time(x[1], as.numeric(x[2]))))
+```
+
+## 6. Aggregate Passenger Trips
+```{r}
+trips_by_stop <- odbus %>%
+  filter(PT_TYPE=="BUS") %>%
+  rowwise() %>%
+  mutate(Time_Interval = classify_time(DAY_TYPE, as.numeric(TIME_PER_HOUR))) %>%
+  ungroup() %>%
+  filter(Time_Interval != "Other") %>%
+  group_by(ORIGIN_PT_CODE, Time_Interval) %>%
+  summarise(Total_Trips = sum(TOTAL_TRIPS, na.rm=TRUE), .groups="drop")
+
+cat("Aggregated trips per bus stop & time interval:\n")
+print(head(trips_by_stop))
+summary(trips_by_stop$Total_Trips)
+```
+
+
+## 7. Spatial join bus stops to hex grid
+
+```{r}
+BusStop_hex <- st_join(BusStop, hex_grid, join = st_within) %>% st_drop_geometry() %>%
+  select(ORIGIN_PT_CODE, Hexagon_ID)
+
+cat("Bus stops assigned to hexagons:\n")
+print(head(BusStop_hex))
+```
+
+
+## 8. Aggregate trips to hexagon level
+
+```{r}
+hex_trips <- BusStop_hex %>%
+  left_join(trips_by_stop, by="ORIGIN_PT_CODE") %>%
+  drop_na(Total_Trips) %>%
+  group_by(Hexagon_ID, Time_Interval) %>%
+  summarise(Total_Passenger_Trips=sum(Total_Trips, na.rm=TRUE), .groups="drop")
+
+all_intervals <- c("Weekday_AM_Peak", "Weekday_PM_Peak", "Weekend_Peak")
+hex_grid_time <- expand.grid(Hexagon_ID = hex_grid$Hexagon_ID, Time_Interval = all_intervals)
+
+hex_grid_full <- hex_grid_time %>%
+  left_join(hex_trips, by = c("Hexagon_ID", "Time_Interval")) %>%
+  left_join(hex_grid %>% select(Hexagon_ID, geometry), by="Hexagon_ID") %>%
+  st_as_sf()
+
+hex_grid_full$Total_Passenger_Trips[is.na(hex_grid_full$Total_Passenger_Trips)] <- 0
+hex_grid_split <- split(hex_grid_full, hex_grid_full$Time_Interval)
+
+cat("Hexagon-level aggregated trips:\n")
+print(head(hex_grid_full))
+summary(hex_grid_full$Total_Passenger_Trips)
+```
+
+## 9. Visualise Trip Distribution
+
+```{r}
+create_trip_map <- function(data, title){
+  
+  # Checking unique values
+  n_unique <- length(unique(data$Total_Passenger_Trips))
+  
+  # If only 1 unique value, set manual breaks
+  if(n_unique == 1){
+    breaks <- c(0, data$Total_Passenger_Trips[1] + 1)
+  } else {
+    # Use Jenks breaks with up to 5 classes
+    breaks <- classIntervals(data$Total_Passenger_Trips, n = 5, style = "jenks")$brks
+  }
+  
+  tm_shape(data) +
+    tm_fill(
+      "Total_Passenger_Trips",
+      breaks = breaks,       # Use fixed breaks instead of tm_scale_intervals()
+      fill_alpha = 0.7,
+      fill.legend = tm_legend(title = "Trips")
+    ) +
+    tm_borders("grey", lwd = 0.3) +
+    tm_title(title) +
+    tm_compass(position = c("left","top")) +
+    tm_scalebar(position = c("left","bottom"))
+}
+
+# Creating maps
+map_am <- create_trip_map(hex_grid_split$Weekday_AM_Peak, "Weekday AM Peak")
+map_pm <- create_trip_map(hex_grid_split$Weekday_PM_Peak, "Weekday PM Peak")
+map_weekend <- create_trip_map(hex_grid_split$Weekend_Peak, "Weekend/Holiday Peak")
+
+# Printing maps
+print(map_am)
+print(map_pm)
+print(map_weekend)
+```
+
+## 10. LMSA: Spatial Weights
+
+```{r}
+common_hex <- Reduce(intersect, lapply(hex_grid_split, function(x) x$Hexagon_ID))
+hex_common_geom <- hex_grid %>% filter(Hexagon_ID %in% common_hex)
+nb <- poly2nb(hex_common_geom, queen = TRUE, snap = 1900)
+listw <- nb2listw(nb, style = "W", zero.policy = TRUE)
+
+cat("Spatial neighbors object:\n")
+print(nb)
+summary(listw)
+```
+
+## 11. LMSA: Local Gi* Calculation
+
+```{r}
+lmsa_results <- list()
+z_95 <- qnorm(0.975)
+for(interval in names(hex_grid_split)){
+  data <- hex_grid_split[[interval]] %>% filter(Hexagon_ID %in% common_hex)
+  trips <- data$Total_Passenger_Trips
+  gistar <- localG(trips, listw, zero.policy=TRUE)
+  lmsa_results[[interval]] <- data %>%
+    mutate(Gi_Z_Score=as.vector(gistar),
+           Gi_p_value=2*pnorm(abs(Gi_Z_Score), lower.tail=FALSE),
+           Gi_Sig=Gi_p_value<0.05,
+           Gi_Cluster=case_when(
+             Gi_Sig & Gi_Z_Score>z_95 ~ "Hotspot",
+             Gi_Sig & Gi_Z_Score< -z_95 ~ "Coldspot",
+             TRUE ~ "Insignificant"
+           ))
+  cat("LMSA summary for", interval, ":\n")
+  print(table(lmsa_results[[interval]]$Gi_Cluster))
+}
+```
+
+## 12. Visualise LMSA
+
+```{r}
+create_gi_map <- function(data, title){
+  
+  sig_data <- data %>% filter(Gi_Cluster != "Insignificant")
+  
+  base_map <- tm_shape(data) +
+    tm_fill(
+      "Total_Passenger_Trips",
+      palette = "YlGnBu",
+      fill_alpha = 0.1,
+      fill.legend = tm_legend_hide()
+    ) +
+    tm_borders("black", lwd = 0.8) +
+    tm_title(title) +
+    tm_compass(position = c("left","top")) +
+    tm_scalebar(position = c("left","bottom"))
+  
+  # Only adding significant layer if it exists
+  if(nrow(sig_data) > 0){
+    base_map <- base_map +
+      tm_shape(sig_data) +
+      tm_fill(
+        "Gi_Cluster",
+        palette = c("Hotspot" = "red", "Coldspot" = "blue"),
+        fill.legend = tm_legend(title = "Cluster Type")
+      )
+  }
+  
+  return(base_map)
+}
+
+# Creating maps
+map_lmsa_am <- create_gi_map(lmsa_results$Weekday_AM_Peak, "LMSA: Weekday AM Peak")
+map_lmsa_pm <- create_gi_map(lmsa_results$Weekday_PM_Peak, "LMSA: Weekday PM Peak")
+map_lmsa_weekend <- create_gi_map(lmsa_results$Weekend_Peak, "LMSA: Weekend Peak")
+
+# Printing maps
+print(map_lmsa_am)
+print(map_lmsa_pm)
+print(map_lmsa_weekend)
+```
+
+## 13. EHSA: Prepare Gi* Matrix
+
+```{r}
+ehsa_base <- lmsa_results$Weekday_AM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID) %>%
+  left_join(lmsa_results$Weekday_AM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_AM=Gi_Z_Score), by="Hexagon_ID") %>%
+  left_join(lmsa_results$Weekday_PM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_PM=Gi_Z_Score), by="Hexagon_ID") %>%
+  left_join(lmsa_results$Weekend_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_Weekend=Gi_Z_Score), by="Hexagon_ID")
+
+gi_matrix <- ehsa_base %>% select(Gi_AM, Gi_PM, Gi_Weekend) %>% as.matrix()
+
+compute_mk <- function(ts_vec){
+  ts_vec <- na.omit(ts_vec)
+  if(length(ts_vec) == 0) return(c(Z=NA, p=NA))
+  if(all(ts_vec == ts_vec[1])) return(c(Z=0, p=1))
+  mk <- mk.test(ts_vec)
+  c(Z=mk$statistic[1], p=mk$p.value[1])
+}
+
+mk_results <- t(apply(gi_matrix,1,compute_mk)) %>% as_tibble() %>% rename(MK_Z=Z, MK_p=p)
+ehsa_df <- ehsa_base %>% bind_cols(mk_results)
+ehsa_z95 <- qnorm(0.975)
+
+# Output
+cat("EHSA Mann-Kendall results summary:\n")
+print(summary(ehsa_df))
+```
+
+## 14. EHSA Categorization
+
+```{r}
+ehsa_final <- ehsa_df %>%
+  rowwise() %>%
+  mutate(
+    Is_Hot_End = Gi_Weekend > ehsa_z95,
+    Is_Cold_End = Gi_Weekend < -ehsa_z95,
+    MK_Sig = MK_p < 0.05,
+    EHSA_Cluster = case_when(
+      Is_Hot_End & MK_Sig & MK_Z > 0 ~ "Intensifying Hot Spot",
+      Is_Hot_End & MK_Sig & MK_Z < 0 ~ "Diminishing Hot Spot",
+      Is_Hot_End & !MK_Sig ~ "Persistent Hot Spot",
+      Is_Cold_End & MK_Sig & MK_Z < 0 ~ "Intensifying Cold Spot",
+      Is_Cold_End & MK_Sig & MK_Z > 0 ~ "Diminishing Cold Spot",
+      Is_Cold_End & !MK_Sig ~ "Persistent Cold Spot",
+      TRUE ~ "Insignificant"
+    )
+  ) %>% 
+  ungroup()
+
+# Merging with hex grid for mapping
+ehsa_map_data <- hex_common_geom %>%
+  left_join(ehsa_final, by = "Hexagon_ID")
+
+# Output
+cat("EHSA Cluster distribution:\n")
+print(table(ehsa_final$EHSA_Cluster))
+```
+
+## 15. EHSA Demo for Interactive Map
+
+```{r}
+set.seed(123)
+ehsa_demo <- ehsa_final %>%
+  rowwise() %>%
+  mutate(
+    EHSA_Cluster_demo = case_when(
+      Hexagon_ID %% 7 == 0 ~ "Intensifying Hot Spot",
+      Hexagon_ID %% 7 == 1 ~ "Diminishing Hot Spot",
+      Hexagon_ID %% 7 == 2 ~ "Persistent Hot Spot",
+      Hexagon_ID %% 7 == 3 ~ "Intensifying Cold Spot",
+      Hexagon_ID %% 7 == 4 ~ "Diminishing Cold Spot",
+      Hexagon_ID %% 7 == 5 ~ "Persistent Cold Spot",
+      TRUE                 ~ "Insignificant"
+    )
+  ) %>% ungroup()
+
+ehsa_map_data_demo <- hex_common_geom %>%
+  left_join(ehsa_demo %>% select(Hexagon_ID, EHSA_Cluster_demo), by = "Hexagon_ID") %>%
+  filter(!is.na(EHSA_Cluster_demo))
+
+ehsa_colors_demo <- c(
+  "Intensifying Hot Spot" = "red",
+  "Persistent Hot Spot"    = "orange",
+  "Diminishing Hot Spot"   = "gold",
+  "Intensifying Cold Spot" = "darkblue",
+  "Persistent Cold Spot"   = "deepskyblue",
+  "Diminishing Cold Spot"  = "lightblue",
+  "Insignificant"          = "beige"
+)
+
+cluster_order <- names(ehsa_colors_demo)
+ehsa_map_data_demo$EHSA_Cluster_demo <- factor(ehsa_map_data_demo$EHSA_Cluster_demo, levels = cluster_order)
+
+tmap_mode("plot")
+tmap_options(component.autoscale = FALSE)
+
+# Creating one map per category 
+for(cat in cluster_order){
+  cat_data <- ehsa_map_data_demo %>% filter(EHSA_Cluster_demo == cat)
+  
+  map <- tm_shape(hex_common_geom) +
+    tm_fill(col = "beige") +
+    tm_borders("grey80", 0.1) +
+    tm_shape(cat_data) +
+    tm_fill("EHSA_Cluster_demo", palette = ehsa_colors_demo, alpha = 0.8) +
+    tm_borders("black", 0.5) +
+    tm_layout(
+      main.title = paste("EHSA of Bus Trip Origins -", cat),
+      main.title.size = 1.2,
+      legend.show = FALSE,
+      frame = FALSE
+    )
+  
+  print(map) # displaying map
+}
+
+cat("EHSA demo counts per cluster:\n")
+print(table(ehsa_map_data_demo$EHSA_Cluster_demo))
+```
+
+## 16. Save Outputs
+
+```{r}
+write_rds(ehsa_final, "data/rds/EHSA_Bus_Trips.rds")
+cat("Saved EHSA results to data/rds/EHSA_Bus_Trips.rds\n")
+```
