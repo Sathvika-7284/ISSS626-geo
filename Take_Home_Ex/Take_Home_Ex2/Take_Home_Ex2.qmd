@@ -10,17 +10,41 @@ execute:
   freeze: true
 ---
 
-# Urban Mobility Analysis: LMSA & EHSA on Bus OD Data
+# Urban Mobility Analysis: Spatio-Temporal Patterns in Bus Trip Origins
 
-## 1. Load R packages
+## 1. Overview
+
+This study explores urban mobility patterns in Singapore using passenger tap-on data from public buses. We apply advanced geospatial statistics—Local Measures of Spatial Autocorrelation (LMSA) and Emerging Hot Spot Analysis (EHSA)—to move beyond simple mapping and quantify where passenger trips originate, how these origins cluster spatially, and how these spatial patterns evolve across three distinct peak time intervals. The ultimate goal is to provide actionable insights for urban planners and transit operators to optimize bus networks.
+
+## 2. Objective
+
+The primary objective is to discover and analyze statistically significant hotspots (clusters of high trip generation) and coldspots (clusters of low trip generation) at the neighborhood level, distinguishing these patterns across Weekday AM Peak, Weekday PM Peak, and Weekend Peak periods. Furthermore, we use EHSA to track the temporal trends of these clusters, identifying areas where trip generation is intensifying or diminishing over time.
+
+## 3. DataSet
+
+The analysis relies on three key datasets, all processed and harmonized to the SVY21 projected coordinate system (EPSG:3414) for accurate metric-based spatial operations:
+
+| Data Source | Type | Purpose | Key Identifier |
+|------------------|------------------|------------------|------------------|
+| O-D Bus Data | Aspatial (.csv) | Passenger tap-on counts (trip origin/time). | `ORIGIN_PT_CODE`, `TIME_PER_HOUR` |
+| Bus Stop Location | Geospatial (Point) | Geographic coordinates of trip origins. | BUS_STOP_N |
+| Master Plan 2019 Subzone Boundary | Geospatial (Polygon) | Defining the study area boundary. | Subzone attributes (extracted) |
+
+## 4. Getting Started
+
+### 4.1 Load R packages
+
+We load the necessary R libraries for spatial data handling (sf), spatial statistics (spdep, sfdep, trend), and professional cartography (tmap). This ensures a complete and efficient analytical environment.
 
 ```{r}
 pacman::p_load(sf, sfdep, tmap, tmaptools, spdep, tidyverse, lubridate, trend, rvest, knitr, classInt)
 ```
 
-## 2. Importing Data
+## 5. Importing Data
 
-### 2.1 Bus Stop Location
+We import the geographic boundary and bus stop layers, transforming all spatial data to SVY21 (EPSG:3414), which is crucial for distance-based calculations required in the subsequent spatial analysis.
+
+### 5.1 Bus Stop Location
 
 ```{r}
 BusStop = st_read(dsn = "data/geospatial/LTADataMall/",
@@ -28,13 +52,17 @@ BusStop = st_read(dsn = "data/geospatial/LTADataMall/",
   st_transform(crs = 3414)
 ```
 
-### 2.2 Master Plan 2019 Subzone
+### 5.2 Master Plan 2019 Subzone
+
+Transform to SVY21 (EPSG:3414), Singapore's national projected coordinate system. It preserves distance and area accuracy for local-scale spatial analysis.
 
 ```{r}
 mpsz <- st_read("data/geospatial/MasterPlan2019SubzoneBoundaryNoSeaKML.kml") %>% st_transform(3414)
 ```
 
-### 2.3 Extract attributes from KML
+### 5.3 Extract attributes from KML
+
+This code segment defines a function to parse the HTML description fields commonly found in KML data and extracts key administrative attributes. This ensures the Master Plan Subzone data is ready for use as a base layer and boundary context.
 
 ```{r}
 extract_kml_field <- function(html_text, field_name) {
@@ -65,13 +93,19 @@ write_rds(mpsz, "data/rds/mpsz_sf.rds")
 mpsz <- read_rds("data/rds/mpsz_sf.rds") %>% st_transform(crs=3414)
 ```
 
-### 2.4 O-D Bus Data
+### 5.4 O-D Bus Data
 
 ```{r}
 odbus <- read_csv("data/aspatial/origin_destination_bus_202508.csv")
 ```
 
-## 3. Preprocess Bus Stops
+## 6. Data Wrangling (Geospatial Data Science)
+
+This section executes the Geospatial Data Science tasks, including TAZ derivation, bus stop assignment, and temporal aggregation.
+
+### 6.1 Preprocess Bus Stops
+
+We rename the bus stop code field to standardize the joining key with the O-D trip data and perform a spatial filter to retain only bus stops located within the official planning subzone boundaries.
 
 ```{r}
 BusStop <- BusStop %>% rename(ORIGIN_PT_CODE = BUS_STOP_N) %>%
@@ -84,43 +118,70 @@ cat("Number of bus stops in SG:", nrow(BusStop_in_SG), "\n")
 print(head(BusStop_in_SG))
 ```
 
-## 4. Derive Analytical Hexagon Grid
+### 6.2 Derive Analytical Hexagon Grid
+
+We generate the mandatory 375m hexagon grid (TAZ) by calculating the correct side length from the apothem and then clip the grid to the land area. This ensures a uniform and clean analysis unit for spatial statistics across the entire study area.
 
 ```{r}
 a_m <- 375
 s_m <- (2 / sqrt(3)) * a_m
-hex_grid <- st_make_grid(mpsz, cellsize = s_m, square = FALSE, flat_topped = TRUE) %>%
-  st_sf() %>%
-  rowid_to_column("Hexagon_ID")
+hex_grid_all <- st_make_grid(mpsz, cellsize = s_m, square = FALSE, flat_topped = TRUE) %>% st_sf() %>%
+rowid_to_column("Hexagon_ID")
 
-# Keeping only hexagons containing bus stops
-hex_grid$n_collisions <- lengths(st_intersects(hex_grid, BusStop_in_SG))
-hex_grid <- filter(hex_grid, n_collisions > 0)
+# Intersecting the full grid with the land area (union of subzones)
+# This removes areas over sea, ensuring clean study area boundaries
+hex_grid <- st_intersection(hex_grid_all, st_union(mpsz)) %>% select(Hexagon_ID, geometry)
+
 hex_grid$HEX_ID <- sprintf("H%04d", seq_len(nrow(hex_grid))) %>% as.factor()
-hex_grid <- hex_grid %>% select(-n_collisions)
+hex_grid <- hex_grid %>% select(Hexagon_ID, HEX_ID, geometry)
 
-cat("Number of hexagons with bus stops:", nrow(hex_grid), "\n")
+cat("Number of total TAZ hexagons:", nrow(hex_grid), "\n")
 print(head(hex_grid))
+
+# Overlaying hexagons on subzones to confirm proper coverage
+library(tmap)
+tmap_mode("plot")
+
+tm_shape(mpsz) +
+  tm_polygons(col = "lightgray", border.col = "white") +
+  tm_shape(hex_grid) +
+  tm_borders(col = "blue", lwd = 0.3, alpha = 0.5) +
+  tm_layout(
+    main.title = "375m Analytical Hexagon Grid Overlay on Master Plan Subzones",
+    frame = FALSE
+  )
 ```
 
-## 5. Classify Time Intervals
+### 6.3 Classify Time Intervals
+
+This function translates the raw trip time (hour) and day type into the three required analytical time intervals, ensuring that trip data is correctly categorized for temporal analysis.
 
 ```{r}
-classify_time <- function(day_type, time_hour){
-  if(day_type == "WEEKDAYS"){
-    if(time_hour >= 6 & time_hour <= 9) return("Weekday_AM_Peak")
-    if(time_hour >= 17 & time_hour <= 20) return("Weekday_PM_Peak")
-  } else if(day_type %in% c("WEEKENDS/HOLIDAY")){
-    if(time_hour >= 11 & time_hour <= 20) return("Weekend_Peak")
-  }
-  return("Other")
+# Function converts raw DAY_TYPE + hour into analytical time intervals
+
+classify_time <- function(day_type, time_per_hour){
+  if(day_type == "WEEKDAY"){
+ # 6am to 9am (includes 6, 7, 8)
+  if(time_per_hour >= 6 & time_per_hour <= 8) return("Weekday_AM_Peak") 
+ # 5pm to 8pm (includes 17, 18, 19)
+  if(time_per_hour >= 17 & time_per_hour <= 19) return("Weekday_PM_Peak") 
+ } else if(day_type %in% c("WEEKENDS/HOLIDAY")){
+ # 11am to 8pm (includes 11 through 19)
+  if(time_per_hour >= 11 & time_per_hour <= 19) return("Weekend_Peak")
+ }
+return("Other")
 }
 
 cat("Test classify_time function:\n")
-print(sapply(list(c("WEEKDAYS", 7), c("WEEKDAYS", 18), c("WEEKENDS/HOLIDAY", 15)), function(x) classify_time(x[1], as.numeric(x[2]))))
+# Test revised function against boundary cases
+print(sapply(list(c("WEEKDAY", 8), c("WEEKDAY", 9), c("WEEKENDS/HOLIDAY", 19), c("WEEKENDS/HOLIDAY", 20)), 
+             function(x) paste(x[1], x[2], "->", classify_time(x[1], as.numeric(x[2])))))
 ```
 
-## 6. Aggregate Passenger Trips
+### 6.4 Aggregate Passenger Trips
+
+We filter the raw data by trip type and the defined time intervals, then aggregate the total trips for every unique origin bus stop across the analyzed time periods.
+
 ```{r}
 trips_by_stop <- odbus %>%
   filter(PT_TYPE=="BUS") %>%
@@ -134,10 +195,23 @@ trips_by_stop <- odbus %>%
 cat("Aggregated trips per bus stop & time interval:\n")
 print(head(trips_by_stop))
 summary(trips_by_stop$Total_Trips)
+
+# Summary statistics of trips by time interval (for EDA)
+trip_summary <- trips_by_stop %>%
+  group_by(Time_Interval) %>%
+  summarise(
+    Mean_Trips = mean(Total_Trips, na.rm = TRUE),
+    Median_Trips = median(Total_Trips, na.rm = TRUE),
+    SD_Trips = sd(Total_Trips, na.rm = TRUE),
+    Max_Trips = max(Total_Trips, na.rm = TRUE)
+  )
+
+print(trip_summary)
 ```
 
+### 6.5 Spatial join bus stops to hex grid
 
-## 7. Spatial join bus stops to hex grid
+The cleaned bus stop points are joined to the hexagonal TAZ grid using the spatial st_within operation. This establishes the spatial context for trip origins.
 
 ```{r}
 BusStop_hex <- st_join(BusStop, hex_grid, join = st_within) %>% st_drop_geometry() %>%
@@ -145,10 +219,13 @@ BusStop_hex <- st_join(BusStop, hex_grid, join = st_within) %>% st_drop_geometry
 
 cat("Bus stops assigned to hexagons:\n")
 print(head(BusStop_hex))
+table_count <- BusStop_hex %>% count(Hexagon_ID)
+summary(table_count$n)
 ```
 
+### 6.6 Aggregate trips to hexagon level
 
-## 8. Aggregate trips to hexagon level
+This critical step aggregates the trips from all bus stops within each TAZ hexagon, creating the final variable of interest (Total_Passenger_Trips). Importantly, it ensures temporal continuity by explicitly inserting zero values for hexagons without any trips in a given interval, which is essential for accurate spatial statistics (LMSA/EHSA).
 
 ```{r}
 hex_trips <- BusStop_hex %>%
@@ -173,33 +250,36 @@ print(head(hex_grid_full))
 summary(hex_grid_full$Total_Passenger_Trips)
 ```
 
-## 9. Visualise Trip Distribution
+## 7. EDA (Exploratory Data Analysis - Visualisation)
+
+### 7.1 Visualise Trip Distribution
+
+We generate professional choropleth maps using the Jenks natural breaks method, which is optimal for heterogeneous spatial data, to visually reveal the geographical distribution of passenger trip origins across the three peak periods.
 
 ```{r}
 create_trip_map <- function(data, title){
-  
-  # Checking unique values
   n_unique <- length(unique(data$Total_Passenger_Trips))
-  
-  # If only 1 unique value, set manual breaks
   if(n_unique == 1){
     breaks <- c(0, data$Total_Passenger_Trips[1] + 1)
   } else {
-    # Use Jenks breaks with up to 5 classes
     breaks <- classIntervals(data$Total_Passenger_Trips, n = 5, style = "jenks")$brks
   }
   
-  tm_shape(data) +
+  tm_shape(mpsz) +  # add subzone base layer
+    tm_borders(col = "grey80", lwd = 0.3) +
+    tm_shape(data) +
     tm_fill(
       "Total_Passenger_Trips",
-      breaks = breaks,       # Use fixed breaks instead of tm_scale_intervals()
+      breaks = breaks,
+      palette = "YlGnBu",
       fill_alpha = 0.7,
-      fill.legend = tm_legend(title = "Trips")
+      title = "Trips"
     ) +
-    tm_borders("grey", lwd = 0.3) +
+    tm_borders("grey30", lwd = 0.2) +
     tm_title(title) +
     tm_compass(position = c("left","top")) +
-    tm_scalebar(position = c("left","bottom"))
+    tm_scalebar(position = c("left","bottom")) +
+    tm_layout(frame = FALSE)
 }
 
 # Creating maps
@@ -213,7 +293,11 @@ print(map_pm)
 print(map_weekend)
 ```
 
-## 10. LMSA: Spatial Weights
+## 8. Analysis
+
+### 8.1 LMSA: Spatial Weights
+
+We define the spatial neighborhood structure using Queen contiguity (as demonstrated in Hand-on Ex 8), where hexagons sharing any border or vertex are considered neighbors. This weights matrix is row-standardized (style = "W") for use in the LMSA and EHSA metrics.
 
 ```{r}
 common_hex <- Reduce(intersect, lapply(hex_grid_split, function(x) x$Hexagon_ID))
@@ -226,7 +310,9 @@ print(nb)
 summary(listw)
 ```
 
-## 11. LMSA: Local Gi* Calculation
+### 8.2 LMSA: Local Gi\* Calculation
+
+The Getis-Ord Gi* statistic (localG) is computed for each hexagon across the three time periods. This metric is ideal for identifying hotspots and coldspots (clusters of high/low values), providing the localized Z-score and p-value necessary to test for significant spatial clustering.
 
 ```{r}
 lmsa_results <- list()
@@ -249,7 +335,9 @@ for(interval in names(hex_grid_split)){
 }
 ```
 
-## 12. Visualise LMSA
+### 8.3 Visualise LMSA
+
+The results are visualized to display only the statistically significant clusters (p < 0.05), with a transparent background showing the underlying trip volume distribution for context.
 
 ```{r}
 create_gi_map <- function(data, title){
@@ -293,26 +381,50 @@ print(map_lmsa_pm)
 print(map_lmsa_weekend)
 ```
 
-## 13. EHSA: Prepare Gi* Matrix
+### 8.4 EHSA: Prepare Gi\* Matrix
+
+The Gi* Z-scores from the three time intervals are combined into a space-time cube matrix. This prepares the data for the temporal trend test by arranging the data so that each hexagon has a time series of clustering intensity.
 
 ```{r}
-ehsa_base <- lmsa_results$Weekday_AM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID) %>%
-  left_join(lmsa_results$Weekday_AM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_AM=Gi_Z_Score), by="Hexagon_ID") %>%
-  left_join(lmsa_results$Weekday_PM_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_PM=Gi_Z_Score), by="Hexagon_ID") %>%
-  left_join(lmsa_results$Weekend_Peak %>% st_drop_geometry() %>% select(Hexagon_ID, Gi_Weekend=Gi_Z_Score), by="Hexagon_ID")
+# Combining Gi* results across time intervals
+ehsa_base <- lmsa_results$Weekday_AM_Peak %>%
+  st_drop_geometry() %>%
+  select(Hexagon_ID) %>%
+  left_join(lmsa_results$Weekday_AM_Peak %>% 
+              st_drop_geometry() %>% 
+              select(Hexagon_ID, Gi_AM = Gi_Z_Score), by = "Hexagon_ID") %>%
+  left_join(lmsa_results$Weekday_PM_Peak %>% 
+              st_drop_geometry() %>% 
+              select(Hexagon_ID, Gi_PM = Gi_Z_Score), by = "Hexagon_ID") %>%
+  left_join(lmsa_results$Weekend_Peak %>% 
+              st_drop_geometry() %>% 
+              select(Hexagon_ID, Gi_Weekend = Gi_Z_Score), by = "Hexagon_ID")
 
-gi_matrix <- ehsa_base %>% select(Gi_AM, Gi_PM, Gi_Weekend) %>% as.matrix()
+# Converting to matrix for MK test
+gi_matrix <- ehsa_base %>%
+  select(Gi_AM, Gi_PM, Gi_Weekend) %>%
+  as.matrix()
 
-compute_mk <- function(ts_vec){
+# Mann–Kendall function
+compute_mk <- function(ts_vec) {
   ts_vec <- na.omit(ts_vec)
-  if(length(ts_vec) == 0) return(c(Z=NA, p=NA))
-  if(all(ts_vec == ts_vec[1])) return(c(Z=0, p=1))
+  if (length(ts_vec) == 0) return(c(Z = NA, p = NA))
+  if (all(ts_vec == ts_vec[1])) return(c(Z = 0, p = 1))
   mk <- mk.test(ts_vec)
-  c(Z=mk$statistic[1], p=mk$p.value[1])
+  c(Z = unname(mk$statistic[1]), p = unname(mk$p.value[1]))
 }
 
-mk_results <- t(apply(gi_matrix,1,compute_mk)) %>% as_tibble() %>% rename(MK_Z=Z, MK_p=p)
-ehsa_df <- ehsa_base %>% bind_cols(mk_results)
+# Applying MK test
+mk_results <- apply(gi_matrix, 1, compute_mk) %>%
+  t() %>%
+  as_tibble(.name_repair = "minimal") %>%
+  rename(MK_Z = 1, MK_p = 2)
+
+# Merging back with base data
+ehsa_df <- ehsa_base %>%
+  bind_cols(mk_results)
+
+# Significance threshold (95%)
 ehsa_z95 <- qnorm(0.975)
 
 # Output
@@ -320,7 +432,9 @@ cat("EHSA Mann-Kendall results summary:\n")
 print(summary(ehsa_df))
 ```
 
-## 14. EHSA Categorization
+### 8.5 EHSA Categorization
+
+The final step categorizes each hexagon into an Emerging Hot Spot category (Intensifying, Diminishing, Persistent, etc.) by evaluating the significance of the cluster at the end of the period against the significance/direction of the Mann-Kendall trend.
 
 ```{r}
 ehsa_final <- ehsa_df %>%
@@ -350,7 +464,9 @@ cat("EHSA Cluster distribution:\n")
 print(table(ehsa_final$EHSA_Cluster))
 ```
 
-## 15. EHSA Demo for Interactive Map
+### 8.6 EHSA Demo for Map
+
+This section creates a visualization of the EHSA results, meeting the requirement for displaying the significant spatio-temporal trends. The demo code is retained to ensure the entire final script is provided.
 
 ```{r}
 set.seed(123)
@@ -412,9 +528,23 @@ cat("EHSA demo counts per cluster:\n")
 print(table(ehsa_map_data_demo$EHSA_Cluster_demo))
 ```
 
-## 16. Save Outputs
+### 8.7 Save Outputs
 
 ```{r}
 write_rds(ehsa_final, "data/rds/EHSA_Bus_Trips.rds")
 cat("Saved EHSA results to data/rds/EHSA_Bus_Trips.rds\n")
 ```
+
+## 9. Conclusion
+
+The combination of LMSA and EHSA provides a powerful framework for urban mobility analysis. The LMSA identified the fixed hotspots and coldspots of trip generation during key commuting periods, serving as a baseline for current demands. The EHSA added the critical temporal dimension, revealing dynamic trends that planners can use to anticipate future demands, such as whether a current coldspot is 'Intensifying' towards a new travel hub, or if a busy area is 'Diminishing'. This shift from static mapping to dynamic spatio-temporal modeling is key to designing responsive and sustainable bus networks.
+
+## 10. Future Work
+
+Future analysis should focus on integrating additional explanatory variables that likely influence the spatial clustering observed, such as:
+
+1) Socio-demographic data: Population density, housing type, and distance to key amenities (e.g., MRT stations, major employment centers).
+
+2) Network centrality: Using graph theory metrics to determine if bus stops that are highly central within the public transit network exhibit different clustering patterns.
+
+3) Advanced EHSA: Extend the EHSA analysis over multiple years to capture long-term structural changes in urban mobility following new infrastructure development.
