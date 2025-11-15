@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -174,6 +208,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="../../Inclass_Ex/In_class_Ex8/In-class_Ex08.html">
  <span class="dropdown-text">In-class Exercise 8</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Inclass_Ex/In_class_Ex9/In-class_Ex09.html">
+ <span class="dropdown-text">In-class Exercise 9</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Inclass_Ex/In_class_Ex10/In-class_Ex10.html">
+ <span class="dropdown-text">In-class Exercise 10</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -217,8 +259,28 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#modelling-hdb-resale-prices-with-geographically-weighted-methods" id="toc-modelling-hdb-resale-prices-with-geographically-weighted-methods" class="nav-link active" data-scroll-target="#modelling-hdb-resale-prices-with-geographically-weighted-methods">Modelling HDB Resale Prices with Geographically Weighted Methods</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1. Overview</a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">2. Objectives</a></li>
+  <li><a href="#installing-and-loading-packages" id="toc-installing-and-loading-packages" class="nav-link" data-scroll-target="#installing-and-loading-packages">3. Installing and Loading Packages</a></li>
+  <li><a href="#importing-main-dataset" id="toc-importing-main-dataset" class="nav-link" data-scroll-target="#importing-main-dataset">4. Importing Main Dataset</a></li>
+  <li><a href="#safe-sf-readers-helper-functions" id="toc-safe-sf-readers-helper-functions" class="nav-link" data-scroll-target="#safe-sf-readers-helper-functions">5. Safe SF Readers Helper Functions</a></li>
+  <li><a href="#loading-supporting-layers" id="toc-loading-supporting-layers" class="nav-link" data-scroll-target="#loading-supporting-layers">6. Loading Supporting Layers</a></li>
+  <li><a href="#creating-hdb-spatial-points-by-joining-to-subzone-centroids" id="toc-creating-hdb-spatial-points-by-joining-to-subzone-centroids" class="nav-link" data-scroll-target="#creating-hdb-spatial-points-by-joining-to-subzone-centroids">7. Creating HDB spatial points by joining to subzone centroids</a></li>
+  <li><a href="#distance-within-radius-helper-functions" id="toc-distance-within-radius-helper-functions" class="nav-link" data-scroll-target="#distance-within-radius-helper-functions">8. Distance &amp; within-radius helper functions</a></li>
+  <li><a href="#computing-locational-variables" id="toc-computing-locational-variables" class="nav-link" data-scroll-target="#computing-locational-variables">10. Computing locational variables</a></li>
+  <li><a href="#saving-integrated-analytical-dataset" id="toc-saving-integrated-analytical-dataset" class="nav-link" data-scroll-target="#saving-integrated-analytical-dataset">13. Saving Integrated Analytical Dataset</a></li>
+  <li><a href="#model-preparation" id="toc-model-preparation" class="nav-link" data-scroll-target="#model-preparation">14. Model Preparation</a></li>
+  <li><a href="#ols-baseline" id="toc-ols-baseline" class="nav-link" data-scroll-target="#ols-baseline">15. OLS Baseline</a></li>
+  <li><a href="#geographically-weighted-regression-gwr" id="toc-geographically-weighted-regression-gwr" class="nav-link" data-scroll-target="#geographically-weighted-regression-gwr">16. Geographically Weighted Regression (GWR)</a></li>
+  <li><a href="#visualisation-of-spatial-and-gwr-results" id="toc-visualisation-of-spatial-and-gwr-results" class="nav-link" data-scroll-target="#visualisation-of-spatial-and-gwr-results">17. Visualisation of Spatial and GWR Results</a></li>
+  </ul>
+<div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -248,7 +310,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 6, 2025</p>
+      <p class="date-modified">November 15, 2025</p>
     </div>
   </div>
     
@@ -259,8 +321,562 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="modelling-hdb-resale-prices-with-geographically-weighted-methods" class="level1">
+<h1>Modelling HDB Resale Prices with Geographically Weighted Methods</h1>
+</section>
+<section id="overview" class="level1">
+<h1>1. Overview</h1>
+<p>This study develops a spatially informed predictive model for HDB resale prices in Singapore using transaction data from July 2024 to June 2025. Focusing on 4-room flats, the analysis integrates structural housing attributes with a rich set of geospatial accessibility measures, including proximity to hawker centres, MRT stations, parks, eldercare facilities, supermarkets, and preschool services. By converting aspatial resale records into geographically referenced point features and linking them to multiple open-source geospatial datasets, the study constructs a comprehensive analytical sandbox. Geographically Weighted Regression (GWR) is applied to uncover how price determinants vary across space, revealing localised market dynamics that conventional global models cannot capture.</p>
+</section>
+<section id="objectives" class="level1">
+<h1>2. Objectives</h1>
+<p>The primary objective is to build a reproducible, spatially enhanced modelling workflow capable of predicting HDB resale prices with greater accuracy by leveraging both structural characteristics and local accessibility. Specifically, the study aims to:</p>
+<ul>
+<li>Create a reliable geospatial dataset of 4-room resale flats.</li>
+<li>Derive meaningful location-based predictors through spatial distance and within-radius computations.</li>
+<li>Compare global OLS and local GWR models to assess spatial heterogeneity in price determinants.</li>
+<li>Communicate findings through clear, decision-oriented geovisualisations.</li>
+</ul>
+</section>
+<section id="installing-and-loading-packages" class="level1">
+<h1>3. Installing and Loading Packages</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="co"># core</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  tidyverse, sf, lubridate, stringr,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="co"># spatial analysis &amp; plotting</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>  lwgeom, tmap, sp, spdep, GWmodel,</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="co"># model diagnostics</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>  olsrr, performance,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="co"># convenience</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>  readr, units</span>
+<span id="cb1-10"><a href="#cb1-10"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># setting tmap plotting mode</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="importing-main-dataset" class="level1">
+<h1>4. Importing Main Dataset</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>hdb_path <span class="ot">&lt;-</span> <span class="st">"data/HDBresale.csv"</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(hdb_path)) <span class="fu">stop</span>(<span class="st">"HDBresale.csv not found at data/HDBresale.csv"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>HDBresale <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(hdb_path,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>                      <span class="at">col_types =</span> <span class="fu">cols</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>                        <span class="at">month =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-7"><a href="#cb3-7"></a>                        <span class="at">town =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-8"><a href="#cb3-8"></a>                        <span class="at">flat_type =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-9"><a href="#cb3-9"></a>                        <span class="at">block =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-10"><a href="#cb3-10"></a>                        <span class="at">street_name =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-11"><a href="#cb3-11"></a>                        <span class="at">storey_range =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-12"><a href="#cb3-12"></a>                        <span class="at">floor_area_sqm =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb3-13"><a href="#cb3-13"></a>                        <span class="at">flat_model =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-14"><a href="#cb3-14"></a>                        <span class="at">lease_commence_date =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb3-15"><a href="#cb3-15"></a>                        <span class="at">remaining_lease =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb3-16"><a href="#cb3-16"></a>                        <span class="at">resale_price =</span> <span class="fu">col_double</span>()</span>
+<span id="cb3-17"><a href="#cb3-17"></a>                      ),</span>
+<span id="cb3-18"><a href="#cb3-18"></a>                      <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-20"><a href="#cb3-20"></a>    <span class="at">flat_type =</span> <span class="fu">toupper</span>(flat_type),</span>
+<span id="cb3-21"><a href="#cb3-21"></a>    <span class="co"># convert "YYYY-MM" to Date first-of-month</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a>    <span class="at">month =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(month, <span class="st">"-01"</span>))</span>
+<span id="cb3-23"><a href="#cb3-23"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a>  <span class="co"># filter to focus = 4 ROOM (user confirmed)</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a>  <span class="fu">filter</span>(flat_type <span class="sc">==</span> <span class="st">"4 ROOM"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-27"><a href="#cb3-27"></a>    <span class="at">remaining_lease_yrs =</span> <span class="fu">sapply</span>(remaining_lease, <span class="cf">function</span>(x) {</span>
+<span id="cb3-28"><a href="#cb3-28"></a>      parts <span class="ot">&lt;-</span> <span class="fu">str_extract_all</span>(x, <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb3-29"><a href="#cb3-29"></a>      <span class="cf">if</span> (<span class="fu">length</span>(parts) <span class="sc">==</span> <span class="dv">2</span>) <span class="fu">as.numeric</span>(parts[<span class="dv">1</span>]) <span class="sc">+</span> <span class="fu">as.numeric</span>(parts[<span class="dv">2</span>]) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb3-30"><a href="#cb3-30"></a>      <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">length</span>(parts) <span class="sc">==</span> <span class="dv">1</span>) <span class="fu">as.numeric</span>(parts[<span class="dv">1</span>])</span>
+<span id="cb3-31"><a href="#cb3-31"></a>      <span class="cf">else</span> <span class="cn">NA_real_</span></span>
+<span id="cb3-32"><a href="#cb3-32"></a>    }),</span>
+<span id="cb3-33"><a href="#cb3-33"></a>    <span class="at">unit_age =</span> <span class="fu">year</span>(month) <span class="sc">-</span> lease_commence_date</span>
+<span id="cb3-34"><a href="#cb3-34"></a>  )</span>
+<span id="cb3-35"><a href="#cb3-35"></a></span>
+<span id="cb3-36"><a href="#cb3-36"></a><span class="fu">message</span>(<span class="st">"HDB rows (4-room): "</span>, <span class="fu">nrow</span>(HDBresale))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="safe-sf-readers-helper-functions" class="level1">
+<h1>5. Safe SF Readers Helper Functions</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>safe_read_points <span class="ot">&lt;-</span> <span class="cf">function</span>(filepath, <span class="at">target_crs =</span> <span class="dv">3414</span>){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(filepath)) {</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="fu">message</span>(<span class="st">"File not found: "</span>, filepath); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  }</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_read</span>(filepath, <span class="at">quiet =</span> <span class="cn">TRUE</span>), <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="fu">message</span>(<span class="st">"st_read failed for "</span>, filepath, <span class="st">" : "</span>, e<span class="sc">$</span>message); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  })</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(sf_obj) <span class="sc">||</span> <span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="co"># If geometry collection or non-point, try to extract points</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  geom_types <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">st_geometry_type</span>(sf_obj))</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">all</span>(geom_types <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"POINT"</span>, <span class="st">"MULTIPOINT"</span>))){</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_collection_extract</span>(sf_obj, <span class="st">"POINT"</span>), <span class="at">error =</span> <span class="cf">function</span>(e){</span>
+<span id="cb4-14"><a href="#cb4-14"></a>      <span class="fu">message</span>(<span class="st">"st_collection_extract failed; attempting to keep existing point rows"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      sf_obj[geom_types <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"POINT"</span>,<span class="st">"MULTIPOINT"</span>), ]</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    })</span>
+<span id="cb4-17"><a href="#cb4-17"></a>  }</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a>  <span class="co"># Making valid, drop empty, set CRS if missing</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(lwgeom<span class="sc">::</span><span class="fu">st_make_valid</span>(sf_obj), <span class="at">error =</span> <span class="cf">function</span>(e) sf_obj)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>  sf_obj <span class="ot">&lt;-</span> sf_obj[<span class="sc">!</span><span class="fu">st_is_empty</span>(sf_obj), ]</span>
+<span id="cb4-22"><a href="#cb4-22"></a>  <span class="cf">if</span>(<span class="fu">is.na</span>(<span class="fu">st_crs</span>(sf_obj))) <span class="fu">st_crs</span>(sf_obj) <span class="ot">&lt;-</span> <span class="dv">4326</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a></span>
+<span id="cb4-24"><a href="#cb4-24"></a>  <span class="co"># Transforming to target CRS (EPSG:3414 Singapore TM)</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_transform</span>(sf_obj, target_crs), <span class="at">error =</span> <span class="cf">function</span>(e){</span>
+<span id="cb4-26"><a href="#cb4-26"></a>    <span class="fu">message</span>(<span class="st">"st_transform failed for "</span>, filepath, <span class="st">" : "</span>, e<span class="sc">$</span>message); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>  })</span>
+<span id="cb4-28"><a href="#cb4-28"></a></span>
+<span id="cb4-29"><a href="#cb4-29"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-30"><a href="#cb4-30"></a>  <span class="fu">return</span>(sf_obj)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>}</span>
+<span id="cb4-32"><a href="#cb4-32"></a></span>
+<span id="cb4-33"><a href="#cb4-33"></a>safe_read_polygons <span class="ot">&lt;-</span> <span class="cf">function</span>(filepath, <span class="at">target_crs =</span> <span class="dv">3414</span>){</span>
+<span id="cb4-34"><a href="#cb4-34"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(filepath)) {</span>
+<span id="cb4-35"><a href="#cb4-35"></a>    <span class="fu">message</span>(<span class="st">"File not found: "</span>, filepath); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-36"><a href="#cb4-36"></a>  }</span>
+<span id="cb4-37"><a href="#cb4-37"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_read</span>(filepath, <span class="at">quiet =</span> <span class="cn">TRUE</span>), <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb4-38"><a href="#cb4-38"></a>    <span class="fu">message</span>(<span class="st">"st_read failed for "</span>, filepath, <span class="st">" : "</span>, e<span class="sc">$</span>message); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-39"><a href="#cb4-39"></a>  })</span>
+<span id="cb4-40"><a href="#cb4-40"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(sf_obj) <span class="sc">||</span> <span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-41"><a href="#cb4-41"></a></span>
+<span id="cb4-42"><a href="#cb4-42"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(lwgeom<span class="sc">::</span><span class="fu">st_make_valid</span>(sf_obj), <span class="at">error =</span> <span class="cf">function</span>(e) sf_obj)</span>
+<span id="cb4-43"><a href="#cb4-43"></a>  sf_obj <span class="ot">&lt;-</span> sf_obj[<span class="sc">!</span><span class="fu">st_is_empty</span>(sf_obj), ]</span>
+<span id="cb4-44"><a href="#cb4-44"></a>  <span class="cf">if</span>(<span class="fu">is.na</span>(<span class="fu">st_crs</span>(sf_obj))) <span class="fu">st_crs</span>(sf_obj) <span class="ot">&lt;-</span> <span class="dv">4326</span></span>
+<span id="cb4-45"><a href="#cb4-45"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_transform</span>(sf_obj, target_crs), <span class="at">error =</span> <span class="cf">function</span>(e){</span>
+<span id="cb4-46"><a href="#cb4-46"></a>    <span class="fu">message</span>(<span class="st">"st_transform failed for "</span>, filepath, <span class="st">" : "</span>, e<span class="sc">$</span>message); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-47"><a href="#cb4-47"></a>  })</span>
+<span id="cb4-48"><a href="#cb4-48"></a>  <span class="fu">return</span>(sf_obj)</span>
+<span id="cb4-49"><a href="#cb4-49"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-supporting-layers" class="level1">
+<h1>6. Loading Supporting Layers</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>eldercare_fp    <span class="ot">&lt;-</span> <span class="st">"data/ELDERCARE.shp"</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>hawker_fp       <span class="ot">&lt;-</span> <span class="st">"data/HawkerCentresGEOJSON.geojson"</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>parks_fp        <span class="ot">&lt;-</span> <span class="st">"data/Parks.geojson"</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>supermarkets_fp <span class="ot">&lt;-</span> <span class="st">"data/SupermarketsGEOJSON.geojson"</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>childcare_fp    <span class="ot">&lt;-</span> <span class="st">"data/ChildCareServices.geojson"</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>kinder_fp       <span class="ot">&lt;-</span> <span class="st">"data/Kindergartens.geojson"</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>mrt_fp          <span class="ot">&lt;-</span> <span class="st">"data/RapidTransitSystemStation.shp"</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>mp_subzone_fp   <span class="ot">&lt;-</span> <span class="st">"data/MP14_SUBZONE_WEB_PL.shp"</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co"># Reading (points)</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>eldercare    <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(eldercare_fp)</span>
+<span id="cb5-12"><a href="#cb5-12"></a>hawker       <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(hawker_fp)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>parks        <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(parks_fp)</span>
+<span id="cb5-14"><a href="#cb5-14"></a>supermarkets <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(supermarkets_fp)</span>
+<span id="cb5-15"><a href="#cb5-15"></a>childcare    <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(childcare_fp)</span>
+<span id="cb5-16"><a href="#cb5-16"></a>kindergarten <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(kinder_fp)</span>
+<span id="cb5-17"><a href="#cb5-17"></a></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="co"># MRT: may fail</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a>MRT <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(mrt_fp)</span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="cf">if</span>(<span class="fu">is.null</span>(MRT)) <span class="fu">message</span>(<span class="st">"MRT layer could not be read; MRT distances will be set to 999"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21"></a></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="co"># MP subzones polygon</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a>MP_subzone <span class="ot">&lt;-</span> <span class="fu">safe_read_polygons</span>(mp_subzone_fp)</span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="cf">if</span>(<span class="fu">is.null</span>(MP_subzone)) <span class="fu">stop</span>(<span class="st">"Subzone polygon MP14_SUBZONE_WEB_PL.shp not found or failed to read. This is required for georeferencing HDB records."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-hdb-spatial-points-by-joining-to-subzone-centroids" class="level1">
+<h1>7. Creating HDB spatial points by joining to subzone centroids</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># 7. Creating HDB spatial points by joining to subzone centroids</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="fu">library</span>(sf)</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co"># Make subzone centroids (EPSG:3414)</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>subzone_centroids <span class="ot">&lt;-</span> MP_subzone <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="fu">st_centroid</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">select</span>(SUBZONE_N, geometry) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb6-11"><a href="#cb6-11"></a></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co"># Create town guess from SUBZONE_N</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>subzone_lookup <span class="ot">&lt;-</span> subzone_centroids <span class="sc">%&gt;%</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="fu">mutate</span>(<span class="at">town_guess =</span> <span class="fu">str_trim</span>(<span class="fu">str_extract</span>(SUBZONE_N, <span class="st">"^[A-Z</span><span class="sc">\\</span><span class="st">s]+"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">distinct</span>(town_guess, SUBZONE_N)</span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co"># Prepare HDB table</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>HDB_join_prep <span class="ot">&lt;-</span> HDBresale <span class="sc">%&gt;%</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-21"><a href="#cb6-21"></a>    <span class="at">town =</span> <span class="fu">toupper</span>(<span class="fu">str_trim</span>(town)),</span>
+<span id="cb6-22"><a href="#cb6-22"></a>    <span class="at">town_guess =</span> town,</span>
+<span id="cb6-23"><a href="#cb6-23"></a>    <span class="at">resale_price =</span> <span class="fu">as.numeric</span>(resale_price),</span>
+<span id="cb6-24"><a href="#cb6-24"></a>    <span class="at">floor_area_sqm =</span> <span class="fu">as.numeric</span>(floor_area_sqm),</span>
+<span id="cb6-25"><a href="#cb6-25"></a>    <span class="at">storey_mid =</span> <span class="fu">case_when</span>(</span>
+<span id="cb6-26"><a href="#cb6-26"></a>      <span class="fu">str_detect</span>(storey_range, <span class="st">"TO"</span>) <span class="sc">~</span> {</span>
+<span id="cb6-27"><a href="#cb6-27"></a>        parts <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="at">text =</span> <span class="fu">gsub</span>(<span class="st">"TO"</span>, <span class="st">" "</span>, storey_range))</span>
+<span id="cb6-28"><a href="#cb6-28"></a>        <span class="fu">rowMeans</span>(parts)</span>
+<span id="cb6-29"><a href="#cb6-29"></a>      },</span>
+<span id="cb6-30"><a href="#cb6-30"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>))</span>
+<span id="cb6-31"><a href="#cb6-31"></a>    )</span>
+<span id="cb6-32"><a href="#cb6-32"></a>  )</span>
+<span id="cb6-33"><a href="#cb6-33"></a></span>
+<span id="cb6-34"><a href="#cb6-34"></a><span class="co"># Join HDB to subzone centroids by town_guess</span></span>
+<span id="cb6-35"><a href="#cb6-35"></a>HDB_geo <span class="ot">&lt;-</span> HDB_join_prep <span class="sc">%&gt;%</span></span>
+<span id="cb6-36"><a href="#cb6-36"></a>  <span class="fu">left_join</span>(subzone_lookup, <span class="at">by =</span> <span class="st">"town_guess"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-37"><a href="#cb6-37"></a>  <span class="fu">left_join</span>(subzone_centroids, <span class="at">by =</span> <span class="st">"SUBZONE_N"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-38"><a href="#cb6-38"></a>  <span class="fu">st_as_sf</span>(<span class="at">sf_column_name =</span> <span class="st">"geometry"</span>, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb6-39"><a href="#cb6-39"></a></span>
+<span id="cb6-40"><a href="#cb6-40"></a><span class="co"># Fallback: drop rows without geometry</span></span>
+<span id="cb6-41"><a href="#cb6-41"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(<span class="fu">st_geometry</span>(.)) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">st_is_empty</span>(geometry))</span>
+<span id="cb6-42"><a href="#cb6-42"></a></span>
+<span id="cb6-43"><a href="#cb6-43"></a><span class="co"># Small jitter to avoid exact duplicate points</span></span>
+<span id="cb6-44"><a href="#cb6-44"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
+<span id="cb6-45"><a href="#cb6-45"></a>coords <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(HDB_geo)</span>
+<span id="cb6-46"><a href="#cb6-46"></a><span class="cf">if</span>(<span class="fu">nrow</span>(coords) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb6-47"><a href="#cb6-47"></a>  coords_jitter <span class="ot">&lt;-</span> coords <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="fu">nrow</span>(coords)<span class="sc">*</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>), <span class="at">ncol=</span><span class="dv">2</span>)</span>
+<span id="cb6-48"><a href="#cb6-48"></a>  HDB_geo<span class="sc">$</span>geometry <span class="ot">&lt;-</span> <span class="fu">st_sfc</span>(</span>
+<span id="cb6-49"><a href="#cb6-49"></a>    <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(coords_jitter), <span class="cf">function</span>(i) <span class="fu">st_point</span>(coords_jitter[i, ])),</span>
+<span id="cb6-50"><a href="#cb6-50"></a>    <span class="at">crs =</span> <span class="fu">st_crs</span>(HDB_geo)</span>
+<span id="cb6-51"><a href="#cb6-51"></a>  )</span>
+<span id="cb6-52"><a href="#cb6-52"></a>}</span>
+<span id="cb6-53"><a href="#cb6-53"></a></span>
+<span id="cb6-54"><a href="#cb6-54"></a><span class="fu">message</span>(<span class="st">"HDB_geo spatial rows after join: "</span>, <span class="fu">nrow</span>(HDB_geo))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="distance-within-radius-helper-functions" class="level1">
+<h1>8. Distance &amp; within-radius helper functions</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>nearest_distance <span class="ot">&lt;-</span> <span class="cf">function</span>(src, dest, col){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(dest) <span class="sc">||</span> <span class="fu">nrow</span>(dest) <span class="sc">==</span> <span class="dv">0</span>){</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    src[[col]] <span class="ot">&lt;-</span> <span class="dv">999</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">return</span>(src)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  }</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="cf">if</span>(<span class="fu">st_crs</span>(src) <span class="sc">!=</span> <span class="fu">st_crs</span>(dest)) dest <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(dest, <span class="fu">st_crs</span>(src))</span>
+<span id="cb7-7"><a href="#cb7-7"></a>  idx <span class="ot">&lt;-</span> <span class="fu">st_nearest_feature</span>(src, dest)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>  d <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(src, dest[idx, ], <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  src[[col]] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(d) <span class="sc">/</span> <span class="dv">1000</span>  <span class="co"># km</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="fu">return</span>(src)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>}</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>within_count <span class="ot">&lt;-</span> <span class="cf">function</span>(src, dest, dist_m){</span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(dest) <span class="sc">||</span> <span class="fu">nrow</span>(dest) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(src)))</span>
+<span id="cb7-15"><a href="#cb7-15"></a>  <span class="cf">if</span>(<span class="fu">st_crs</span>(src) <span class="sc">!=</span> <span class="fu">st_crs</span>(dest)) dest <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(dest, <span class="fu">st_crs</span>(src))</span>
+<span id="cb7-16"><a href="#cb7-16"></a>  <span class="fu">lengths</span>(<span class="fu">st_is_within_distance</span>(src, dest, <span class="at">dist =</span> dist_m))</span>
+<span id="cb7-17"><a href="#cb7-17"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="computing-locational-variables" class="level1">
+<h1>10. Computing locational variables</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="co"># distances (km). functions will set 999 if dest is NULL</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">dist_eldercare_km   =</span> <span class="fu">nearest_distance</span>(., eldercare, <span class="st">"dist_eldercare_km"</span>)<span class="sc">$</span>dist_eldercare_km,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    <span class="at">dist_hawker_km      =</span> <span class="fu">nearest_distance</span>(., hawker, <span class="st">"dist_hawker_km"</span>)<span class="sc">$</span>dist_hawker_km,</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    <span class="at">dist_MRT_km         =</span> <span class="fu">nearest_distance</span>(., MRT, <span class="st">"dist_MRT_km"</span>)<span class="sc">$</span>dist_MRT_km,</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="at">dist_park_km        =</span> <span class="fu">nearest_distance</span>(., parks, <span class="st">"dist_park_km"</span>)<span class="sc">$</span>dist_park_km,</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">dist_supermarket_km =</span> <span class="fu">nearest_distance</span>(., supermarkets, <span class="st">"dist_supermarket_km"</span>)<span class="sc">$</span>dist_supermarket_km,</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="at">childcare_within350   =</span> <span class="fu">within_count</span>(., childcare, <span class="dv">350</span>),</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    <span class="at">kindergarten_within350 =</span> <span class="fu">within_count</span>(., kindergarten, <span class="dv">350</span>)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>  )</span>
+<span id="cb8-12"><a href="#cb8-12"></a></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co"># quick diagnostics</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>diag_df <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="fu">select</span>(resale_price, floor_area_sqm, storey_mid, unit_age,</span>
+<span id="cb8-16"><a href="#cb8-16"></a>         dist_eldercare_km, dist_hawker_km, dist_MRT_km,</span>
+<span id="cb8-17"><a href="#cb8-17"></a>         dist_park_km, dist_supermarket_km,</span>
+<span id="cb8-18"><a href="#cb8-18"></a>         childcare_within350, kindergarten_within350)</span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="fu">print</span>(<span class="st">"Missing / NA counts:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Missing / NA counts:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">print</span>(<span class="fu">sapply</span>(diag_df, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          resale_price         floor_area_sqm             storey_mid 
+                     0                      0                      0 
+              unit_age      dist_eldercare_km         dist_hawker_km 
+                     0                      0                      0 
+           dist_MRT_km           dist_park_km    dist_supermarket_km 
+                     0                      0                      0 
+   childcare_within350 kindergarten_within350 
+                     0                      0 </code></pre>
+</div>
+</div>
+</section>
+<section id="saving-integrated-analytical-dataset" class="level1">
+<h1>13. Saving Integrated Analytical Dataset</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">saveRDS</span>(HDB_geo, <span class="st">"data/rds/HDBresale_sf_integrated.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-preparation" class="level1">
+<h1>14. Model Preparation</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>predictors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="st">"floor_area_sqm"</span>,<span class="st">"storey_mid"</span>,<span class="st">"unit_age"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="st">"dist_eldercare_km"</span>,<span class="st">"dist_hawker_km"</span>,<span class="st">"dist_MRT_km"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="st">"dist_park_km"</span>,<span class="st">"dist_supermarket_km"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="st">"childcare_within350"</span>,<span class="st">"kindergarten_within350"</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a>model_df <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    <span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"dist_"</span>), <span class="sc">~</span> <span class="fu">replace_na</span>(., <span class="dv">999</span>)),</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"within"</span>), <span class="sc">~</span> <span class="fu">replace_na</span>(., <span class="dv">0</span>))</span>
+<span id="cb13-13"><a href="#cb13-13"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>  <span class="fu">select</span>(resale_price, <span class="fu">all_of</span>(predictors))</span>
+<span id="cb13-15"><a href="#cb13-15"></a></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="co"># dropping zero-variance predictors</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a>zero_var <span class="ot">&lt;-</span> <span class="fu">names</span>(model_df)[<span class="fu">sapply</span>(model_df, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)) <span class="sc">&lt;=</span> <span class="dv">1</span>)]</span>
+<span id="cb13-18"><a href="#cb13-18"></a><span class="cf">if</span>(<span class="fu">length</span>(zero_var) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb13-19"><a href="#cb13-19"></a>  <span class="fu">message</span>(<span class="st">"Dropping zero-variance predictors: "</span>, <span class="fu">paste</span>(zero_var, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
+<span id="cb13-20"><a href="#cb13-20"></a>  model_df <span class="ot">&lt;-</span> model_df <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">all_of</span>(zero_var))</span>
+<span id="cb13-21"><a href="#cb13-21"></a>  predictors <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(predictors, zero_var)</span>
+<span id="cb13-22"><a href="#cb13-22"></a>}</span>
+<span id="cb13-23"><a href="#cb13-23"></a></span>
+<span id="cb13-24"><a href="#cb13-24"></a><span class="co"># keeping only complete cases</span></span>
+<span id="cb13-25"><a href="#cb13-25"></a>model_df <span class="ot">&lt;-</span> model_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">complete.cases</span>(.))</span>
+<span id="cb13-26"><a href="#cb13-26"></a><span class="fu">message</span>(<span class="st">"Rows available for OLS: "</span>, <span class="fu">nrow</span>(model_df))</span>
+<span id="cb13-27"><a href="#cb13-27"></a></span>
+<span id="cb13-28"><a href="#cb13-28"></a><span class="co"># safe scaling function</span></span>
+<span id="cb13-29"><a href="#cb13-29"></a>safe_scale <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb13-30"><a href="#cb13-30"></a>  <span class="cf">if</span>(<span class="fu">length</span>(<span class="fu">unique</span>(x)) <span class="sc">&lt;=</span> <span class="dv">1</span>) <span class="fu">return</span>(x)</span>
+<span id="cb13-31"><a href="#cb13-31"></a>  <span class="fu">as.numeric</span>(<span class="fu">scale</span>(x))</span>
+<span id="cb13-32"><a href="#cb13-32"></a>}</span>
+<span id="cb13-33"><a href="#cb13-33"></a></span>
+<span id="cb13-34"><a href="#cb13-34"></a><span class="co"># scaling predictors (except response)</span></span>
+<span id="cb13-35"><a href="#cb13-35"></a>model_df[predictors] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(model_df[predictors], safe_scale)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="ols-baseline" class="level1">
+<h1>15. OLS Baseline</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="cf">if</span>(<span class="fu">nrow</span>(model_df) <span class="sc">&lt;</span> <span class="dv">10</span>) {</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">warning</span>(<span class="st">"Very few rows for OLS; check data. Rows:"</span>, <span class="fu">nrow</span>(model_df))</span>
+<span id="cb14-3"><a href="#cb14-3"></a>} <span class="cf">else</span> {</span>
+<span id="cb14-4"><a href="#cb14-4"></a>  ols_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(predictors, <span class="at">collapse =</span> <span class="st">" + "</span>)))</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  ols_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(ols_formula, <span class="at">data =</span> model_df)</span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">----- OLS summary -----</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">print</span>(<span class="fu">summary</span>(ols_model))</span>
+<span id="cb14-8"><a href="#cb14-8"></a></span>
+<span id="cb14-9"><a href="#cb14-9"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">----- VIF diagnostics (ols_vif_tol) -----</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb14-10"><a href="#cb14-10"></a>  <span class="fu">try</span>(<span class="fu">print</span>(<span class="fu">ols_vif_tol</span>(ols_model)), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-11"><a href="#cb14-11"></a></span>
+<span id="cb14-12"><a href="#cb14-12"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">----- check_collinearity -----</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb14-13"><a href="#cb14-13"></a>  <span class="fu">try</span>(<span class="fu">print</span>(performance<span class="sc">::</span><span class="fu">check_collinearity</span>(ols_model)), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-14"><a href="#cb14-14"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+----- OLS summary -----
+
+Call:
+lm(formula = ols_formula, data = model_df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-294321  -77749  -15458   67297  850049 
+
+Coefficients: (1 not defined because of singularities)
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)              719808       1836 391.995  &lt; 2e-16 ***
+floor_area_sqm            15127       1933   7.827 6.53e-15 ***
+storey_mid                47926       2070  23.157  &lt; 2e-16 ***
+unit_age                -112540       2340 -48.102  &lt; 2e-16 ***
+dist_eldercare_km       -656593    8175229  -0.080    0.936    
+dist_hawker_km          -297881    2590827  -0.115    0.908    
+dist_park_km             956539   12669919   0.075    0.940    
+dist_supermarket_km       15641     145766   0.107    0.915    
+childcare_within350     1321727   18231389   0.072    0.942    
+kindergarten_within350       NA         NA      NA       NA    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 109700 on 3563 degrees of freedom
+Multiple R-squared:  0.6217,    Adjusted R-squared:  0.6208 
+F-statistic: 731.9 on 8 and 3563 DF,  p-value: &lt; 2.2e-16
 
 
+----- VIF diagnostics (ols_vif_tol) -----</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Variables    Tolerance          VIF
+1         floor_area_sqm 9.030604e-01 1.107346e+00
+2             storey_mid 7.874160e-01 1.269977e+00
+3               unit_age 6.161697e-01 1.622930e+00
+4      dist_eldercare_km 5.046547e-08 1.981553e+07
+5         dist_hawker_km 5.024782e-07 1.990136e+06
+6           dist_park_km 2.101099e-08 4.759414e+07
+7    dist_supermarket_km 1.587388e-04 6.299656e+03
+8    childcare_within350 0.000000e+00          Inf
+9 kindergarten_within350 0.000000e+00          Inf
+
+----- check_collinearity -----</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Check for Multicollinearity
+
+Low Correlation
+
+           Term  VIF           VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
+ floor_area_sqm 1.11 [    1.07,     1.16]     1.05      0.90     [0.87, 0.93]
+     storey_mid 1.27 [    1.22,     1.33]     1.13      0.79     [0.75, 0.82]
+       unit_age 1.62 [    1.55,     1.70]     1.27      0.62     [0.59, 0.64]
+
+High Correlation
+
+                Term      VIF           VIF 95% CI adj. VIF Tolerance
+   dist_eldercare_km 1.98e+07 [1.86e+07, 2.12e+07]  4451.46  5.05e-08
+      dist_hawker_km 1.99e+06 [1.86e+06, 2.12e+06]  1410.72  5.02e-07
+        dist_park_km 4.76e+07 [4.46e+07, 5.08e+07]  6898.85  2.10e-08
+ dist_supermarket_km  6299.66 [ 5901.12,  6725.11]    79.37  1.59e-04
+ childcare_within350 9.85e+07 [9.23e+07, 1.05e+08]  9927.11  1.01e-08
+ Tolerance 95% CI
+     [0.00, 0.00]
+     [0.00, 0.00]
+     [0.00, 0.00]
+     [0.00, 0.00]
+     [0.00, 0.00]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># saving OLS model</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="fu">saveRDS</span>(ols_model, <span class="st">"data/rds/ols_model.rds"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="fu">message</span>(<span class="st">"OLS model saved to data/rds/ols_model.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="geographically-weighted-regression-gwr" class="level1">
+<h1>16. Geographically Weighted Regression (GWR)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>gwr_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"floor_area_sqm"</span>,<span class="st">"storey_mid"</span>,<span class="st">"unit_age"</span>,<span class="st">"dist_MRT_km"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>df_gwr <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(HDB_geo)[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, gwr_vars)]</span>
+<span id="cb19-3"><a href="#cb19-3"></a>df_gwr[gwr_vars] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df_gwr[gwr_vars], safe_scale)</span>
+<span id="cb19-4"><a href="#cb19-4"></a>df_gwr <span class="ot">&lt;-</span> df_gwr[<span class="fu">complete.cases</span>(df_gwr), ]</span>
+<span id="cb19-5"><a href="#cb19-5"></a></span>
+<span id="cb19-6"><a href="#cb19-6"></a><span class="cf">if</span>(<span class="fu">nrow</span>(df_gwr) <span class="sc">&gt;=</span> <span class="dv">30</span>){</span>
+<span id="cb19-7"><a href="#cb19-7"></a>  <span class="co"># subset HDB_geo to complete rows used in gwr</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>  kept <span class="ot">&lt;-</span> <span class="fu">complete.cases</span>(<span class="fu">st_drop_geometry</span>(HDB_geo)[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, gwr_vars)])</span>
+<span id="cb19-9"><a href="#cb19-9"></a>  HDB_geo_safe <span class="ot">&lt;-</span> HDB_geo[kept, ]</span>
+<span id="cb19-10"><a href="#cb19-10"></a></span>
+<span id="cb19-11"><a href="#cb19-11"></a>  <span class="co"># removing any empty/invalid geometries (fixes sp conversion error)</span></span>
+<span id="cb19-12"><a href="#cb19-12"></a>  keep_valid <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">st_is_empty</span>(HDB_geo_safe) <span class="sc">&amp;</span> <span class="fu">st_is_valid</span>(HDB_geo_safe)</span>
+<span id="cb19-13"><a href="#cb19-13"></a>  HDB_geo_safe <span class="ot">&lt;-</span> HDB_geo_safe[<span class="fu">as.logical</span>(keep_valid), ]</span>
+<span id="cb19-14"><a href="#cb19-14"></a>  coords_safe <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(HDB_geo_safe)</span>
+<span id="cb19-15"><a href="#cb19-15"></a>  HDB_geo_safe <span class="ot">&lt;-</span> HDB_geo_safe[<span class="sc">!</span><span class="fu">is.na</span>(coords_safe[,<span class="dv">1</span>]) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(coords_safe[,<span class="dv">2</span>]), ]</span>
+<span id="cb19-16"><a href="#cb19-16"></a></span>
+<span id="cb19-17"><a href="#cb19-17"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(HDB_geo_safe) <span class="sc">&lt;</span> <span class="dv">30</span>){</span>
+<span id="cb19-18"><a href="#cb19-18"></a>    <span class="fu">message</span>(<span class="st">"After removing invalid geometries, too few rows for GWR: "</span>, <span class="fu">nrow</span>(HDB_geo_safe))</span>
+<span id="cb19-19"><a href="#cb19-19"></a>    gwr_sf <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb19-20"><a href="#cb19-20"></a>  } <span class="cf">else</span> {</span>
+<span id="cb19-21"><a href="#cb19-21"></a>    <span class="co"># convert to SpatialPointsDataFrame (sp) for GWmodel</span></span>
+<span id="cb19-22"><a href="#cb19-22"></a>    HDB_sp <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">as</span>(HDB_geo_safe, <span class="st">"Spatial"</span>), <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb19-23"><a href="#cb19-23"></a>      <span class="fu">message</span>(<span class="st">"Conversion to sp failed: "</span>, e<span class="sc">$</span>message); <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb19-24"><a href="#cb19-24"></a>    })</span>
+<span id="cb19-25"><a href="#cb19-25"></a></span>
+<span id="cb19-26"><a href="#cb19-26"></a>    <span class="cf">if</span>(<span class="fu">is.null</span>(HDB_sp)){</span>
+<span id="cb19-27"><a href="#cb19-27"></a>      <span class="fu">message</span>(<span class="st">"GWR skipped due to sp conversion failure."</span>)</span>
+<span id="cb19-28"><a href="#cb19-28"></a>      gwr_sf <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb19-29"><a href="#cb19-29"></a>    } <span class="cf">else</span> {</span>
+<span id="cb19-30"><a href="#cb19-30"></a>      <span class="co"># determine bandwidth (AICc)</span></span>
+<span id="cb19-31"><a href="#cb19-31"></a>      gwr_bw <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(</span>
+<span id="cb19-32"><a href="#cb19-32"></a>        <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(gwr_vars, <span class="at">collapse =</span> <span class="st">" + "</span>))),</span>
+<span id="cb19-33"><a href="#cb19-33"></a>        <span class="at">data =</span> HDB_sp,</span>
+<span id="cb19-34"><a href="#cb19-34"></a>        <span class="at">approach =</span> <span class="st">"AICc"</span>,</span>
+<span id="cb19-35"><a href="#cb19-35"></a>        <span class="at">kernel =</span> <span class="st">"bisquare"</span>,</span>
+<span id="cb19-36"><a href="#cb19-36"></a>        <span class="at">adaptive =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-37"><a href="#cb19-37"></a>      )</span>
+<span id="cb19-38"><a href="#cb19-38"></a></span>
+<span id="cb19-39"><a href="#cb19-39"></a>      <span class="co"># fit GWR</span></span>
+<span id="cb19-40"><a href="#cb19-40"></a>      gwr_fit <span class="ot">&lt;-</span> <span class="fu">gwr.basic</span>(</span>
+<span id="cb19-41"><a href="#cb19-41"></a>        <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(gwr_vars, <span class="at">collapse =</span> <span class="st">" + "</span>))),</span>
+<span id="cb19-42"><a href="#cb19-42"></a>        <span class="at">data =</span> HDB_sp,</span>
+<span id="cb19-43"><a href="#cb19-43"></a>        <span class="at">bw =</span> gwr_bw,</span>
+<span id="cb19-44"><a href="#cb19-44"></a>        <span class="at">kernel =</span> <span class="st">"bisquare"</span>,</span>
+<span id="cb19-45"><a href="#cb19-45"></a>        <span class="at">adaptive =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-46"><a href="#cb19-46"></a>      )</span>
+<span id="cb19-47"><a href="#cb19-47"></a></span>
+<span id="cb19-48"><a href="#cb19-48"></a>      <span class="co"># convert results to sf</span></span>
+<span id="cb19-49"><a href="#cb19-49"></a>      gwr_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(gwr_fit<span class="sc">$</span>SDF)</span>
+<span id="cb19-50"><a href="#cb19-50"></a>      <span class="fu">message</span>(<span class="st">"GWR fitted; bw="</span>, gwr_bw)</span>
+<span id="cb19-51"><a href="#cb19-51"></a>      <span class="co"># save</span></span>
+<span id="cb19-52"><a href="#cb19-52"></a>      <span class="fu">saveRDS</span>(gwr_sf, <span class="st">"data/rds/gwr_results.rds"</span>)</span>
+<span id="cb19-53"><a href="#cb19-53"></a>      <span class="fu">message</span>(<span class="st">"GWR results saved to data/rds/gwr_results.rds"</span>)</span>
+<span id="cb19-54"><a href="#cb19-54"></a>    }</span>
+<span id="cb19-55"><a href="#cb19-55"></a>  }</span>
+<span id="cb19-56"><a href="#cb19-56"></a>} <span class="cf">else</span> {</span>
+<span id="cb19-57"><a href="#cb19-57"></a>  <span class="fu">message</span>(<span class="st">"Not enough complete rows for GWR. Rows: "</span>, <span class="fu">nrow</span>(df_gwr))</span>
+<span id="cb19-58"><a href="#cb19-58"></a>  gwr_sf <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb19-59"><a href="#cb19-59"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Take a cup of tea and have a break, it will take a few minutes.
+          -----A kind suggestion from GWmodel development group
+Fixed bandwidth: 6288.44 AICc value: 291323.2 
+Fixed bandwidth: 3887.247 AICc value: 286541.9 
+Fixed bandwidth: 2403.228 AICc value: 312245.5 
+Fixed bandwidth: 4804.421 AICc value: 318687.7 
+Fixed bandwidth: 3320.402 AICc value: 289512 
+Fixed bandwidth: 4237.576 AICc value: 292266 
+Fixed bandwidth: 3670.731 AICc value: 300789.6 
+Fixed bandwidth: 4021.061 AICc value: 285615.3 
+Fixed bandwidth: 4103.762 AICc value: 333916.5 
+Fixed bandwidth: 3969.948 AICc value: 294964.5 
+Fixed bandwidth: 4052.65 AICc value: 290793.2 
+Fixed bandwidth: 4001.537 AICc value: 286660.3 
+Fixed bandwidth: 4033.127 AICc value: 308651 
+Fixed bandwidth: 4013.603 AICc value: 297211.5 
+Fixed bandwidth: 4025.669 AICc value: 287182.9 
+Fixed bandwidth: 4018.212 AICc value: 286130.7 
+Fixed bandwidth: 4022.821 AICc value: 313228 
+Fixed bandwidth: 4019.973 AICc value: 283680 
+Fixed bandwidth: 4019.3 AICc value: 290078.4 
+Fixed bandwidth: 4020.388 AICc value: 311170.3 
+Fixed bandwidth: 4019.716 AICc value: 286946.6 
+Fixed bandwidth: 4020.131 AICc value: 290653.3 
+Fixed bandwidth: 4019.874 AICc value: 287206.3 
+Fixed bandwidth: 4020.033 AICc value: 294283.4 
+Fixed bandwidth: 4019.935 AICc value: 298941.8 
+Fixed bandwidth: 4019.996 AICc value: 295978.5 
+Fixed bandwidth: 4019.958 AICc value: 293221.3 
+Fixed bandwidth: 4019.981 AICc value: 309836.4 
+Fixed bandwidth: 4019.967 AICc value: 303558.5 
+Fixed bandwidth: 4019.976 AICc value: 288975.6 
+Fixed bandwidth: 4019.97 AICc value: 305193.8 
+Fixed bandwidth: 4019.974 AICc value: 296546.6 
+Fixed bandwidth: 4019.972 AICc value: 294515.7 
+Fixed bandwidth: 4019.973 AICc value: 289906 
+Fixed bandwidth: 4019.972 AICc value: 283322.3 
+Fixed bandwidth: 4019.972 AICc value: 291817.6 
+Fixed bandwidth: 4019.972 AICc value: 290723.7 
+Fixed bandwidth: 4019.972 AICc value: 293106.9 
+Fixed bandwidth: 4019.972 AICc value: 296543.8 
+Fixed bandwidth: 4019.972 AICc value: 302802.2 </code></pre>
+</div>
+</div>
+</section>
+<section id="visualisation-of-spatial-and-gwr-results" class="level1">
+<h1>17. Visualisation of Spatial and GWR Results</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># Base resale price map</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="cf">if</span>(<span class="fu">nrow</span>(HDB_geo) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb21-3"><a href="#cb21-3"></a>  p1 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(HDB_geo) <span class="sc">+</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="fu">tm_dots</span>(<span class="st">"resale_price"</span>, <span class="at">palette =</span> <span class="st">"-RdYlBu"</span>, <span class="at">style =</span> <span class="st">"quantile"</span>, <span class="at">size =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="fu">tm_layout</span>(<span class="at">title =</span> <span class="st">"HDB resale price (4-room) — points"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-6"><a href="#cb21-6"></a>  <span class="fu">tmap_save</span>(p1, <span class="st">"data/rds/map_resale_price.png"</span>, <span class="at">width =</span> <span class="dv">1600</span>, <span class="at">height =</span> <span class="dv">1000</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span>
+<span id="cb21-7"><a href="#cb21-7"></a>  <span class="fu">message</span>(<span class="st">"Saved resale price map: data/rds/map_resale_price.png"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8"></a>} <span class="cf">else</span> {</span>
+<span id="cb21-9"><a href="#cb21-9"></a>  <span class="fu">message</span>(<span class="st">"No HDB_geo rows to map."</span>)</span>
+<span id="cb21-10"><a href="#cb21-10"></a>}</span>
+<span id="cb21-11"><a href="#cb21-11"></a></span>
+<span id="cb21-12"><a href="#cb21-12"></a><span class="co"># If GWR available, map a coefficient (e.g. floor_area_sqm)</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a><span class="cf">if</span>(<span class="fu">exists</span>(<span class="st">"gwr_sf"</span>) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(gwr_sf) <span class="sc">&amp;&amp;</span> <span class="st">"floor_area_sqm"</span> <span class="sc">%in%</span> <span class="fu">names</span>(gwr_sf)){</span>
+<span id="cb21-14"><a href="#cb21-14"></a>  p2 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(gwr_sf) <span class="sc">+</span></span>
+<span id="cb21-15"><a href="#cb21-15"></a>    <span class="fu">tm_dots</span>(<span class="st">"floor_area_sqm"</span>, <span class="at">style =</span> <span class="st">"quantile"</span>, <span class="at">size =</span> <span class="fl">0.05</span>) <span class="sc">+</span></span>
+<span id="cb21-16"><a href="#cb21-16"></a>    <span class="fu">tm_layout</span>(<span class="at">title =</span> <span class="st">"GWR coefficient: floor_area_sqm"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-17"><a href="#cb21-17"></a>  <span class="fu">tmap_save</span>(p2, <span class="st">"data/rds/map_gwr_coef_floor_area.png"</span>, <span class="at">width =</span> <span class="dv">1600</span>, <span class="at">height =</span> <span class="dv">1000</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span>
+<span id="cb21-18"><a href="#cb21-18"></a>  <span class="fu">message</span>(<span class="st">"Saved GWR coef map: data/rds/map_gwr_coef_floor_area.png"</span>)</span>
+<span id="cb21-19"><a href="#cb21-19"></a>} <span class="cf">else</span> {</span>
+<span id="cb21-20"><a href="#cb21-20"></a>  <span class="fu">message</span>(<span class="st">"GWR results not available or floor_area_sqm coef missing; skipping GWR map."</span>)</span>
+<span id="cb21-21"><a href="#cb21-21"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
