@@ -217,7 +217,7 @@ tm_shape(Trade_area) +
     tm_dots(size = 0.3,
             fill = "red",
             col = "black") +
-  tm_title("Distribution of Patronage Probability of Store BT by village") +
+  tm_title("Distribution of Patronage Probability of Store TG by village") +
   tm_layout(frame = TRUE) +
   tm_borders(fill_alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
