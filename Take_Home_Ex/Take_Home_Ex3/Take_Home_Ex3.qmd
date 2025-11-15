@@ -9,3 +9,428 @@ execute:
   warning: false
   freeze: true
 ---
+
+# Modelling HDB Resale Prices with Geographically Weighted Methods
+
+# 1. Overview
+
+This study develops a spatially informed predictive model for HDB resale prices in Singapore using transaction data from July 2024 to June 2025. Focusing on 4-room flats, the analysis integrates structural housing attributes with a rich set of geospatial accessibility measures, including proximity to hawker centres, MRT stations, parks, eldercare facilities, supermarkets, and preschool services. By converting aspatial resale records into geographically referenced point features and linking them to multiple open-source geospatial datasets, the study constructs a comprehensive analytical sandbox. Geographically Weighted Regression (GWR) is applied to uncover how price determinants vary across space, revealing localised market dynamics that conventional global models cannot capture.
+
+# 2. Objectives
+
+The primary objective is to build a reproducible, spatially enhanced modelling workflow capable of predicting HDB resale prices with greater accuracy by leveraging both structural characteristics and local accessibility. Specifically, the study aims to:
+
+-   Create a reliable geospatial dataset of 4-room resale flats.
+-   Derive meaningful location-based predictors through spatial distance and within-radius computations.
+-   Compare global OLS and local GWR models to assess spatial heterogeneity in price determinants.
+-   Communicate findings through clear, decision-oriented geovisualisations.
+
+# 3. Installing and Loading Packages
+
+```{r}
+pacman::p_load(
+  # core
+  tidyverse, sf, lubridate, stringr,
+  # spatial analysis & plotting
+  lwgeom, tmap, sp, spdep, GWmodel,
+  # model diagnostics
+  olsrr, performance,
+  # convenience
+  readr, units
+)
+```
+
+```{r}
+# setting tmap plotting mode
+tmap_mode("plot")
+```
+
+# 4. Importing Main Dataset
+
+```{r}
+hdb_path <- "data/HDBresale.csv"
+if(!file.exists(hdb_path)) stop("HDBresale.csv not found at data/HDBresale.csv")
+
+HDBresale <- read_csv(hdb_path,
+                      col_types = cols(
+                        month = col_character(),
+                        town = col_character(),
+                        flat_type = col_character(),
+                        block = col_character(),
+                        street_name = col_character(),
+                        storey_range = col_character(),
+                        floor_area_sqm = col_double(),
+                        flat_model = col_character(),
+                        lease_commence_date = col_double(),
+                        remaining_lease = col_character(),
+                        resale_price = col_double()
+                      ),
+                      show_col_types = FALSE) %>%
+  mutate(
+    flat_type = toupper(flat_type),
+    # convert "YYYY-MM" to Date first-of-month
+    month = as.Date(paste0(month, "-01"))
+  ) %>%
+  # filter to focus = 4 ROOM (user confirmed)
+  filter(flat_type == "4 ROOM") %>%
+  mutate(
+    remaining_lease_yrs = sapply(remaining_lease, function(x) {
+      parts <- str_extract_all(x, "\\d+")[[1]]
+      if (length(parts) == 2) as.numeric(parts[1]) + as.numeric(parts[2]) / 12
+      else if (length(parts) == 1) as.numeric(parts[1])
+      else NA_real_
+    }),
+    unit_age = year(month) - lease_commence_date
+  )
+
+message("HDB rows (4-room): ", nrow(HDBresale))
+```
+
+# 5. Safe SF Readers Helper Functions
+
+```{r}
+safe_read_points <- function(filepath, target_crs = 3414){
+  if(!file.exists(filepath)) {
+    message("File not found: ", filepath); return(NULL)
+  }
+  sf_obj <- tryCatch(st_read(filepath, quiet = TRUE), error = function(e) {
+    message("st_read failed for ", filepath, " : ", e$message); return(NULL)
+  })
+  if(is.null(sf_obj) || nrow(sf_obj) == 0) return(NULL)
+
+  # If geometry collection or non-point, try to extract points
+  geom_types <- suppressWarnings(st_geometry_type(sf_obj))
+  if(!all(geom_types %in% c("POINT", "MULTIPOINT"))){
+    sf_obj <- tryCatch(st_collection_extract(sf_obj, "POINT"), error = function(e){
+      message("st_collection_extract failed; attempting to keep existing point rows")
+      sf_obj[geom_types %in% c("POINT","MULTIPOINT"), ]
+    })
+  }
+
+  # Making valid, drop empty, set CRS if missing
+  sf_obj <- tryCatch(lwgeom::st_make_valid(sf_obj), error = function(e) sf_obj)
+  sf_obj <- sf_obj[!st_is_empty(sf_obj), ]
+  if(is.na(st_crs(sf_obj))) st_crs(sf_obj) <- 4326
+
+  # Transforming to target CRS (EPSG:3414 Singapore TM)
+  sf_obj <- tryCatch(st_transform(sf_obj, target_crs), error = function(e){
+    message("st_transform failed for ", filepath, " : ", e$message); return(NULL)
+  })
+
+  if(nrow(sf_obj) == 0) return(NULL)
+  return(sf_obj)
+}
+
+safe_read_polygons <- function(filepath, target_crs = 3414){
+  if(!file.exists(filepath)) {
+    message("File not found: ", filepath); return(NULL)
+  }
+  sf_obj <- tryCatch(st_read(filepath, quiet = TRUE), error = function(e) {
+    message("st_read failed for ", filepath, " : ", e$message); return(NULL)
+  })
+  if(is.null(sf_obj) || nrow(sf_obj) == 0) return(NULL)
+
+  sf_obj <- tryCatch(lwgeom::st_make_valid(sf_obj), error = function(e) sf_obj)
+  sf_obj <- sf_obj[!st_is_empty(sf_obj), ]
+  if(is.na(st_crs(sf_obj))) st_crs(sf_obj) <- 4326
+  sf_obj <- tryCatch(st_transform(sf_obj, target_crs), error = function(e){
+    message("st_transform failed for ", filepath, " : ", e$message); return(NULL)
+  })
+  return(sf_obj)
+}
+```
+
+# 6. Loading Supporting Layers
+
+```{r}
+eldercare_fp    <- "data/ELDERCARE.shp"
+hawker_fp       <- "data/HawkerCentresGEOJSON.geojson"
+parks_fp        <- "data/Parks.geojson"
+supermarkets_fp <- "data/SupermarketsGEOJSON.geojson"
+childcare_fp    <- "data/ChildCareServices.geojson"
+kinder_fp       <- "data/Kindergartens.geojson"
+mrt_fp          <- "data/RapidTransitSystemStation.shp"
+mp_subzone_fp   <- "data/MP14_SUBZONE_WEB_PL.shp"
+
+# Reading (points)
+eldercare    <- safe_read_points(eldercare_fp)
+hawker       <- safe_read_points(hawker_fp)
+parks        <- safe_read_points(parks_fp)
+supermarkets <- safe_read_points(supermarkets_fp)
+childcare    <- safe_read_points(childcare_fp)
+kindergarten <- safe_read_points(kinder_fp)
+
+# MRT: may fail
+MRT <- safe_read_points(mrt_fp)
+if(is.null(MRT)) message("MRT layer could not be read; MRT distances will be set to 999")
+
+# MP subzones polygon
+MP_subzone <- safe_read_polygons(mp_subzone_fp)
+if(is.null(MP_subzone)) stop("Subzone polygon MP14_SUBZONE_WEB_PL.shp not found or failed to read. This is required for georeferencing HDB records.")
+```
+
+# 7. Creating HDB spatial points by joining to subzone centroids
+
+```{r}
+# 7. Creating HDB spatial points by joining to subzone centroids
+library(dplyr)
+library(sf)
+library(stringr)
+
+# Make subzone centroids (EPSG:3414)
+subzone_centroids <- MP_subzone %>%
+  st_centroid() %>%
+  select(SUBZONE_N, geometry) %>%
+  st_transform(3414)
+
+# Create town guess from SUBZONE_N
+subzone_lookup <- subzone_centroids %>%
+  st_drop_geometry() %>%
+  mutate(town_guess = str_trim(str_extract(SUBZONE_N, "^[A-Z\\s]+"))) %>%
+  distinct(town_guess, SUBZONE_N)
+
+# Prepare HDB table
+HDB_join_prep <- HDBresale %>%
+  mutate(
+    town = toupper(str_trim(town)),
+    town_guess = town,
+    resale_price = as.numeric(resale_price),
+    floor_area_sqm = as.numeric(floor_area_sqm),
+    storey_mid = case_when(
+      str_detect(storey_range, "TO") ~ {
+        parts <- read.table(text = gsub("TO", " ", storey_range))
+        rowMeans(parts)
+      },
+      TRUE ~ as.numeric(str_extract(storey_range, "\\d+"))
+    )
+  )
+
+# Join HDB to subzone centroids by town_guess
+HDB_geo <- HDB_join_prep %>%
+  left_join(subzone_lookup, by = "town_guess") %>%
+  left_join(subzone_centroids, by = "SUBZONE_N") %>%
+  st_as_sf(sf_column_name = "geometry", crs = 3414)
+
+# Fallback: drop rows without geometry
+HDB_geo <- HDB_geo %>% filter(!is.na(st_geometry(.)) & !st_is_empty(geometry))
+
+# Small jitter to avoid exact duplicate points
+set.seed(111)
+coords <- st_coordinates(HDB_geo)
+if(nrow(coords) > 0){
+  coords_jitter <- coords + matrix(runif(nrow(coords)*2, -3, 3), ncol=2)
+  HDB_geo$geometry <- st_sfc(
+    lapply(1:nrow(coords_jitter), function(i) st_point(coords_jitter[i, ])),
+    crs = st_crs(HDB_geo)
+  )
+}
+
+message("HDB_geo spatial rows after join: ", nrow(HDB_geo))
+```
+
+# 8. Distance & within-radius helper functions
+
+```{r}
+nearest_distance <- function(src, dest, col){
+  if(is.null(dest) || nrow(dest) == 0){
+    src[[col]] <- 999
+    return(src)
+  }
+  if(st_crs(src) != st_crs(dest)) dest <- st_transform(dest, st_crs(src))
+  idx <- st_nearest_feature(src, dest)
+  d <- st_distance(src, dest[idx, ], by_element = TRUE)
+  src[[col]] <- as.numeric(d) / 1000  # km
+  return(src)
+}
+
+within_count <- function(src, dest, dist_m){
+  if(is.null(dest) || nrow(dest) == 0) return(rep(0, nrow(src)))
+  if(st_crs(src) != st_crs(dest)) dest <- st_transform(dest, st_crs(src))
+  lengths(st_is_within_distance(src, dest, dist = dist_m))
+}
+```
+
+# 10. Computing locational variables
+
+```{r}
+HDB_geo <- HDB_geo %>%
+  mutate(
+    # distances (km). functions will set 999 if dest is NULL
+    dist_eldercare_km   = nearest_distance(., eldercare, "dist_eldercare_km")$dist_eldercare_km,
+    dist_hawker_km      = nearest_distance(., hawker, "dist_hawker_km")$dist_hawker_km,
+    dist_MRT_km         = nearest_distance(., MRT, "dist_MRT_km")$dist_MRT_km,
+    dist_park_km        = nearest_distance(., parks, "dist_park_km")$dist_park_km,
+    dist_supermarket_km = nearest_distance(., supermarkets, "dist_supermarket_km")$dist_supermarket_km,
+    childcare_within350   = within_count(., childcare, 350),
+    kindergarten_within350 = within_count(., kindergarten, 350)
+  )
+
+# quick diagnostics
+diag_df <- HDB_geo %>% st_drop_geometry() %>%
+  select(resale_price, floor_area_sqm, storey_mid, unit_age,
+         dist_eldercare_km, dist_hawker_km, dist_MRT_km,
+         dist_park_km, dist_supermarket_km,
+         childcare_within350, kindergarten_within350)
+
+print("Missing / NA counts:")
+print(sapply(diag_df, function(x) sum(is.na(x))))
+```
+
+# 13. Saving Integrated Analytical Dataset
+
+```{r}
+saveRDS(HDB_geo, "data/rds/HDBresale_sf_integrated.rds")
+```
+
+# 14. Model Preparation
+
+```{r}
+predictors <- c(
+  "floor_area_sqm","storey_mid","unit_age",
+  "dist_eldercare_km","dist_hawker_km","dist_MRT_km",
+  "dist_park_km","dist_supermarket_km",
+  "childcare_within350","kindergarten_within350"
+)
+
+model_df <- HDB_geo %>%
+  st_drop_geometry() %>%
+  mutate(
+    across(contains("dist_"), ~ replace_na(., 999)),
+    across(contains("within"), ~ replace_na(., 0))
+  ) %>%
+  select(resale_price, all_of(predictors))
+
+# dropping zero-variance predictors
+zero_var <- names(model_df)[sapply(model_df, function(x) length(unique(x)) <= 1)]
+if(length(zero_var) > 0){
+  message("Dropping zero-variance predictors: ", paste(zero_var, collapse = ", "))
+  model_df <- model_df %>% select(-all_of(zero_var))
+  predictors <- setdiff(predictors, zero_var)
+}
+
+# keeping only complete cases
+model_df <- model_df %>% filter(complete.cases(.))
+message("Rows available for OLS: ", nrow(model_df))
+
+# safe scaling function
+safe_scale <- function(x){
+  if(length(unique(x)) <= 1) return(x)
+  as.numeric(scale(x))
+}
+
+# scaling predictors (except response)
+model_df[predictors] <- lapply(model_df[predictors], safe_scale)
+```
+
+# 15. OLS Baseline
+
+```{r}
+if(nrow(model_df) < 10) {
+  warning("Very few rows for OLS; check data. Rows:", nrow(model_df))
+} else {
+  ols_formula <- as.formula(paste("resale_price ~", paste(predictors, collapse = " + ")))
+  ols_model <- lm(ols_formula, data = model_df)
+  cat("\n----- OLS summary -----\n")
+  print(summary(ols_model))
+
+  cat("\n----- VIF diagnostics (ols_vif_tol) -----\n")
+  try(print(ols_vif_tol(ols_model)), silent = TRUE)
+
+  cat("\n----- check_collinearity -----\n")
+  try(print(performance::check_collinearity(ols_model)), silent = TRUE)
+}
+
+# saving OLS model
+saveRDS(ols_model, "data/rds/ols_model.rds")
+message("OLS model saved to data/rds/ols_model.rds")
+```
+
+# 16. Geographically Weighted Regression (GWR)
+
+```{r}
+gwr_vars <- c("floor_area_sqm","storey_mid","unit_age","dist_MRT_km")
+df_gwr <- st_drop_geometry(HDB_geo)[, c("resale_price", gwr_vars)]
+df_gwr[gwr_vars] <- lapply(df_gwr[gwr_vars], safe_scale)
+df_gwr <- df_gwr[complete.cases(df_gwr), ]
+
+if(nrow(df_gwr) >= 30){
+  # subset HDB_geo to complete rows used in gwr
+  kept <- complete.cases(st_drop_geometry(HDB_geo)[, c("resale_price", gwr_vars)])
+  HDB_geo_safe <- HDB_geo[kept, ]
+
+  # removing any empty/invalid geometries (fixes sp conversion error)
+  keep_valid <- !st_is_empty(HDB_geo_safe) & st_is_valid(HDB_geo_safe)
+  HDB_geo_safe <- HDB_geo_safe[as.logical(keep_valid), ]
+  coords_safe <- st_coordinates(HDB_geo_safe)
+  HDB_geo_safe <- HDB_geo_safe[!is.na(coords_safe[,1]) & !is.na(coords_safe[,2]), ]
+
+  if(nrow(HDB_geo_safe) < 30){
+    message("After removing invalid geometries, too few rows for GWR: ", nrow(HDB_geo_safe))
+    gwr_sf <- NULL
+  } else {
+    # convert to SpatialPointsDataFrame (sp) for GWmodel
+    HDB_sp <- tryCatch(as(HDB_geo_safe, "Spatial"), error = function(e) {
+      message("Conversion to sp failed: ", e$message); return(NULL)
+    })
+
+    if(is.null(HDB_sp)){
+      message("GWR skipped due to sp conversion failure.")
+      gwr_sf <- NULL
+    } else {
+      # determine bandwidth (AICc)
+      gwr_bw <- bw.gwr(
+        as.formula(paste("resale_price ~", paste(gwr_vars, collapse = " + "))),
+        data = HDB_sp,
+        approach = "AICc",
+        kernel = "bisquare",
+        adaptive = FALSE
+      )
+
+      # fit GWR
+      gwr_fit <- gwr.basic(
+        as.formula(paste("resale_price ~", paste(gwr_vars, collapse = " + "))),
+        data = HDB_sp,
+        bw = gwr_bw,
+        kernel = "bisquare",
+        adaptive = FALSE
+      )
+
+      # convert results to sf
+      gwr_sf <- st_as_sf(gwr_fit$SDF)
+      message("GWR fitted; bw=", gwr_bw)
+      # save
+      saveRDS(gwr_sf, "data/rds/gwr_results.rds")
+      message("GWR results saved to data/rds/gwr_results.rds")
+    }
+  }
+} else {
+  message("Not enough complete rows for GWR. Rows: ", nrow(df_gwr))
+  gwr_sf <- NULL
+}
+```
+
+# 17. Visualisation of Spatial and GWR Results
+
+```{r}
+# Base resale price map
+if(nrow(HDB_geo) > 0){
+  p1 <- tm_shape(HDB_geo) +
+    tm_dots("resale_price", palette = "-RdYlBu", style = "quantile", size = 0.05) +
+    tm_layout(title = "HDB resale price (4-room) — points", legend.outside = TRUE)
+  tmap_save(p1, "data/rds/map_resale_price.png", width = 1600, height = 1000, dpi = 150)
+  message("Saved resale price map: data/rds/map_resale_price.png")
+} else {
+  message("No HDB_geo rows to map.")
+}
+
+# If GWR available, map a coefficient (e.g. floor_area_sqm)
+if(exists("gwr_sf") && !is.null(gwr_sf) && "floor_area_sqm" %in% names(gwr_sf)){
+  p2 <- tm_shape(gwr_sf) +
+    tm_dots("floor_area_sqm", style = "quantile", size = 0.05) +
+    tm_layout(title = "GWR coefficient: floor_area_sqm", legend.outside = TRUE)
+  tmap_save(p2, "data/rds/map_gwr_coef_floor_area.png", width = 1600, height = 1000, dpi = 150)
+  message("Saved GWR coef map: data/rds/map_gwr_coef_floor_area.png")
+} else {
+  message("GWR results not available or floor_area_sqm coef missing; skipping GWR map.")
+}
+```

@@ -221,7 +221,7 @@ Centralization/Decentralization: The areas of highest accessibility (darkest blu
 -   High Power (2.0 to 2.5): The map shows the most centralized/localized pattern. The high accessibility areas are very tightly clustered around the locations of the opportunities (the black dots). Distance acts as a strong deterrent, so only cells very close to an opportunity receive a high score. Accessibility drops off quickly in surrounding areas. The overall range of accessibility values is the lowest, and the absolute values are much smaller.
 
     | Power | Distance Deterrence | Accessibility Pattern | Key Observation |
-    |------------|--------------|----------------------|-----------------------------|
+    |----|----|----|----|
     | 0.5 | Weak | Diffuse/Decentralized | Highest overall scores; high accessibility extends far from opportunities. |
     | 1.0 | Moderate | Smoother Gradient | Balance between distance and opportunity size; high scores still relatively widespread. |
     | 2.0 - 2.5 | Strong | Localized/Centralized | Lowest overall scores; high accessibility is strictly limited to cells immediately adjacent to opportunities. |
