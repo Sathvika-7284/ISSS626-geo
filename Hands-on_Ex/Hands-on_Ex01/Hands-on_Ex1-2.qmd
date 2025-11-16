@@ -111,6 +111,31 @@ mpsz_pop2024 <- left_join(mpsz, popdata2024,
                           by = c("SUBZONE_N" = "SZ"))
 ```
 
+#### Creating centroid points for each planning subzone
+```{r}
+
+# Temporarily disabling s2 due to invalid polygons
+sf::sf_use_s2(FALSE)
+
+# Fixing invalid geometries before centroid calculation
+mpsz_valid <- mpsz_pop2024 %>%
+  st_make_valid()
+
+# Computing centroids
+mpsz_centroids <- mpsz_valid %>%
+  st_centroid() %>%
+  mutate(
+    X_COORD = st_coordinates(.)[,1],
+    Y_COORD = st_coordinates(.)[,2]
+  )
+
+# Re-enabling s2
+sf::sf_use_s2(TRUE)
+
+# Quick check
+head(mpsz_centroids)
+```
+
 ```{r}
 write_rds(mpsz_pop2024, "data/rds/mpsz_pop2024.rds")
 ```

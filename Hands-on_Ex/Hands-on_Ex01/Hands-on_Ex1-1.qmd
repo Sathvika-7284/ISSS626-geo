@@ -148,6 +148,22 @@ plot(st_geometry(mpsz))
 plot(st_geometry(listings_sf), add = TRUE)
 ```
 
+### Counting Airbnb listings within each subzone (spatial join)
+
+This performs a spatial point-in-polygon join to determine which Airbnb listings fall within each Master Plan subzone. It then summarises the results by counting the number of listings inside each subzone, creating a new tabular dataset useful for exploratory analysis, mapping, or later modelling.
+
+```{r}
+listings_in_subzone <- st_join(listings_sf, mpsz, join = st_within)
+
+# Summarise: counting number of listings per subzone
+subzone_listing_counts <- listings_in_subzone %>%
+  st_drop_geometry() %>% 
+  count(SUBZONE_N, PLN_AREA_N, REGION_N, name = "listing_count") %>%
+  arrange(desc(listing_count))
+
+head(subzone_listing_counts)
+```
+
 ## 1.6 Geoprocessing with sf package
 
 ### 1.6.1 Use case 1: Land acquisition analysis
