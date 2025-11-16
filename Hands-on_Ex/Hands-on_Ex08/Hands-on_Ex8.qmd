@@ -22,7 +22,7 @@ pacman::p_load(sf, spdep, GWmodel, SpatialML,
 
 ## 2. Preparing Data
 
-### 2.1  Reading data file to rds
+### 2.1 Reading data file to rds
 
 ```{r}
 mdata <- read_rds("data/rawdata/mdata.rds")
@@ -85,12 +85,15 @@ summary(price_mlr)
 write_rds(price_mlr, "data/model/price_mlr.rds" ) 
 ```
 
+```{r}
+write_rds(price_mlr, "data/model/price_mlr.rds" ) 
+```
+
 ## 6. gwr predictive method
 
 ### 6.1 Computing adaptive bandwidth
 
 ```{r}
-#| eval: false
 
 bw_adaptive <- bw.gwr(
   formula = resale_price ~ floor_area_sqm +
@@ -117,7 +120,6 @@ bw_adaptive <- read_rds(
 ```
 
 ```{r}
-#| eval: false
 
 gwr_adaptive <- gwr.basic(
   formula = resale_price ~ floor_area_sqm +
@@ -145,7 +147,6 @@ gwr_adaptive <- read_rds("data/model/gwr_adaptive.rds")
 ```
 
 ```{r}
-#| eval: false
 
 gwr_adaptive
 ```
@@ -153,7 +154,6 @@ gwr_adaptive
 ### 6.4 Computing adaptive bandwidth for the test data
 
 ```{r}
-#| eval: false
 
 gwr_bw_test_adaptive <- bw.gwr(
   formula = resale_price ~ floor_area_sqm +
@@ -172,6 +172,7 @@ gwr_bw_test_adaptive <- bw.gwr(
 write_rds(gwr_bw_test_adaptive, 
           "data/model/gwr_bw_test_adaptive.rds")
 ```
+
 ## 7. Calibrating Random Forest Model
 
 ### 7.1 Preparing coordinates data
@@ -230,7 +231,6 @@ write_rds(rf, "data/model/rf.rds")
 ### 8.1 Calibrating using training data
 
 ```{r}
-#| eval: false
 
 set.seed(1234)
 gwRF_adaptive <- grf(
@@ -254,3 +254,63 @@ write_rds(gwRF_adaptive, "data/model/gwRF_adaptive.rds")
 gwRF_adaptive <- read_rds("data/model/gwRF_adaptive.rds")
 ```
 
+## 8.2 Predicting by using test data
+
+### 8.2.1 Preparing the test data
+
+```{r}
+test_data_nogeom <- cbind(
+  test_data, coords_test) %>%
+  st_drop_geometry()
+
+test_data_nogeom <- test_data_nogeom %>% 
+  slice(1:5000)
+```
+
+### 8.2.2 Predicting with test data
+
+```{r}
+gwRF_pred <- predict.grf(gwRF_adaptive, 
+                           test_data_nogeom, 
+                           x.var.name="X",
+                           y.var.name="Y", 
+                           local.w=1,
+                           global.w=0)
+
+GRF_pred <- write_rds(gwRF_pred, "data/model/GRF_pred.rds")
+```
+
+### 8.2.3 Converting the predicting output into a data frame
+
+```{r}
+GRF_pred <- read_rds(
+  "data/model/GRF_pred.rds")
+GRF_pred_df <- as.data.frame(GRF_pred)
+```
+
+```{r}
+test_data_p <- cbind(
+  test_data, GRF_pred_df) %>%
+  select(resale_price, GRF_pred)
+```
+
+```{r}
+write_rds(test_data_p, 
+          "data/model/test_data_p.rds")
+```
+
+## 8.3 Calculating Root Mean Square Error
+
+```{r}
+rmse(test_data_p$resale_price, 
+     test_data_p$GRF_pred)
+```
+
+## 8.4 Visualising the predicted values
+
+```{r}
+ggplot(data = test_data_p,
+       aes(x = GRF_pred,
+           y = resale_price)) +
+  geom_point()
+```

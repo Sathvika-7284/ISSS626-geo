@@ -21,7 +21,7 @@ pacman::p_load(sf, sfdep, tmap, tidyverse)
 
 # 2.Getting the Data Into R Environment
 
-## 2.1  Import shapefile into r environment
+## 2.1 Import shapefile into r environment
 
 ```{r}
 hunan <- st_read(dsn = "data/geospatial", 
@@ -92,6 +92,7 @@ wm_q <- hunan %>%
 ```{r}
 summary(wm_q$nb)
 ```
+
 ## 4.2 Computing local Moran’s I
 
 ```{r}
@@ -326,7 +327,7 @@ hunan_adw <- hunan %>%
     .before = 1)
 ```
 
-## 5.2 Computing local Gi*
+## 5.2 Computing local Gi\*
 
 ```{r}
 HCSA_fdw <- hunan_fdw %>%
@@ -339,7 +340,7 @@ HCSA_fdw <- hunan_fdw %>%
 
 ## 5.3 Preparing and Visualising HCSA Map
 
-### 5.3.1 Mapping Gi* with fix distance weights
+### 5.3.1 Mapping Gi\* with fix distance weights
 
 ```{r}
 tm_shape(HCSA_fdw) +
@@ -355,7 +356,7 @@ tm_shape(HCSA_fdw) +
   tm_title("Gi* of GDPPC (Fixed Bandwidth d = 60799.91m)")
 ```
 
-### 5.3.2 Mapping local Gi* p-values
+### 5.3.2 Mapping local Gi\* p-values
 
 ```{r}
 tm_shape(HCSA_fdw) +
@@ -370,7 +371,7 @@ tm_shape(HCSA_fdw) +
   tm_title("p-values of local Gi* of GDPPC (Fixed distance)")
 ```
 
-### 5.3.3 Mapping both Gi* values and p-values
+### 5.3.3 Mapping both Gi\* values and p-values
 
 ```{r}
 Gi_star_map <- tm_shape(HCSA_fdw) +

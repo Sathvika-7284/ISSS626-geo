@@ -8,7 +8,6 @@ execute:
  echo: true
  eval: true
  warning: false
- freeze: true
 ---
 
 # First-order Spatial Point Patterns Analysis Methods
@@ -85,7 +84,7 @@ plot(st_geometry(childcare_sf), add = TRUE)
 ```
 
 ```{r}
-tmap_mode('view')
+tmap_mode('plot')
 tm_shape(childcare_sf)+
   tm_dots()
 ```

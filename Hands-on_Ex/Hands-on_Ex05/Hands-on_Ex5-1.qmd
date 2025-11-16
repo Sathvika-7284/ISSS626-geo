@@ -111,7 +111,7 @@ bperm= moran.mc(hunan$GDPPC,
 bperm
 ```
 
-## 5.3  Visualising Monte Carlo Moran’s I
+## 5.3 Visualising Monte Carlo Moran’s I
 
 ```{r}
 mean(bperm$res[1:999])
@@ -192,9 +192,43 @@ hist(bperm$res, freq=TRUE, breaks=20, xlab="Simulated Geary c")
 abline(v=1, col="red") 
 ```
 
+# Local Measures of Spatial Autocorrelation: Local Moran’s I (LISA)
+
+```{r}
+# Computing Local Moran's I
+localMI <- localmoran(hunan$GDPPC, 
+                      listw = rswm_q, 
+                      zero.policy = TRUE)
+
+# Adding results back into sf object
+hunan$local_I     <- localMI[, 1]
+hunan$local_pval  <- localMI[, 5]
+
+# Classifying cluster types
+hunan <- hunan %>%
+  mutate(
+    lag_GDPPC = lag.listw(rswm_q, GDPPC),
+    LISA_cluster = case_when(
+      GDPPC > mean(GDPPC) & lag_GDPPC > mean(lag_GDPPC) & local_pval < 0.05 ~ "High-High",
+      GDPPC < mean(GDPPC) & lag_GDPPC < mean(lag_GDPPC) & local_pval < 0.05 ~ "Low-Low",
+      GDPPC > mean(GDPPC) & lag_GDPPC < mean(lag_GDPPC) & local_pval < 0.05 ~ "High-Low",
+      GDPPC < mean(GDPPC) & lag_GDPPC > mean(lag_GDPPC) & local_pval < 0.05 ~ "Low-High",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+# Plotting LISA cluster map
+tm_shape(hunan) +
+  tm_polygons("LISA_cluster",
+              palette = "Set1",
+              title = "Local Moran’s I Cluster Map") +
+  tm_borders(alpha = 0.6) +
+  tm_layout(main.title = "LISA (Local Moran’s I) Cluster Patterns")
+```
+
 # 7. Spatial Correlogram
 
-## 7.1  Compute Moran’s I correlogram
+## 7.1 Compute Moran’s I correlogram
 
 ```{r}
 MI_corr <- sp.correlogram(wm_q, 

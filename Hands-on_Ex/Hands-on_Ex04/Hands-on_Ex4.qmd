@@ -267,6 +267,34 @@ lag_gdppc <- qtm(hunan, "lag GDPPC")
 tmap_arrange(gdppc, lag_gdppc, asp=1, ncol=2)
 ```
 
+### 8.1.1 Local Moran's I (LISA) for GDPPC
+
+```{r}
+# Computing Local Moran's I
+lisa <- localmoran(hunan$GDPPC, rswm_q)
+
+# Converting results to dataframe
+lisa_df <- as.data.frame(lisa)
+colnames(lisa_df) <- c("Ii", "Ei", "Vi", "Zi", "Pi")
+
+# Binding LISA results to spatial dataframe
+hunan <- cbind(hunan, lisa_df)
+
+# Classifying hotspot / coldspot
+hunan$LISA_Cluster <- case_when(
+hunan$Zi > 1.96 & hunan$GDPPC > mean(hunan$GDPPC) ~ "High-High (Hotspot)",
+hunan$Zi > 1.96 & hunan$GDPPC < mean(hunan$GDPPC) ~ "Low-High",
+hunan$Zi < -1.96 & hunan$GDPPC < mean(hunan$GDPPC) ~ "Low-Low (Coldspot)",
+hunan$Zi < -1.96 & hunan$GDPPC > mean(hunan$GDPPC) ~ "High-Low",
+TRUE ~ "Not Significant"
+)
+
+# Plotting LISA cluster map
+tm_shape(hunan) +
+tm_polygons("LISA_Cluster", palette="Set2") +
+tm_layout(title = "Local Moran's I Cluster Map of GDPPC")
+```
+
 ## 8.2 Spatial lag as a sum of neighboring values
 
 ```{r}
@@ -331,7 +359,7 @@ hunan <- left_join(hunan, lag_wm_qs.res)
 ```{r}
 hunan %>%
   select("County", 
-         "lag GDPPC", 
+         "lag_sum GDPPC", 
          "lag_window_avg GDPPC") %>%
   kable()
 ```

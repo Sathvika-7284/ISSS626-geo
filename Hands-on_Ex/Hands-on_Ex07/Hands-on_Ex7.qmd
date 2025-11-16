@@ -543,3 +543,26 @@ tmap_arrange(AREA_SQM_SE, AREA_SQM_TV,
 
 tmap_mode("plot")
 ```
+
+## 6.7 Visualising Standardized Residuals of Adaptive GWR Model
+
+```{r}
+# Checking column names
+colnames(condo_resale.sf.adaptive)  # looking for the residual column
+
+condo_resale.sf.adaptive <- condo_resale.sf.adaptive %>%
+  mutate(GWR_STD_RES = (residual - mean(residual)) / sd(residual))
+
+# Mapping standardized residuals
+tmap_mode("plot")
+tm_shape(mpsz_svy21) +
+  tm_polygons(alpha = 0.1) +
+tm_shape(condo_resale.sf.adaptive) +
+  tm_dots(col = "GWR_STD_RES",
+          size = 0.5,
+          palette = "-RdBu",  # diverging palette
+          title = "GWR Std Residuals") +
+  tm_layout(legend.outside = TRUE) +
+  tm_view(set.zoom.limits = c(11,14))
+tmap_mode("plot")
+```

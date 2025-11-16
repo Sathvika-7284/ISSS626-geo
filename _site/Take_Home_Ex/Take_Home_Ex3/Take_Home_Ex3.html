@@ -380,8 +380,8 @@ window.Quarto = {
 </div>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 66%">
+<col style="width: 34%">
+<col style="width: 65%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -898,7 +898,7 @@ floor_area_sqm        2581.52            4002.054          1401.511</code></pre>
 </div>
 <ul>
 <li><strong>Interpretation:</strong> This chunk compares the coefficient for the floor_area_sqm variable between the global OLS model and the local GWR model.</li>
-<li><strong>OLS Coefficient:</strong> The OLS coefficient is a single value: 2,581.5269. This suggests that globally, a 1 sqm increase in floor area is associated with a 2,581.52 SGD increase in resale price 70.</li>
+<li><strong>OLS Coefficient:</strong> The OLS coefficient is a single value: 2,581.5269. This suggests that globally, a 1 sqm increase in floor area is associated with a 2,581.52 SGD increase in resale price.</li>
 <li><strong>GWR Coefficients:</strong> In contrast, the GWR coefficients are a distribution of values: Mean: 4,002.05471. Standard Deviation (SD): 1,401.51172.</li>
 <li><strong>Distribution Plot:</strong> The histogram of GWR coefficients shows the coefficients are not a single value but vary widely, roughly ranging from 1,500 to over 6,000.</li>
 <li><strong>Analysis Relevance:</strong> The large difference between the OLS coefficient (<span class="math inline">\(\approx 2,582\)</span>) and the mean GWR coefficient (<span class="math inline">\(\approx 4,002\)</span>), coupled with the high standard deviation (1,401.5) in the GWR coefficients and the multi-modal histogram distribution, provides quantitative evidence of spatial non-stationarity . This confirms that the relationship between floor area and price is not constant across Singapore but depends heavily on the location.</li>

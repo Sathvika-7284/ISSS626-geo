@@ -380,20 +380,20 @@ shan_ict_mat <- data.matrix(shan_ict)
 ### 5.10.2 Plotting interactive cluster heatmap using heatmaply()
 
 ```{r}
-heatmaply(normalize(shan_ict_mat),
-          Colv=NA,
-          dist_method = "euclidean",
-          hclust_method = "ward.D",
-          seriate = "OLO",
-          colors = Blues,
-          k_row = 6,
-          margins = c(NA,200,60,NA),
-          fontsize_row = 4,
-          fontsize_col = 5,
-          main="Geographic Segmentation of Shan State by ICT indicators",
-          xlab = "ICT Indicators",
-          ylab = "Townships of Shan State"
-          )
+#heatmaply(normalize(shan_ict_mat),
+#          Colv=NA,
+#          dist_method = "euclidean",
+#          hclust_method = "ward.D",
+#          seriate = "OLO",
+#          colors = Blues,
+#          k_row = 6,
+#          margins = c(NA,200,60,NA),
+#          fontsize_row = 4,
+#          fontsize_col = 5,
+#          main="Geographic Segmentation of Shan State by ICT indicators",
+#          xlab = "ICT Indicators",
+#          ylab = "Townships of Shan State"
+#          )
 ```
 
 ## 5.11 Mapping the clusters formed
@@ -626,4 +626,30 @@ shan_sf_ngeo_cluster %>%
             mean_LLPHONE_PR = mean(LLPHONE_PR),
             mean_MPHONE_PR = mean(MPHONE_PR),
             mean_COMPUTER_PR = mean(COMPUTER_PR))
+```
+
+## 8.3 Cluster-wise summary statistics for all ICT variables
+
+```{r}
+cluster_summary <- shan_sf_ngeo_cluster %>% 
+  st_set_geometry(NULL) %>%
+  group_by(CLUSTER) %>%
+  summarise(
+    mean_RADIO_PR = mean(RADIO_PR, na.rm = TRUE),
+    sd_RADIO_PR = sd(RADIO_PR, na.rm = TRUE),
+    mean_TV_PR = mean(TV_PR, na.rm = TRUE),
+    sd_TV_PR = sd(TV_PR, na.rm = TRUE),
+    mean_LLPHONE_PR = mean(LLPHONE_PR, na.rm = TRUE),
+    sd_LLPHONE_PR = sd(LLPHONE_PR, na.rm = TRUE),
+    mean_MPHONE_PR = mean(MPHONE_PR, na.rm = TRUE),
+    sd_MPHONE_PR = sd(MPHONE_PR, na.rm = TRUE),
+    mean_COMPUTER_PR = mean(COMPUTER_PR, na.rm = TRUE),
+    sd_COMPUTER_PR = sd(COMPUTER_PR, na.rm = TRUE),
+    mean_INTERNET_PR = mean(INTERNET_PR, na.rm = TRUE),
+    sd_INTERNET_PR = sd(INTERNET_PR, na.rm = TRUE),
+    n = n()
+  )
+
+# Viewing the summary table
+print(cluster_summary)
 ```

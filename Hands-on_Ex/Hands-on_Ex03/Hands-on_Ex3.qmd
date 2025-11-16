@@ -230,3 +230,4 @@ fire_df <- data.frame(
 ```{r}
 #plotK(kbb_stik)
 ```
+

@@ -105,7 +105,7 @@ distmat_km <- as.matrix(distmat/1000)
 acc_Hansen <- data.frame(ac(hexagons$demand,
                             eldercare$capacity,
                             distmat_km, 
-                            #d0 = 50,
+                            d0 = 50,
                             power = 2, 
                             family = "Hansen"))
 ```
@@ -312,4 +312,29 @@ ggplot(data=hexagon_SAM,
              fun.y="mean", 
              colour ="red", 
              size=2)
+```
+
+### 6.4 Comparing correlation between accessibility measures
+
+```{r}
+# Combining all accessibility measures using original hexagons (no join)
+
+acc_combined <- data.frame(
+accHansen = hexagon_Hansen$accHansen,
+accKD2SFCA = hexagon_KD2SFCA$accKD2SFCA,
+accSAM = hexagon_SAM$accSAM
+)
+
+# Computing correlation matrix
+acc_cor <- round(cor(acc_combined), 2)
+
+# Visualising as heatmap
+library(ggcorrplot)
+
+ggcorrplot(acc_cor,
+method = "circle",
+type = "lower",
+lab = TRUE,
+lab_size = 4,
+title = "Correlation between Accessibility Measures")
 ```

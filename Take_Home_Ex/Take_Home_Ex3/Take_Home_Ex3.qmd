@@ -2,7 +2,7 @@
 title: "Take Home Exercise 3"
 author: "Sathvika Subramanian"
 date: "Nov 6, 2025"
-date-modified: "last-modified"
+date-modified: "Nov 16, 2025"
 execute: 
   eval: true
   echo: true
@@ -35,7 +35,7 @@ pacman::p_load(tidyverse, sf, tmap, readxl, lwgeom, caret, janitor, stringr, GWm
 ```
 
 | Package | Purpose |
-|------------------------|------------------------------------------------|
+|-------------------------|-----------------------------------------------|
 | tidyverse | Collection of packages for data manipulation, cleaning, and visualization. |
 | sf | Handles spatial vector data (points, lines, polygons) and spatial operations. |
 | tmap | Creates static and interactive thematic maps for geospatial visualization. |
@@ -446,7 +446,7 @@ ggplot(gwr_sf, aes(x = floor_area_sqm)) +
 ```
 
 -   **Interpretation:** This chunk compares the coefficient for the floor_area_sqm variable between the global OLS model and the local GWR model.
--   **OLS Coefficient:** The OLS coefficient is a single value: 2,581.5269. This suggests that globally, a 1 sqm increase in floor area is associated with a 2,581.52 SGD increase in resale price 70.
+-   **OLS Coefficient:** The OLS coefficient is a single value: 2,581.5269. This suggests that globally, a 1 sqm increase in floor area is associated with a 2,581.52 SGD increase in resale price.
 -   **GWR Coefficients:** In contrast, the GWR coefficients are a distribution of values: Mean: 4,002.05471. Standard Deviation (SD): 1,401.51172.
 -   **Distribution Plot:** The histogram of GWR coefficients shows the coefficients are not a single value but vary widely, roughly ranging from 1,500 to over 6,000.
 -   **Analysis Relevance:** The large difference between the OLS coefficient ($\approx 2,582$) and the mean GWR coefficient ($\approx 4,002$), coupled with the high standard deviation (1,401.5) in the GWR coefficients and the multi-modal histogram distribution, provides quantitative evidence of spatial non-stationarity . This confirms that the relationship between floor area and price is not constant across Singapore but depends heavily on the location.
