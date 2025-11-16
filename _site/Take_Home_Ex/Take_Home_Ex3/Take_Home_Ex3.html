@@ -104,6 +104,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -268,19 +297,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">2. Objectives</a></li>
   <li><a href="#installing-and-loading-packages" id="toc-installing-and-loading-packages" class="nav-link" data-scroll-target="#installing-and-loading-packages">3. Installing and Loading Packages</a></li>
   <li><a href="#hdb-resale-csv" id="toc-hdb-resale-csv" class="nav-link" data-scroll-target="#hdb-resale-csv">4. HDB resale CSV</a></li>
-  <li><a href="#safe-sf-readers-helper-functions" id="toc-safe-sf-readers-helper-functions" class="nav-link" data-scroll-target="#safe-sf-readers-helper-functions">5. Safe SF Readers Helper Functions</a></li>
-  <li><a href="#loading-supporting-layers" id="toc-loading-supporting-layers" class="nav-link" data-scroll-target="#loading-supporting-layers">6. Loading Supporting Layers</a></li>
-  <li><a href="#creating-hdb-spatial-via-subzone-centroids" id="toc-creating-hdb-spatial-via-subzone-centroids" class="nav-link" data-scroll-target="#creating-hdb-spatial-via-subzone-centroids">7. Creating HDB spatial via subzone centroids</a></li>
-  <li><a href="#jitter-to-avoid-identical-points" id="toc-jitter-to-avoid-identical-points" class="nav-link" data-scroll-target="#jitter-to-avoid-identical-points">8. Jitter to avoid identical points</a></li>
-  <li><a href="#distance-functions" id="toc-distance-functions" class="nav-link" data-scroll-target="#distance-functions">9. Distance Functions</a></li>
-  <li><a href="#computing-locational-variables" id="toc-computing-locational-variables" class="nav-link" data-scroll-target="#computing-locational-variables">10. Computing locational variables</a></li>
-  <li><a href="#joining-subzone-information" id="toc-joining-subzone-information" class="nav-link" data-scroll-target="#joining-subzone-information">11. Joining subzone information</a></li>
-  <li><a href="#model-preparation" id="toc-model-preparation" class="nav-link" data-scroll-target="#model-preparation">12. Model Preparation</a></li>
-  <li><a href="#ols-baseline" id="toc-ols-baseline" class="nav-link" data-scroll-target="#ols-baseline">13. OLS Baseline</a></li>
-  <li><a href="#gwr" id="toc-gwr" class="nav-link" data-scroll-target="#gwr">14. GWR</a></li>
-  <li><a href="#visualisation-maps" id="toc-visualisation-maps" class="nav-link" data-scroll-target="#visualisation-maps">15. Visualisation Maps</a></li>
-  <li><a href="#diagonstics-and-outputs" id="toc-diagonstics-and-outputs" class="nav-link" data-scroll-target="#diagonstics-and-outputs">16. Diagonstics and Outputs</a></li>
-  <li><a href="#saving-integrated-dataset" id="toc-saving-integrated-dataset" class="nav-link" data-scroll-target="#saving-integrated-dataset">17. Saving integrated dataset</a></li>
+  <li><a href="#loading-geospatial-layers" id="toc-loading-geospatial-layers" class="nav-link" data-scroll-target="#loading-geospatial-layers">5. Loading Geospatial Layers</a></li>
+  <li><a href="#assigning-hdb-to-subzone-centroids" id="toc-assigning-hdb-to-subzone-centroids" class="nav-link" data-scroll-target="#assigning-hdb-to-subzone-centroids">6. Assigning HDB to Subzone Centroids</a></li>
+  <li><a href="#spatial-join-to-subzones" id="toc-spatial-join-to-subzones" class="nav-link" data-scroll-target="#spatial-join-to-subzones">7. Spatial Join to Subzones</a></li>
+  <li><a href="#distance-within-radius-counts" id="toc-distance-within-radius-counts" class="nav-link" data-scroll-target="#distance-within-radius-counts">8. Distance / Within-Radius Counts</a></li>
+  <li><a href="#cleaning-layers-and-scaling" id="toc-cleaning-layers-and-scaling" class="nav-link" data-scroll-target="#cleaning-layers-and-scaling">9. Cleaning Layers and Scaling</a></li>
+  <li><a href="#train-test-split" id="toc-train-test-split" class="nav-link" data-scroll-target="#train-test-split">10. Train-Test Split</a></li>
+  <li><a href="#global-ols-model" id="toc-global-ols-model" class="nav-link" data-scroll-target="#global-ols-model">11. Global OLS Model</a></li>
+  <li><a href="#ols-residuals" id="toc-ols-residuals" class="nav-link" data-scroll-target="#ols-residuals">12. OLS Residuals</a></li>
+  <li><a href="#gwr-model" id="toc-gwr-model" class="nav-link" data-scroll-target="#gwr-model">13. GWR Model</a></li>
+  <li><a href="#comparing-ols-vs-gwr-coefficients-floor-area" id="toc-comparing-ols-vs-gwr-coefficients-floor-area" class="nav-link" data-scroll-target="#comparing-ols-vs-gwr-coefficients-floor-area">14. Comparing OLS vs GWR Coefficients (Floor Area)</a></li>
+  <li><a href="#visualisation" id="toc-visualisation" class="nav-link" data-scroll-target="#visualisation">15. Visualisation</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">16. Conclusion</a></li>
+  <li><a href="#future-work" id="toc-future-work" class="nav-link" data-scroll-target="#future-work">17. Future Work</a></li>
   </ul>
 <div class="quarto-code-links"><h2>Code Links</h2><ul><li><a href="https://github.com/Sathvika-7284/ISSS626-geo"><i class="bi bi-file-code"></i>GitHub Repo</a></li></ul></div></nav>
     </div>
@@ -329,324 +358,569 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="overview" class="level1">
 <h1>1. Overview</h1>
-<p>This study develops a spatially informed predictive model for HDB resale prices in Singapore using transaction data from July 2024 to June 2025. Focusing on 4-room flats, the analysis integrates structural housing attributes with a rich set of geospatial accessibility measures, including proximity to hawker centres, MRT stations, parks, eldercare facilities, supermarkets, and preschool services. By converting aspatial resale records into geographically referenced point features and linking them to multiple open-source geospatial datasets, the study constructs a comprehensive analytical sandbox. Geographically Weighted Regression (GWR) is applied to uncover how price determinants vary across space, revealing localised market dynamics that conventional global models cannot capture.</p>
+<p>This project aims to develop a spatially informed predictive model for 4-room HDB resale prices in Singapore, covering the period July 2024 to June 2025. Using HDB transaction data alongside a variety of geospatial datasets (subzones, hawker centres, parks, supermarkets, childcare, kindergartens, eldercare, and CHAS clinics), the analysis integrates structural and locational variables to model price variation. Both global (OLS) and local (GWR) regression approaches are applied, complemented by visualizations to explore spatial patterns in resale prices and residuals.</p>
 </section>
 <section id="objectives" class="level1">
 <h1>2. Objectives</h1>
-<p>The primary objective is to build a reproducible, spatially enhanced modelling workflow capable of predicting HDB resale prices with greater accuracy by leveraging both structural characteristics and local accessibility. Specifically, the study aims to:</p>
+<p>The study aims to:</p>
 <ul>
-<li>Create a reliable geospatial dataset of 4-room resale flats.</li>
-<li>Derive meaningful location-based predictors through spatial distance and within-radius computations.</li>
-<li>Compare global OLS and local GWR models to assess spatial heterogeneity in price determinants.</li>
-<li>Communicate findings through clear, decision-oriented geovisualisations.</li>
+<li>Prepare and clean HDB resale data with structural variables (floor area, storey level, age).</li>
+<li>Load and preprocess supporting geospatial datasets.</li>
+<li>Assign HDB transactions to subzones and compute proximity-based locational variables.</li>
+<li>Develop a train-test split for model validation.</li>
+<li>Fit and compare global OLS and local GWR models.</li>
+<li>Visualize HDB resale prices, locational features, and residuals spatially.</li>
 </ul>
 </section>
 <section id="installing-and-loading-packages" class="level1">
 <h1>3. Installing and Loading Packages</h1>
+<p>Loads all R packages required for data manipulation. Ensures reproducibility by automatically installing missing packages.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
-<span id="cb1-2"><a href="#cb1-2"></a>  tidyverse, sf, lwgeom, stringr, lubridate,</span>
-<span id="cb1-3"><a href="#cb1-3"></a>  tmap, janitor,</span>
-<span id="cb1-4"><a href="#cb1-4"></a>  GWmodel, olsrr, performance,</span>
-<span id="cb1-5"><a href="#cb1-5"></a>  readr, here, units</span>
-<span id="cb1-6"><a href="#cb1-6"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, tmap, readxl, lwgeom, caret, janitor, stringr, GWmodel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Setting tmap plotting mode for RStudio (static plotting)</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 66%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>tidyverse</td>
+<td>Collection of packages for data manipulation, cleaning, and visualization.</td>
+</tr>
+<tr class="even">
+<td>sf</td>
+<td>Handles spatial vector data (points, lines, polygons) and spatial operations.</td>
+</tr>
+<tr class="odd">
+<td>tmap</td>
+<td>Creates static and interactive thematic maps for geospatial visualization.</td>
+</tr>
+<tr class="even">
+<td>readxl</td>
+<td>Reads Excel files into R.</td>
+</tr>
+<tr class="odd">
+<td>lwgeom</td>
+<td>Provides advanced geometric operations for sf, including buffering and geodesic calculations.</td>
+</tr>
+<tr class="even">
+<td>caret</td>
+<td>Tools for machine learning and predictive modeling workflows, including train-test splitting.</td>
+</tr>
+<tr class="odd">
+<td>janitor</td>
+<td>Simplifies data cleaning tasks like standardizing column names and detecting duplicates.</td>
+</tr>
+<tr class="even">
+<td>stringr</td>
+<td>String manipulation and pattern matching functions for text processing.</td>
+</tr>
+<tr class="odd">
+<td>GWmodel</td>
+<td>Implements Geographically Weighted Regression and related spatial models.</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="hdb-resale-csv" class="level1">
 <h1>4. HDB resale CSV</h1>
+<p>Read in the HDB resale CSV, clean column names, filter for 4-room flats, and select transactions within the target period (July 2024–June 2025).Creates structural variables: storey_mid (mid-point of storey range), unit_age (years since lease commenced), and address (concatenated block and street).Prepares dataset for integration with geospatial data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>hdb_fp <span class="ot">&lt;-</span> <span class="st">"data/HDBresale.csv"</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(hdb_fp)) <span class="fu">stop</span>(<span class="st">"HDBresale.csv not found at data/HDBresale.csv"</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>hdb_fp <span class="ot">&lt;-</span> <span class="st">"data/HDBresale.csv"</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>HDB <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(hdb_fp) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>HDB <span class="ot">&lt;-</span> HDB <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="fu">filter</span>(flat_type <span class="sc">==</span> <span class="st">"4 ROOM"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="fu">filter</span>(month <span class="sc">&gt;=</span> <span class="st">"2024-07"</span> <span class="sc">&amp;</span> month <span class="sc">&lt;=</span> <span class="st">"2025-06"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Creating Structural Variables</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>HDB <span class="ot">&lt;-</span> HDB <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="at">storey_mid =</span> (<span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+"</span>)) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>                    <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"</span><span class="sc">\\</span><span class="st">d+$"</span>))) <span class="sc">/</span> <span class="dv">2</span>,</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="at">unit_age =</span> <span class="dv">2025</span> <span class="sc">-</span> lease_commence_date,</span>
+<span id="cb2-16"><a href="#cb2-16"></a>    <span class="at">address =</span> <span class="fu">paste</span>(block, street_name, <span class="st">"Singapore"</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This reads the HDB resale transaction data, cleans the column names, and performs initial data filtering and feature engineering</p>
+<ul>
+<li><strong>Filtering:</strong> The data is subsetted to include only ‘4 ROOM’ flat types and transactions occurring between July 2024 and June 20257. This targets a specific market segment and time frame</li>
+<li><strong>Feature Engineering:</strong> Three new structural variables are created: storey_mid: The midpoint of the storey_range (e.g., 4-6 becomes 5) unit_age: The age of the flat in 2025, calculated as 2025 - lease_commence_date. address: A concatenated string of the block, street name, and “Singapore”</li>
+<li><strong>Wrangling Relevance:</strong> This step transforms the raw aspatial data into a cleaner, more analytically useful dataframe, deriving two crucial continuous structural variables (storey_mid, unit_age) and preparing an address string that may be used for geocoding. The initial size of the dataset is 218,874 rows and 11 columns.</li>
+</ul>
+</section>
+<section id="loading-geospatial-layers" class="level1">
+<h1>5. Loading Geospatial Layers</h1>
+<p>Safely read multiple shapefiles and GeoJSON files representing subzones, hawker centres, parks, supermarkets, childcare, kindergartens, eldercare, and CHAS clinics. CRS enforcement ensures all layers share a common projected coordinate system (EPSG:3414). Quick validation confirms successful loading of layers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">library</span>(here)</span>
 <span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a>HDB <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(hdb_fp, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="at">month =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(month, <span class="st">"-01"</span>)),</span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="at">flat_type =</span> <span class="fu">toupper</span>(flat_type),</span>
-<span id="cb3-9"><a href="#cb3-9"></a>    <span class="at">town =</span> <span class="fu">toupper</span>(<span class="fu">str_trim</span>(town))</span>
-<span id="cb3-10"><a href="#cb3-10"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">filter</span>(flat_type <span class="sc">==</span> <span class="st">"4 ROOM"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-13"><a href="#cb3-13"></a>    <span class="at">remaining_lease_yrs =</span> <span class="fu">map_dbl</span>(remaining_lease, <span class="sc">~</span> {</span>
-<span id="cb3-14"><a href="#cb3-14"></a>      <span class="cf">if</span>(<span class="fu">is.na</span>(.x)) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
-<span id="cb3-15"><a href="#cb3-15"></a>      nums <span class="ot">&lt;-</span> <span class="fu">str_extract_all</span>(.x, <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>)[[<span class="dv">1</span>]]</span>
-<span id="cb3-16"><a href="#cb3-16"></a>      <span class="cf">if</span>(<span class="fu">length</span>(nums) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
-<span id="cb3-17"><a href="#cb3-17"></a>      <span class="cf">if</span>(<span class="fu">length</span>(nums) <span class="sc">==</span> <span class="dv">1</span>) <span class="fu">return</span>(<span class="fu">as.numeric</span>(nums[<span class="dv">1</span>]))</span>
-<span id="cb3-18"><a href="#cb3-18"></a>      <span class="fu">as.numeric</span>(nums[<span class="dv">1</span>]) <span class="sc">+</span> <span class="fu">as.numeric</span>(nums[<span class="dv">2</span>]) <span class="sc">/</span> <span class="dv">12</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a>    }),</span>
-<span id="cb3-20"><a href="#cb3-20"></a>    <span class="at">lease_commence_date =</span> <span class="fu">as.numeric</span>(lease_commence_date),</span>
-<span id="cb3-21"><a href="#cb3-21"></a>    <span class="at">unit_age =</span> <span class="fu">year</span>(month) <span class="sc">-</span> lease_commence_date,</span>
-<span id="cb3-22"><a href="#cb3-22"></a>    <span class="at">floor_area_sqm =</span> <span class="fu">as.numeric</span>(floor_area_sqm),</span>
-<span id="cb3-23"><a href="#cb3-23"></a>    <span class="at">storey_mid =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-24"><a href="#cb3-24"></a>      <span class="fu">str_detect</span>(storey_range, <span class="st">"TO"</span>) <span class="sc">~</span> {p <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="at">text =</span> <span class="fu">gsub</span>(<span class="st">"TO"</span>, <span class="st">" "</span>, storey_range)); <span class="fu">rowMeans</span>(p)},</span>
-<span id="cb3-25"><a href="#cb3-25"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(storey_range, <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>))</span>
-<span id="cb3-26"><a href="#cb3-26"></a>    )</span>
-<span id="cb3-27"><a href="#cb3-27"></a>  )</span>
-<span id="cb3-28"><a href="#cb3-28"></a></span>
-<span id="cb3-29"><a href="#cb3-29"></a><span class="fu">message</span>(<span class="st">"HDB rows (4-room): "</span>, <span class="fu">nrow</span>(HDB))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># Helper function for reading GeoJSON / shapefiles with CRS enforcement</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>safe_read <span class="ot">&lt;-</span> <span class="cf">function</span>(fp, <span class="at">crs_out =</span> <span class="dv">3414</span>) {</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="fu">st_read</span>(fp, <span class="at">quiet =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-8"><a href="#cb3-8"></a>    <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb3-9"><a href="#cb3-9"></a>      <span class="fu">warning</span>(<span class="fu">paste</span>(<span class="st">"Failed to read:"</span>, fp))</span>
+<span id="cb3-10"><a href="#cb3-10"></a>      <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>    }</span>
+<span id="cb3-12"><a href="#cb3-12"></a>  )</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(obj)) {</span>
+<span id="cb3-14"><a href="#cb3-14"></a>    <span class="cf">if</span> (<span class="fu">is.na</span>(<span class="fu">st_crs</span>(obj))) <span class="fu">st_crs</span>(obj) <span class="ot">&lt;-</span> crs_out</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    obj <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(obj, crs_out)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>  }</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="fu">return</span>(obj)</span>
+<span id="cb3-18"><a href="#cb3-18"></a>}</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="co"># File paths</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a>mp14_fp <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/MP14_SUBZONE_WEB_PL.shp"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>hawker_fp   <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/HawkerCentresGEOJSON.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>parks_fp    <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/Parks.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>super_fp    <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/SupermarketsGEOJSON.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>child_fp    <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/ChildCareServices.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-26"><a href="#cb3-26"></a>kinder_fp   <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/Kindergartens.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-27"><a href="#cb3-27"></a>elder_fp    <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/ELDERCARE.shp"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-28"><a href="#cb3-28"></a>chas_fp     <span class="ot">&lt;-</span> <span class="fu">normalizePath</span>(<span class="st">"data/CHASClinics.geojson"</span>, <span class="at">mustWork =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-29"><a href="#cb3-29"></a></span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="co"># Loading layers</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a>MP14 <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(mp14_fp)</span>
+<span id="cb3-32"><a href="#cb3-32"></a><span class="cf">if</span> (<span class="fu">is.null</span>(MP14)) <span class="fu">stop</span>(<span class="st">"MP14_SUBZONE_WEB_PL.shp missing — required layer."</span>)</span>
+<span id="cb3-33"><a href="#cb3-33"></a></span>
+<span id="cb3-34"><a href="#cb3-34"></a>hawker       <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(hawker_fp)</span>
+<span id="cb3-35"><a href="#cb3-35"></a>parks        <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(parks_fp)</span>
+<span id="cb3-36"><a href="#cb3-36"></a>supermarkets <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(super_fp)</span>
+<span id="cb3-37"><a href="#cb3-37"></a>childcare    <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(child_fp)</span>
+<span id="cb3-38"><a href="#cb3-38"></a>kinderg      <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(kinder_fp)</span>
+<span id="cb3-39"><a href="#cb3-39"></a>eldercare    <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(elder_fp)</span>
+<span id="cb3-40"><a href="#cb3-40"></a>chas         <span class="ot">&lt;-</span> <span class="fu">safe_read</span>(chas_fp)</span>
+<span id="cb3-41"><a href="#cb3-41"></a></span>
+<span id="cb3-42"><a href="#cb3-42"></a><span class="co"># Quick checks</span></span>
+<span id="cb3-43"><a href="#cb3-43"></a>layers <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb3-44"><a href="#cb3-44"></a>  <span class="at">MP14 =</span> MP14,</span>
+<span id="cb3-45"><a href="#cb3-45"></a>  <span class="at">Hawker =</span> hawker,</span>
+<span id="cb3-46"><a href="#cb3-46"></a>  <span class="at">Parks =</span> parks,</span>
+<span id="cb3-47"><a href="#cb3-47"></a>  <span class="at">Supermarkets =</span> supermarkets,</span>
+<span id="cb3-48"><a href="#cb3-48"></a>  <span class="at">Childcare =</span> childcare,</span>
+<span id="cb3-49"><a href="#cb3-49"></a>  <span class="at">Kindergartens =</span> kinderg,</span>
+<span id="cb3-50"><a href="#cb3-50"></a>  <span class="at">Eldercare =</span> eldercare,</span>
+<span id="cb3-51"><a href="#cb3-51"></a>  <span class="at">CHAS =</span> chas</span>
+<span id="cb3-52"><a href="#cb3-52"></a>)</span>
+<span id="cb3-53"><a href="#cb3-53"></a></span>
+<span id="cb3-54"><a href="#cb3-54"></a><span class="cf">for</span> (nm <span class="cf">in</span> <span class="fu">names</span>(layers)) {</span>
+<span id="cb3-55"><a href="#cb3-55"></a>  <span class="fu">cat</span>(nm, <span class="st">"loaded:"</span>, <span class="sc">!</span><span class="fu">is.null</span>(layers[[nm]]), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb3-56"><a href="#cb3-56"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MP14 loaded: TRUE 
+Hawker loaded: TRUE 
+Parks loaded: TRUE 
+Supermarkets loaded: TRUE 
+Childcare loaded: TRUE 
+Kindergartens loaded: TRUE 
+Eldercare loaded: TRUE 
+CHAS loaded: TRUE </code></pre>
 </div>
-</section>
-<section id="safe-sf-readers-helper-functions" class="level1">
-<h1>5. Safe SF Readers Helper Functions</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>safe_read_points <span class="ot">&lt;-</span> <span class="cf">function</span>(path, <span class="at">target_crs =</span> <span class="dv">3414</span>) {</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(path)) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_read</span>(path, <span class="at">quiet =</span> <span class="cn">TRUE</span>), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NULL</span>))</span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(sf_obj) <span class="sc">||</span> <span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  gtypes <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">st_geometry_type</span>(sf_obj))</span>
-<span id="cb4-6"><a href="#cb4-6"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">all</span>(gtypes <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"POINT"</span>,<span class="st">"MULTIPOINT"</span>))) sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_collection_extract</span>(sf_obj, <span class="st">"POINT"</span>), <span class="at">error =</span> <span class="cf">function</span>(e) sf_obj)</span>
-<span id="cb4-7"><a href="#cb4-7"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(lwgeom<span class="sc">::</span><span class="fu">st_make_valid</span>(sf_obj), <span class="at">error =</span> <span class="cf">function</span>(e) sf_obj)</span>
-<span id="cb4-8"><a href="#cb4-8"></a>  sf_obj <span class="ot">&lt;-</span> sf_obj[<span class="sc">!</span><span class="fu">st_is_empty</span>(sf_obj), ]</span>
-<span id="cb4-9"><a href="#cb4-9"></a>  <span class="cf">if</span>(<span class="fu">is.na</span>(<span class="fu">st_crs</span>(sf_obj))) <span class="fu">st_crs</span>(sf_obj) <span class="ot">&lt;-</span> <span class="dv">4326</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_transform</span>(sf_obj, target_crs), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NULL</span>))</span>
-<span id="cb4-11"><a href="#cb4-11"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb4-12"><a href="#cb4-12"></a>  <span class="fu">return</span>(sf_obj)</span>
-<span id="cb4-13"><a href="#cb4-13"></a>}</span>
-<span id="cb4-14"><a href="#cb4-14"></a></span>
-<span id="cb4-15"><a href="#cb4-15"></a>safe_read_polygons <span class="ot">&lt;-</span> <span class="cf">function</span>(path, <span class="at">target_crs =</span> <span class="dv">3414</span>) {</span>
-<span id="cb4-16"><a href="#cb4-16"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(path)) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb4-17"><a href="#cb4-17"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_read</span>(path, <span class="at">quiet =</span> <span class="cn">TRUE</span>), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NULL</span>))</span>
-<span id="cb4-18"><a href="#cb4-18"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(sf_obj) <span class="sc">||</span> <span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb4-19"><a href="#cb4-19"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(lwgeom<span class="sc">::</span><span class="fu">st_make_valid</span>(sf_obj), <span class="at">error =</span> <span class="cf">function</span>(e) sf_obj)</span>
-<span id="cb4-20"><a href="#cb4-20"></a>  sf_obj <span class="ot">&lt;-</span> sf_obj[<span class="sc">!</span><span class="fu">st_is_empty</span>(sf_obj), ]</span>
-<span id="cb4-21"><a href="#cb4-21"></a>  <span class="cf">if</span>(<span class="fu">is.na</span>(<span class="fu">st_crs</span>(sf_obj))) <span class="fu">st_crs</span>(sf_obj) <span class="ot">&lt;-</span> <span class="dv">4326</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a>  sf_obj <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(<span class="fu">st_transform</span>(sf_obj, target_crs), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">return</span>(<span class="cn">NULL</span>))</span>
-<span id="cb4-23"><a href="#cb4-23"></a>  <span class="fu">return</span>(sf_obj)</span>
-<span id="cb4-24"><a href="#cb4-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>This step sets up all the ancillary geographic data needed to calculate locational variables, standardizing their CRS to ensure compatibility with the HDB data</p>
 </section>
-<section id="loading-supporting-layers" class="level1">
-<h1>6. Loading Supporting Layers</h1>
+<section id="assigning-hdb-to-subzone-centroids" class="level1">
+<h1>6. Assigning HDB to Subzone Centroids</h1>
+<p>Assign each HDB transaction to the nearest subzone centroid using st_nearest_feature.Allows aggregation or analysis of HDB prices by subzone.Ensures spatial alignment between point data (HDB) and polygon data (subzones).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mp_subzone_fp <span class="ot">&lt;-</span> <span class="st">"data/MP14_SUBZONE_WEB_PL.shp"</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>hawker_fp     <span class="ot">&lt;-</span> <span class="st">"data/HawkerCentresGEOJSON.geojson"</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>parks_fp      <span class="ot">&lt;-</span> <span class="st">"data/Parks.geojson"</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a>super_fp      <span class="ot">&lt;-</span> <span class="st">"data/SupermarketsGEOJSON.geojson"</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a>child_fp      <span class="ot">&lt;-</span> <span class="st">"data/ChildCareServices.geojson"</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>kinder_fp     <span class="ot">&lt;-</span> <span class="st">"data/Kindergartens.geojson"</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>elder_fp      <span class="ot">&lt;-</span> <span class="st">"data/ELDERCARE.shp"</span></span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co"># Transforming subzone to projected CRS (meters)</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>subzone_centroids <span class="ot">&lt;-</span> <span class="fu">st_point_on_surface</span>(MP14) <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">select</span>(SUBZONE_N, PLN_AREA_N, geometry) <span class="sc">%&gt;%</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
 <span id="cb5-8"><a href="#cb5-8"></a></span>
-<span id="cb5-9"><a href="#cb5-9"></a>MP_subzone <span class="ot">&lt;-</span> <span class="fu">safe_read_polygons</span>(mp_subzone_fp)</span>
-<span id="cb5-10"><a href="#cb5-10"></a><span class="cf">if</span>(<span class="fu">is.null</span>(MP_subzone)) <span class="fu">stop</span>(<span class="st">"MP14_SUBZONE_WEB_PL.shp is required but could not be read."</span>)</span>
-<span id="cb5-11"><a href="#cb5-11"></a></span>
-<span id="cb5-12"><a href="#cb5-12"></a>hawker       <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(hawker_fp)</span>
-<span id="cb5-13"><a href="#cb5-13"></a>parks        <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(parks_fp)</span>
-<span id="cb5-14"><a href="#cb5-14"></a>supermarkets <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(super_fp)</span>
-<span id="cb5-15"><a href="#cb5-15"></a>childcare    <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(child_fp)</span>
-<span id="cb5-16"><a href="#cb5-16"></a>kinderg      <span class="ot">&lt;-</span> <span class="fu">safe_read_points</span>(kinder_fp)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>eldercare    <span class="ot">&lt;-</span> <span class="fu">safe_read_polygons</span>(elder_fp)</span>
-<span id="cb5-18"><a href="#cb5-18"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(eldercare)) eldercare <span class="ot">&lt;-</span> <span class="fu">st_centroid</span>(eldercare)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co"># Assigning all points to nearest subzone centroid</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co"># Creating empty HDB points with same number of rows as HDB</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>HDB_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(HDB, <span class="at">geometry =</span> <span class="fu">st_geometry</span>(subzone_centroids)[<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(HDB<span class="sc">$</span>flat_type)]) <span class="co"># placeholder</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co"># Assigning each HDB to nearest subzone centroid</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_join</span>(HDB_sf, subzone_centroids, <span class="at">join =</span> st_nearest_feature)</span>
+<span id="cb5-15"><a href="#cb5-15"></a></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co"># Validating</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="fu">table</span>(<span class="fu">is.na</span>(HDB_geo<span class="sc">$</span>SUBZONE_N))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+FALSE  TRUE 
+  323 11357 </code></pre>
 </div>
-</section>
-<section id="creating-hdb-spatial-via-subzone-centroids" class="level1">
-<h1>7. Creating HDB spatial via subzone centroids</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>MP_subzone <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(MP_subzone, <span class="dv">3414</span>)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>subzone_points <span class="ot">&lt;-</span> <span class="fu">st_point_on_surface</span>(MP_subzone) <span class="sc">%&gt;%</span> <span class="fu">select</span>(SUBZONE_N, geometry) <span class="sc">%&gt;%</span> <span class="fu">st_make_valid</span>()</span>
-<span id="cb6-3"><a href="#cb6-3"></a>subzone_lookup <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(subzone_points) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">geometry =</span> <span class="fu">st_geometry</span>(subzone_points))</span>
-<span id="cb6-4"><a href="#cb6-4"></a></span>
-<span id="cb6-5"><a href="#cb6-5"></a>HDB_geo <span class="ot">&lt;-</span> HDB <span class="sc">%&gt;%</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">mutate</span>(<span class="at">town_guess =</span> town) <span class="sc">%&gt;%</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>  <span class="fu">left_join</span>(subzone_lookup, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"town_guess"</span> <span class="ot">=</span> <span class="st">"SUBZONE_N"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>  <span class="fu">st_as_sf</span>(<span class="at">sf_column_name =</span> <span class="st">"geometry"</span>, <span class="at">crs =</span> <span class="dv">3414</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">st_make_valid</span>()</span>
-<span id="cb6-10"><a href="#cb6-10"></a></span>
-<span id="cb6-11"><a href="#cb6-11"></a><span class="co"># fallback nearest subzone geometry</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a>missing_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">is.na</span>(<span class="fu">st_coordinates</span>(HDB_geo)[,<span class="dv">1</span>]))</span>
-<span id="cb6-13"><a href="#cb6-13"></a><span class="cf">if</span>(<span class="fu">length</span>(missing_idx) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb6-14"><a href="#cb6-14"></a>  nearest_geom <span class="ot">&lt;-</span> subzone_points<span class="sc">$</span>geometry[<span class="fu">match</span>(HDB_geo<span class="sc">$</span>town[missing_idx], subzone_points<span class="sc">$</span>SUBZONE_N)]</span>
-<span id="cb6-15"><a href="#cb6-15"></a>  HDB_geo<span class="sc">$</span>geometry[missing_idx] <span class="ot">&lt;-</span> nearest_geom</span>
-<span id="cb6-16"><a href="#cb6-16"></a>}</span>
-<span id="cb6-17"><a href="#cb6-17"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_make_valid</span>(HDB_geo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<ul>
+<li><strong>Interpretation:</strong> This attempts to make the aspatial HDB data spatial by assigning each flat to the nearest centroid of a planning subzone.</li>
+<li><strong>Centroid Creation:</strong> It calculates the representative central point of each subzone polygon in MP14 using st_point_on_surface().</li>
+<li><strong>HDB Georeferencing:</strong> The HDB data is converted to an sf object (HDB_sf) using placeholder geometry. It then uses st_join(…, join = st_nearest_feature) to join each HDB record to its closest subzone centroid. This effectively assigns a proxy coordinate (the subzone centroid) to each HDB flat, treating it as its location for subsequent spatial operations.</li>
+<li><strong>Validation:</strong> The output shows that 11,357 HDB records were successfully assigned a SUBZONE_N (meaning they found a nearest subzone centroid), but 323 records resulted in NA. The reason for the small number of successful joins (11,357) compared to the initial number of rows is not explicitly clear from the provided code, but the validation shows the number of non-missing (FALSE) and missing (TRUE) subzone assignments.</li>
+<li><strong>Wrangling Relevance:</strong> This is the critical step that transforms the non-geographically referenced HDB data into a geographically referenced analytical sandbox (HDB_geo) using a proxy location.</li>
+</ul>
 </section>
-<section id="jitter-to-avoid-identical-points" class="level1">
-<h1>8. Jitter to avoid identical points</h1>
+<section id="spatial-join-to-subzones" class="level1">
+<h1>7. Spatial Join to Subzones</h1>
+<p>Attach subzone attributes (PLN_AREA_N, SUBZONE_N) to each HDB point.Facilitates subzone-level analysis and supports downstream geospatial computations.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Ensuring geometry is POINT</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_cast</span>(HDB_geo, <span class="st">"POINT"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3"></a></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># Applying jitter</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
-<span id="cb7-6"><a href="#cb7-6"></a>coords <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(HDB_geo)  <span class="co"># now works</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a>jitter_m <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a>coords_j <span class="ot">&lt;-</span> coords <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="fu">nrow</span>(coords)<span class="sc">*</span><span class="dv">2</span>, <span class="sc">-</span>jitter_m, jitter_m), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
-<span id="cb7-9"><a href="#cb7-9"></a>HDB_geo<span class="sc">$</span>geometry <span class="ot">&lt;-</span> <span class="fu">st_sfc</span>(<span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(coords_j), <span class="cf">function</span>(i) <span class="fu">st_point</span>(coords_j[i, ])), <span class="at">crs =</span> <span class="fu">st_crs</span>(HDB_geo))</span>
-<span id="cb7-10"><a href="#cb7-10"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_make_valid</span>(HDB_geo)</span>
-<span id="cb7-11"><a href="#cb7-11"></a></span>
-<span id="cb7-12"><a href="#cb7-12"></a><span class="fu">message</span>(<span class="st">"Jitter applied to HDB points."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Attaching subzone attributes to HDB points</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_join</span>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  HDB_geo,</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  MP14 <span class="sc">%&gt;%</span> <span class="fu">select</span>(PLN_AREA_N, SUBZONE_N)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Although the nearest centroid join already assigned a subzone name, this step is used to attach all relevant planning area/subzone attributes from the actual polygons. This is essential if the analysis were to include any subzone-level variables</p>
 </section>
-<section id="distance-functions" class="level1">
-<h1>9. Distance Functions</h1>
+<section id="distance-within-radius-counts" class="level1">
+<h1>8. Distance / Within-Radius Counts</h1>
+<p>Compute the minimum distance from each HDB to nearby points of interest (POIs) such as hawker centres, parks, and eldercare. Functions dist_min_vec and count_within_vec calculate distances and counts within a specified radius.Adds locational predictors to HDB dataset, supporting spatially aware modeling.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>nearest_distance <span class="ot">&lt;-</span> <span class="cf">function</span>(src, dest, colname) {</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(dest) <span class="sc">||</span> <span class="fu">nrow</span>(dest) <span class="sc">==</span> <span class="dv">0</span>) {src[[colname]] <span class="ot">&lt;-</span> <span class="dv">999</span>; <span class="fu">return</span>(src)}</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="cf">if</span>(<span class="fu">st_crs</span>(src) <span class="sc">!=</span> <span class="fu">st_crs</span>(dest)) dest <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(dest, <span class="fu">st_crs</span>(src))</span>
-<span id="cb8-4"><a href="#cb8-4"></a>  idx <span class="ot">&lt;-</span> <span class="fu">st_nearest_feature</span>(src, dest)</span>
-<span id="cb8-5"><a href="#cb8-5"></a>  d <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(src, dest[idx, ], <span class="at">by_element =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>  src[[colname]] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(d)<span class="sc">/</span><span class="dv">1000</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">return</span>(src)</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a>dist_min_vec <span class="ot">&lt;-</span> <span class="cf">function</span>(hdb_pts, poi_pts) {</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(poi_pts)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="dv">999</span>, <span class="fu">nrow</span>(hdb_pts)))</span>
+<span id="cb8-5"><a href="#cb8-5"></a>  dist_mat <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(hdb_pts, poi_pts)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  dist_mat <span class="ot">&lt;-</span> <span class="fu">drop_units</span>(dist_mat)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">apply</span>(dist_mat, <span class="dv">1</span>, min) <span class="sc">/</span> <span class="dv">1000</span>  <span class="co"># km</span></span>
 <span id="cb8-8"><a href="#cb8-8"></a>}</span>
 <span id="cb8-9"><a href="#cb8-9"></a></span>
-<span id="cb8-10"><a href="#cb8-10"></a>within_count <span class="ot">&lt;-</span> <span class="cf">function</span>(src, dest, dist_m) {</span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(dest) <span class="sc">||</span> <span class="fu">nrow</span>(dest) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(src)))</span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="cf">if</span>(<span class="fu">st_crs</span>(src) <span class="sc">!=</span> <span class="fu">st_crs</span>(dest)) dest <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(dest, <span class="fu">st_crs</span>(src))</span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">lengths</span>(<span class="fu">st_is_within_distance</span>(src, dest, <span class="at">dist =</span> dist_m))</span>
-<span id="cb8-14"><a href="#cb8-14"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-10"><a href="#cb8-10"></a>count_within_vec <span class="ot">&lt;-</span> <span class="cf">function</span>(hdb_pts, poi_pts, radius_m) {</span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(poi_pts)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(hdb_pts)))</span>
+<span id="cb8-12"><a href="#cb8-12"></a>  dist_mat <span class="ot">&lt;-</span> <span class="fu">st_distance</span>(hdb_pts, poi_pts)</span>
+<span id="cb8-13"><a href="#cb8-13"></a>  dist_mat <span class="ot">&lt;-</span> <span class="fu">drop_units</span>(dist_mat)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="fu">rowSums</span>(dist_mat <span class="sc">&lt;=</span> radius_m)</span>
+<span id="cb8-15"><a href="#cb8-15"></a>}</span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co"># Computing distances and within-radius counts</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co"># Computing distances only if HDB coordinates are valid</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="at">dist_hawker_km   =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(hawker)) <span class="fu">dist_min_vec</span>(., hawker) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>    <span class="at">dist_park_km     =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(parks)) <span class="fu">dist_min_vec</span>(., parks) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-23"><a href="#cb8-23"></a>    <span class="at">dist_super_km    =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(supermarkets)) <span class="fu">dist_min_vec</span>(., supermarkets) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-24"><a href="#cb8-24"></a>    <span class="at">dist_elder_km    =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(eldercare)) <span class="fu">dist_min_vec</span>(., eldercare) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>    <span class="at">dist_chas_km     =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(chas)) <span class="fu">dist_min_vec</span>(., chas) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-26"><a href="#cb8-26"></a>    <span class="at">dist_kinderg_km     =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(kinderg)) <span class="fu">dist_min_vec</span>(., kinderg) <span class="cf">else</span> <span class="cn">NA</span>,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>    <span class="at">dist_childcare_km     =</span> <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(childcare)) <span class="fu">dist_min_vec</span>(., childcare) <span class="cf">else</span> <span class="cn">NA</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="computing-locational-variables" class="level1">
-<h1>10. Computing locational variables</h1>
+<p>Summarizes mean distances for exploratory insights.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">mutate</span>(<span class="at">resale_price =</span> <span class="fu">as.numeric</span>(resale_price)) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">nearest_distance</span>(eldercare, <span class="st">"dist_eldercare_km"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">nearest_distance</span>(hawker, <span class="st">"dist_hawker_km"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">nearest_distance</span>(parks, <span class="st">"dist_park_km"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">nearest_distance</span>(supermarkets, <span class="st">"dist_supermarket_km"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="at">childcare_within350 =</span> <span class="fu">within_count</span>(., childcare, <span class="dv">350</span>),</span>
-<span id="cb9-9"><a href="#cb9-9"></a>    <span class="at">kindergarten_within350 =</span> <span class="fu">within_count</span>(., kinderg, <span class="dv">350</span>)</span>
-<span id="cb9-10"><a href="#cb9-10"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="joining-subzone-information" class="level1">
-<h1>11. Joining subzone information</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>MP_subzone <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(MP_subzone, <span class="fu">st_crs</span>(HDB_geo))</span>
-<span id="cb10-2"><a href="#cb10-2"></a>HDB_geo <span class="ot">&lt;-</span> <span class="fu">st_join</span>(HDB_geo, MP_subzone <span class="sc">%&gt;%</span> <span class="fu">select</span>(SUBZONE_N, REGION_N), <span class="at">join =</span> st_intersects)</span>
-<span id="cb10-3"><a href="#cb10-3"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">st_is_empty</span>(geometry) <span class="sc">&amp;</span> <span class="fu">st_is_valid</span>(geometry))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="model-preparation" class="level1">
-<h1>12. Model Preparation</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>predictors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb11-2"><a href="#cb11-2"></a>  <span class="st">"floor_area_sqm"</span>, <span class="st">"storey_mid"</span>, <span class="st">"unit_age"</span>,</span>
-<span id="cb11-3"><a href="#cb11-3"></a>  <span class="st">"dist_eldercare_km"</span>, <span class="st">"dist_hawker_km"</span>,</span>
-<span id="cb11-4"><a href="#cb11-4"></a>  <span class="st">"dist_park_km"</span>, <span class="st">"dist_supermarket_km"</span>,</span>
-<span id="cb11-5"><a href="#cb11-5"></a>  <span class="st">"childcare_within350"</span>, <span class="st">"kindergarten_within350"</span></span>
-<span id="cb11-6"><a href="#cb11-6"></a>)</span>
-<span id="cb11-7"><a href="#cb11-7"></a></span>
-<span id="cb11-8"><a href="#cb11-8"></a>model_df <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span> <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb11-9"><a href="#cb11-9"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"dist_"</span>), <span class="sc">~</span><span class="fu">replace_na</span>(., <span class="dv">999</span>)),</span>
-<span id="cb11-10"><a href="#cb11-10"></a>         <span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"within"</span>), <span class="sc">~</span><span class="fu">replace_na</span>(., <span class="dv">0</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb11-11"><a href="#cb11-11"></a>  <span class="fu">select</span>(resale_price, <span class="fu">all_of</span>(predictors))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="ols-baseline" class="level1">
-<h1>13. OLS Baseline</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>drop_singular_predictors <span class="ot">&lt;-</span> <span class="cf">function</span>(df, response) {</span>
-<span id="cb12-2"><a href="#cb12-2"></a>  keep_vars <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(df), response)</span>
-<span id="cb12-3"><a href="#cb12-3"></a>  formula_try <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(response, <span class="st">"~"</span>, <span class="fu">paste</span>(keep_vars, <span class="at">collapse =</span> <span class="st">"+"</span>)))</span>
-<span id="cb12-4"><a href="#cb12-4"></a>  <span class="cf">repeat</span> {</span>
-<span id="cb12-5"><a href="#cb12-5"></a>    model <span class="ot">&lt;-</span> <span class="fu">try</span>(<span class="fu">lm</span>(formula_try, <span class="at">data =</span> df), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-6"><a href="#cb12-6"></a>    <span class="cf">if</span>(<span class="fu">inherits</span>(model, <span class="st">"try-error"</span>)) <span class="cf">break</span></span>
-<span id="cb12-7"><a href="#cb12-7"></a>    coefs_na <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">coef</span>(model))[<span class="fu">is.na</span>(<span class="fu">coef</span>(model))]</span>
-<span id="cb12-8"><a href="#cb12-8"></a>    <span class="cf">if</span>(<span class="fu">length</span>(coefs_na) <span class="sc">==</span> <span class="dv">0</span>) <span class="cf">break</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a>    keep_vars <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(keep_vars, coefs_na[<span class="dv">1</span>])</span>
-<span id="cb12-10"><a href="#cb12-10"></a>    <span class="cf">if</span>(<span class="fu">length</span>(keep_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="cf">break</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a>    formula_try <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(response, <span class="st">"~"</span>, <span class="fu">paste</span>(keep_vars, <span class="at">collapse =</span> <span class="st">"+"</span>)))</span>
-<span id="cb12-12"><a href="#cb12-12"></a>  }</span>
-<span id="cb12-13"><a href="#cb12-13"></a>  <span class="fu">list</span>(<span class="at">df =</span> df[, <span class="fu">c</span>(response, keep_vars), <span class="at">drop =</span> <span class="cn">FALSE</span>], <span class="at">predictors =</span> keep_vars)</span>
-<span id="cb12-14"><a href="#cb12-14"></a>}</span>
-<span id="cb12-15"><a href="#cb12-15"></a></span>
-<span id="cb12-16"><a href="#cb12-16"></a>res <span class="ot">&lt;-</span> <span class="fu">drop_singular_predictors</span>(model_df, <span class="st">"resale_price"</span>)</span>
-<span id="cb12-17"><a href="#cb12-17"></a>model_df_clean <span class="ot">&lt;-</span> res<span class="sc">$</span>df</span>
-<span id="cb12-18"><a href="#cb12-18"></a>predictors_clean <span class="ot">&lt;-</span> res<span class="sc">$</span>predictors</span>
-<span id="cb12-19"><a href="#cb12-19"></a></span>
-<span id="cb12-20"><a href="#cb12-20"></a>ols_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(predictors_clean, <span class="at">collapse =</span> <span class="st">" + "</span>)))</span>
-<span id="cb12-21"><a href="#cb12-21"></a>ols_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(ols_formula, <span class="at">data =</span> model_df_clean)</span>
-<span id="cb12-22"><a href="#cb12-22"></a><span class="fu">saveRDS</span>(ols_model,<span class="st">"data/rds/ols_model.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="gwr" class="level1">
-<h1>14. GWR</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>safe_scale <span class="ot">&lt;-</span> <span class="cf">function</span>(x) { (x <span class="sc">-</span> <span class="fu">mean</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">/</span> <span class="fu">sd</span>(x, <span class="at">na.rm=</span><span class="cn">TRUE</span>) }</span>
-<span id="cb13-2"><a href="#cb13-2"></a>gwr_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"floor_area_sqm"</span>, <span class="st">"storey_mid"</span>, <span class="st">"unit_age"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3"></a>gwr_vars_safe <span class="ot">&lt;-</span> gwr_vars[<span class="fu">sapply</span>(model_df_clean[gwr_vars], <span class="cf">function</span>(x) <span class="sc">!</span><span class="fu">all</span>(<span class="fu">is.na</span>(x)<span class="sc">|</span>x<span class="sc">==</span><span class="dv">0</span>))]</span>
-<span id="cb13-4"><a href="#cb13-4"></a>df_gwr_safe <span class="ot">&lt;-</span> model_df_clean[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, gwr_vars_safe)]</span>
-<span id="cb13-5"><a href="#cb13-5"></a>df_gwr_safe <span class="ot">&lt;-</span> df_gwr_safe[<span class="fu">complete.cases</span>(df_gwr_safe), ]</span>
-<span id="cb13-6"><a href="#cb13-6"></a>df_gwr_safe[gwr_vars_safe] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df_gwr_safe[gwr_vars_safe], safe_scale)</span>
-<span id="cb13-7"><a href="#cb13-7"></a>keep_idx <span class="ot">&lt;-</span> <span class="fu">complete.cases</span>(<span class="fu">st_drop_geometry</span>(HDB_geo)[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, gwr_vars_safe)])</span>
-<span id="cb13-8"><a href="#cb13-8"></a>HDB_geo_safe <span class="ot">&lt;-</span> HDB_geo[keep_idx, ]</span>
-<span id="cb13-9"><a href="#cb13-9"></a>HDB_geo_safe <span class="ot">&lt;-</span> HDB_geo_safe[<span class="sc">!</span><span class="fu">st_is_empty</span>(HDB_geo_safe) <span class="sc">&amp;</span> <span class="fu">st_is_valid</span>(HDB_geo_safe), ]</span>
-<span id="cb13-10"><a href="#cb13-10"></a></span>
-<span id="cb13-11"><a href="#cb13-11"></a><span class="cf">if</span>(<span class="fu">nrow</span>(HDB_geo_safe)<span class="sc">&gt;=</span><span class="dv">30</span> <span class="sc">&amp;&amp;</span> <span class="fu">length</span>(gwr_vars_safe)<span class="sc">&gt;</span><span class="dv">0</span>) {</span>
-<span id="cb13-12"><a href="#cb13-12"></a>  HDB_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(HDB_geo_safe,<span class="st">"Spatial"</span>)</span>
-<span id="cb13-13"><a href="#cb13-13"></a>  gwr_bw <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(gwr_vars_safe, <span class="at">collapse=</span><span class="st">" + "</span>))),</span>
-<span id="cb13-14"><a href="#cb13-14"></a>                   <span class="at">data =</span> HDB_sp, <span class="at">approach=</span><span class="st">"AICc"</span>, <span class="at">kernel=</span><span class="st">"bisquare"</span>, <span class="at">adaptive=</span><span class="cn">TRUE</span>)</span>
-<span id="cb13-15"><a href="#cb13-15"></a>  gwr_fit <span class="ot">&lt;-</span> <span class="fu">gwr.basic</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(gwr_vars_safe, <span class="at">collapse=</span><span class="st">" + "</span>))),</span>
-<span id="cb13-16"><a href="#cb13-16"></a>                       <span class="at">data =</span> HDB_sp, <span class="at">bw=</span>gwr_bw, <span class="at">kernel=</span><span class="st">"bisquare"</span>, <span class="at">adaptive=</span><span class="cn">TRUE</span>)</span>
-<span id="cb13-17"><a href="#cb13-17"></a>  gwr_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(gwr_fit<span class="sc">$</span>SDF)</span>
-<span id="cb13-18"><a href="#cb13-18"></a>  <span class="fu">saveRDS</span>(gwr_sf, <span class="st">"data/rds/gwr_results.rds"</span>)</span>
-<span id="cb13-19"><a href="#cb13-19"></a>} <span class="cf">else</span> gwr_sf <span class="ot">&lt;-</span> <span class="cn">NULL</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Summary of locational predictors</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>loc_summary <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="at">mean_dist_hawker_km  =</span> <span class="fu">mean</span>(dist_hawker_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    <span class="at">mean_dist_park_km    =</span> <span class="fu">mean</span>(dist_park_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="at">mean_dist_super_km   =</span> <span class="fu">mean</span>(dist_super_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="at">mean_dist_elder_km   =</span> <span class="fu">mean</span>(dist_elder_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    <span class="at">mean_dist_chas_km   =</span> <span class="fu">mean</span>(dist_chas_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    <span class="at">mean_dist_kinderg_km   =</span> <span class="fu">mean</span>(dist_kinderg_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    <span class="at">mean_dist_childcare_km   =</span> <span class="fu">mean</span>(dist_childcare_km, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-12"><a href="#cb9-12"></a>  )</span>
+<span id="cb9-13"><a href="#cb9-13"></a>loc_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Take a cup of tea and have a break, it will take a few minutes.
-          -----A kind suggestion from GWmodel development group
-Adaptive bandwidth (number of nearest neighbours): 2215 AICc value: 92991.56 
-Adaptive bandwidth (number of nearest neighbours): 1377 AICc value: 92990.41 
-Adaptive bandwidth (number of nearest neighbours): 858 AICc value: 92995.38 
-Adaptive bandwidth (number of nearest neighbours): 1697 AICc value: 92990.25 
-Adaptive bandwidth (number of nearest neighbours): 1895 AICc value: 92990.95 
-Adaptive bandwidth (number of nearest neighbours): 1574 AICc value: 92989.93 
-Adaptive bandwidth (number of nearest neighbours): 1499 AICc value: 92990.21 
-Adaptive bandwidth (number of nearest neighbours): 1621 AICc value: 92990.12 
-Adaptive bandwidth (number of nearest neighbours): 1545 AICc value: 92989.94 
-Adaptive bandwidth (number of nearest neighbours): 1592 AICc value: 92990.04 
-Adaptive bandwidth (number of nearest neighbours): 1563 AICc value: 92989.92 
-Adaptive bandwidth (number of nearest neighbours): 1556 AICc value: 92989.91 
-Adaptive bandwidth (number of nearest neighbours): 1551 AICc value: 92989.91 
-Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 
-Adaptive bandwidth (number of nearest neighbours): 1560 AICc value: 92989.93 
-Adaptive bandwidth (number of nearest neighbours): 1557 AICc value: 92989.9 
-Adaptive bandwidth (number of nearest neighbours): 1559 AICc value: 92989.92 
-Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 </code></pre>
+<pre><code># A tibble: 1 × 7
+  mean_dist_hawker_km mean_dist_park_km mean_dist_super_km mean_dist_elder_km
+                &lt;dbl&gt;             &lt;dbl&gt;              &lt;dbl&gt;              &lt;dbl&gt;
+1                1.34              1.02              0.738               1.62
+# ℹ 3 more variables: mean_dist_chas_km &lt;dbl&gt;, mean_dist_kinderg_km &lt;dbl&gt;,
+#   mean_dist_childcare_km &lt;dbl&gt;</code></pre>
 </div>
 </div>
+<ul>
+<li><strong>Interpretation:</strong> This is the core of the location variable derivation, calculating the shortest distance from each HDB flat to the nearest POI (Point of Interest).</li>
+<li><strong>Custom Functions:</strong> The dist_min_vec function computes the minimum distance between HDB points and a POI layer, converts the result from meters to kilometers (km), and handles cases where a POI layer is missing by returning 999.</li>
+<li><strong>Variable Creation:</strong> New variables (dist_hawker_km, dist_park_km, etc.) are added to HDB_geo .</li>
+<li><strong>Summary:</strong> The summary table shows the mean minimum distance (in km) from all HDB flats to each POI: Closest: Supermarkets (0.738 km) and CHAS Clinics (0.722 km). Farthest: Eldercare Centres (1.619 km).</li>
+<li><strong>Wrangling Relevance:</strong> This step successfully derives a set of continuous locational predictors (distance to amenities) by leveraging the geographically referenced HDB data and the POI layers, which is a major requirement for the analysis</li>
+</ul>
 </section>
-<section id="visualisation-maps" class="level1">
-<h1>15. Visualisation Maps</h1>
+<section id="cleaning-layers-and-scaling" class="level1">
+<h1>9. Cleaning Layers and Scaling</h1>
+<p>Remove HDB listings with missing resale prices or distance measures. Defines a safe_scale function for standardizing variables, preparing them for regression modeling.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">library</span>(tmap)</span>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Removing HDB listings with missing resale price or distance</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>HDB_geo <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(resale_price)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_hawker_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_park_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_super_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_elder_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_chas_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_kinderg_km)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_childcare_km))</span>
+<span id="cb11-11"><a href="#cb11-11"></a></span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="co"># Scaling function</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a>safe_scale <span class="ot">&lt;-</span> <span class="cf">function</span>(x) (x <span class="sc">-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This final cleaning step prepares a high-quality, complete dataset for modeling and ensures that the distance variables are valid for every record . The scaling function is defined in anticipation of the GWR model, which often benefits from scaled predictors.</p>
+</section>
+<section id="train-test-split" class="level1">
+<h1>10. Train-Test Split</h1>
+<p>Split dataset into training (80%) and testing (20%) sets using stratified sampling on resale price.Enables model validation and performance assessment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb12-2"><a href="#cb12-2"></a>train_idx <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(HDB_geo<span class="sc">$</span>resale_price, <span class="at">p =</span> <span class="fl">0.8</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a>train <span class="ot">&lt;-</span> HDB_geo[train_idx, ]</span>
+<span id="cb12-5"><a href="#cb12-5"></a>test  <span class="ot">&lt;-</span> HDB_geo[<span class="sc">-</span>train_idx, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This step is crucial for model validation and reproducibility, ensuring the model’s performance can be assessed on unseen data</p>
+</section>
+<section id="global-ols-model" class="level1">
+<h1>11. Global OLS Model</h1>
+<p>Fit an Ordinary Least Squares regression using structural and locational predictors.Drops predictors with zero variance and ensures numeric type.Provides a baseline global model for comparison against spatially varying models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb13-2"><a href="#cb13-2"></a></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co"># Defining predictors</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>predictors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"floor_area_sqm"</span>,<span class="st">"storey_mid"</span>,<span class="st">"unit_age"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5"></a>                <span class="st">"dist_hawker_km"</span>,<span class="st">"dist_park_km"</span>,<span class="st">"dist_super_km"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6"></a>                <span class="st">"dist_elder_km"</span>,<span class="st">"dist_chas_km"</span>, <span class="st">"dist_kinderg_km"</span>, <span class="st">"dist_childcare_km"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co"># Creating a numeric-only training dataframe</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>train_numeric <span class="ot">&lt;-</span> train <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span>        <span class="co"># remove geometry</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"resale_price"</span>, predictors))) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-12"><a href="#cb13-12"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(.)))) <span class="co"># ensure numeric</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co"># Dropping predictors with zero variance</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a>var_ok <span class="ot">&lt;-</span> <span class="fu">sapply</span>(train_numeric[predictors], <span class="cf">function</span>(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb13-16"><a href="#cb13-16"></a>predictors <span class="ot">&lt;-</span> predictors[var_ok]</span>
+<span id="cb13-17"><a href="#cb13-17"></a></span>
+<span id="cb13-18"><a href="#cb13-18"></a><span class="co"># Fitting OLS model</span></span>
+<span id="cb13-19"><a href="#cb13-19"></a>model_glm <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb13-20"><a href="#cb13-20"></a>  <span class="fu">formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(predictors, <span class="at">collapse =</span> <span class="st">" + "</span>))),</span>
+<span id="cb13-21"><a href="#cb13-21"></a>  <span class="at">data =</span> train_numeric</span>
+<span id="cb13-22"><a href="#cb13-22"></a>)</span>
+<span id="cb13-23"><a href="#cb13-23"></a></span>
+<span id="cb13-24"><a href="#cb13-24"></a><span class="fu">summary</span>(model_glm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = formula(paste("resale_price ~", paste(predictors, 
+    collapse = " + "))), data = train_numeric)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-122374  -31260   -2144   30446  141216 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       631596.1    58971.9  10.710  &lt; 2e-16 ***
+floor_area_sqm      2581.5      621.2   4.156 4.46e-05 ***
+storey_mid          7831.4      598.1  13.095  &lt; 2e-16 ***
+unit_age           -8460.8      217.2 -38.960  &lt; 2e-16 ***
+dist_hawker_km     -3266.8     6082.7  -0.537   0.5917    
+dist_park_km       -3838.5     5540.5  -0.693   0.4891    
+dist_super_km        524.9     7586.4   0.069   0.9449    
+dist_elder_km        175.8     4643.1   0.038   0.9698    
+dist_chas_km        1777.5     7893.0   0.225   0.8220    
+dist_kinderg_km   -18608.0     9560.5  -1.946   0.0527 .  
+dist_childcare_km  25575.3    11340.4   2.255   0.0250 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 47010 on 248 degrees of freedom
+Multiple R-squared:  0.9121,    Adjusted R-squared:  0.9086 
+F-statistic: 257.4 on 10 and 248 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Interpretation:</strong> A Global Ordinary Least Squares (OLS) model is fitted to the training data to predict resale_price using the three structural variables and seven distance variables.</p></li>
+<li><p><strong>Model Fit:</strong> The model has a Multiple R-squared of 0.9121 and an Adjusted R-squared of 0.908648, indicating it explains a very high proportion of the variance in HDB resale prices. The F-statistic is highly significant.</p></li>
+<li><p><strong>Significant Predictors (p &lt; 0.05):</strong></p>
+<p>floor_area_sqm: Positive effect (<span class="math inline">\(\beta = 2581.5\)</span> per sqm), highly significant</p>
+<p>storey_mid: Positive effect (<span class="math inline">\(\beta = 7831.4\)</span>), highly significant</p>
+<p>unit_age: Negative effect (<span class="math inline">\(\beta = -8460.8\)</span> per year), highly significant</p>
+<p>dist_childcare_km: Positive effect (<span class="math inline">\(\beta = 25575.3\)</span> per km), significant at p &lt; 0.05</p></li>
+<li><p><strong>Marginally Significant Predictor (p &lt; 0.1):</strong></p>
+<p>dist_kinderg_km: Negative effect (<span class="math inline">\(\beta = -18608.0\)</span> per km), marginally significant.</p></li>
+<li><p><strong>Insignificant Predictors:</strong> Distance to hawker, park, supermarket, eldercare, and CHAS clinics were all found to be statistically insignificant in this global model.</p></li>
+<li><p><strong>Analysis Relevance:</strong> The OLS model establishes a baseline global relationship. The high R-squared suggests the variables are good predictors overall, but the insignificance of most distance variables suggests a potential lack of a global stationary relationship, hinting at the need for a spatial model like GWR.</p></li>
+</ul>
+</section>
+<section id="ols-residuals" class="level1">
+<h1>12. OLS Residuals</h1>
+<p>Predict resale prices using OLS and compute residuals.Visualizes residuals spatially using tmap and distributionally with a histogram.Identifies areas where the OLS model over- or under-predicts prices, informing potential local effects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2"></a></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># Setting static plotting mode</span></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># Predicting resale_price for all HDB points</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>HDB_geo<span class="sc">$</span>pred_price <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_glm, <span class="at">newdata =</span> <span class="fu">st_drop_geometry</span>(HDB_geo))</span>
 <span id="cb15-5"><a href="#cb15-5"></a></span>
-<span id="cb15-6"><a href="#cb15-6"></a><span class="co"># Fixed plotting function for numeric SF variables</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a>plot_numeric_sf_fixed <span class="ot">&lt;-</span> <span class="cf">function</span>(sf_obj, var, <span class="at">title =</span> <span class="cn">NULL</span>, <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">palette =</span> <span class="st">"RdYlBu"</span>) {</span>
-<span id="cb15-8"><a href="#cb15-8"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(sf_obj) <span class="sc">||</span> <span class="fu">nrow</span>(sf_obj) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb15-9"><a href="#cb15-9"></a>  <span class="cf">if</span>(<span class="sc">!</span>(var <span class="sc">%in%</span> <span class="fu">names</span>(sf_obj))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb15-10"><a href="#cb15-10"></a>  </span>
-<span id="cb15-11"><a href="#cb15-11"></a>  <span class="co"># Ensuring numeric</span></span>
-<span id="cb15-12"><a href="#cb15-12"></a>  sf_obj[[var]] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(sf_obj[[var]])</span>
-<span id="cb15-13"><a href="#cb15-13"></a>  </span>
-<span id="cb15-14"><a href="#cb15-14"></a>  <span class="fu">tm_shape</span>(sf_obj) <span class="sc">+</span></span>
-<span id="cb15-15"><a href="#cb15-15"></a>    <span class="fu">tm_dots</span>(</span>
-<span id="cb15-16"><a href="#cb15-16"></a>      <span class="at">col =</span> var,               <span class="co"># color by variable</span></span>
-<span id="cb15-17"><a href="#cb15-17"></a>      <span class="at">size =</span> size,             <span class="co"># fixed size in map units</span></span>
-<span id="cb15-18"><a href="#cb15-18"></a>      <span class="at">palette =</span> palette,</span>
-<span id="cb15-19"><a href="#cb15-19"></a>      <span class="at">auto.palette.mapping =</span> <span class="cn">FALSE</span>, <span class="co"># disable auto-scaling</span></span>
-<span id="cb15-20"><a href="#cb15-20"></a>      <span class="at">title =</span> var</span>
-<span id="cb15-21"><a href="#cb15-21"></a>    ) <span class="sc">+</span></span>
-<span id="cb15-22"><a href="#cb15-22"></a>    <span class="fu">tm_layout</span>(</span>
-<span id="cb15-23"><a href="#cb15-23"></a>      <span class="at">legend.outside =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb15-24"><a href="#cb15-24"></a>      <span class="at">frame =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-25"><a href="#cb15-25"></a>    ) <span class="sc">+</span></span>
-<span id="cb15-26"><a href="#cb15-26"></a>    <span class="fu">tm_title</span>(title)</span>
-<span id="cb15-27"><a href="#cb15-27"></a>}</span>
-<span id="cb15-28"><a href="#cb15-28"></a></span>
-<span id="cb15-29"><a href="#cb15-29"></a><span class="co"># HDB resale price map</span></span>
-<span id="cb15-30"><a href="#cb15-30"></a>map_price <span class="ot">&lt;-</span> <span class="fu">plot_numeric_sf_fixed</span>(HDB_geo, <span class="st">"resale_price"</span>, <span class="st">"HDB resale price (4-room)"</span>)</span>
-<span id="cb15-31"><a href="#cb15-31"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(map_price)) <span class="fu">print</span>(map_price)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co"># Computing residuals</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>HDB_geo<span class="sc">$</span>ols_resid <span class="ot">&lt;-</span> HDB_geo<span class="sc">$</span>resale_price <span class="sc">-</span> HDB_geo<span class="sc">$</span>pred_price</span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co"># Summary of residuals</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="fu">summary</span>(HDB_geo<span class="sc">$</span>ols_resid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-122374  -28126   -2144    1844   31451  148510 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Singapore boundary polygon (union of all planning areas)</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>sg_boundary <span class="ot">&lt;-</span> <span class="fu">st_union</span>(MP14)</span>
+<span id="cb17-3"><a href="#cb17-3"></a></span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="co"># Spatial visualisation of residuals</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>tm_ols_resid <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Singapore outline</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>  <span class="fu">tm_shape</span>(HDB_geo) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>  <span class="fu">tm_dots</span>(</span>
+<span id="cb17-9"><a href="#cb17-9"></a>    <span class="at">col =</span> <span class="st">"ols_resid"</span>,</span>
+<span id="cb17-10"><a href="#cb17-10"></a>    <span class="at">palette =</span> <span class="st">"-RdBu"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    <span class="at">style =</span> <span class="st">"quantile"</span>,          <span class="co"># better color scaling</span></span>
+<span id="cb17-12"><a href="#cb17-12"></a>    <span class="at">size =</span> <span class="fl">0.3</span>,</span>
+<span id="cb17-13"><a href="#cb17-13"></a>    <span class="at">fill_alpha =</span> <span class="fl">0.7</span>,</span>
+<span id="cb17-14"><a href="#cb17-14"></a>    <span class="at">title =</span> <span class="st">"OLS Residuals (SGD)"</span></span>
+<span id="cb17-15"><a href="#cb17-15"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16"></a>  <span class="fu">tm_layout</span>(</span>
+<span id="cb17-17"><a href="#cb17-17"></a>    <span class="at">main.title =</span> <span class="st">"Spatial Distribution of OLS Residuals"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18"></a>    <span class="at">legend.outside =</span> <span class="cn">TRUE</span></span>
+<span id="cb17-19"><a href="#cb17-19"></a>  )</span>
+<span id="cb17-20"><a href="#cb17-20"></a>tm_ols_resid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># Histogram of residuals</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="fu">ggplot</span>(HDB_geo, <span class="fu">aes</span>(<span class="at">x =</span> ols_resid)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">title =</span> <span class="st">"Histogram of OLS Residuals"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="at">x =</span> <span class="st">"Residual (SGD)"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Interpretation:</strong> This code calculates and visualizes the residuals (actual price - predicted price) from the OLS model.</li>
+<li><strong>Summary:</strong> Residuals range from -122,374 SGD to 141,216 SGD.</li>
+<li><strong>Spatial Distribution (Map):</strong> The map shows a clear spatial clustering of residuals . Positive Residuals (Red/Orange): Flats that the OLS model under-predicted the price for (i.e., they are more expensive than expected) are clustered in the Central/Southern parts of Singapore . Negative Residuals (Blue): Flats that the OLS model over-predicted the price for (i.e., they are cheaper than expected) are clustered mostly in the Northern and Western parts .</li>
+<li><strong>Histogram:</strong> The histogram shows that the residuals are relatively symmetrically distributed around zero, but the distribution is slightly leptokurtic (more peaked than a normal distribution) .</li>
+<li><strong>Analysis Relevance:</strong> The distinct spatial pattern in the residuals (clustering of over- and under-predictions) is a strong indicator of spatial non-stationarity . This violates a key assumption of OLS and justifies the use of the Geographically Weighted Regression (GWR) model in the next step, as GWR is designed to model coefficients that vary across space.</li>
+</ul>
+</section>
+<section id="gwr-model" class="level1">
+<h1>13. GWR Model</h1>
+<p>Fit a Geographically Weighted Regression (GWR) model to capture spatial heterogeneity in predictor effects.Standardizes predictors and selects those with non-zero variance. Determines optimal bandwidth using AICc and fits a local model at each HDB point. Converts results to an sf object for mapping and analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># Loading required package</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="fu">library</span>(GWmodel)</span>
+<span id="cb19-3"><a href="#cb19-3"></a></span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="co"># Only keeping predictors with variance &gt; 0</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>df <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(HDB_geo)[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, predictors)]</span>
+<span id="cb19-6"><a href="#cb19-6"></a>var_ok <span class="ot">&lt;-</span> <span class="fu">sapply</span>(df[predictors], <span class="cf">function</span>(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb19-7"><a href="#cb19-7"></a>predictors_gwr <span class="ot">&lt;-</span> predictors[var_ok]</span>
+<span id="cb19-8"><a href="#cb19-8"></a>df <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"resale_price"</span>, predictors_gwr)]</span>
+<span id="cb19-9"><a href="#cb19-9"></a></span>
+<span id="cb19-10"><a href="#cb19-10"></a><span class="co"># Scaling</span></span>
+<span id="cb19-11"><a href="#cb19-11"></a>df[predictors_gwr] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df[predictors_gwr], safe_scale)</span>
+<span id="cb19-12"><a href="#cb19-12"></a>df <span class="ot">&lt;-</span> df[<span class="fu">complete.cases</span>(df), ]</span>
+<span id="cb19-13"><a href="#cb19-13"></a></span>
+<span id="cb19-14"><a href="#cb19-14"></a><span class="co"># Subset spatial data to match df</span></span>
+<span id="cb19-15"><a href="#cb19-15"></a>HDB_geo_gwr <span class="ot">&lt;-</span> HDB_geo <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="fu">as.numeric</span>(<span class="fu">rownames</span>(df)))</span>
+<span id="cb19-16"><a href="#cb19-16"></a>HDB_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(HDB_geo_gwr, <span class="st">"Spatial"</span>)</span>
+<span id="cb19-17"><a href="#cb19-17"></a></span>
+<span id="cb19-18"><a href="#cb19-18"></a><span class="co"># GWR formula</span></span>
+<span id="cb19-19"><a href="#cb19-19"></a>gwr_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"resale_price ~"</span>, <span class="fu">paste</span>(predictors_gwr, <span class="at">collapse =</span> <span class="st">" + "</span>)))</span>
+<span id="cb19-20"><a href="#cb19-20"></a></span>
+<span id="cb19-21"><a href="#cb19-21"></a><span class="co"># Bandwidth selection</span></span>
+<span id="cb19-22"><a href="#cb19-22"></a>bw <span class="ot">&lt;-</span> <span class="fu">bw.gwr</span>(gwr_formula, <span class="at">data =</span> HDB_sp, <span class="at">approach =</span> <span class="st">"AICc"</span>, <span class="at">kernel =</span> <span class="st">"bisquare"</span>, <span class="at">adaptive =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Adaptive bandwidth (number of nearest neighbours): 207 AICc value: 7853.743 
+Adaptive bandwidth (number of nearest neighbours): 136 AICc value: 7867.688 
+Adaptive bandwidth (number of nearest neighbours): 252 AICc value: 7852.888 
+Adaptive bandwidth (number of nearest neighbours): 279 AICc value: 7854.815 
+Adaptive bandwidth (number of nearest neighbours): 234 AICc value: 7852.571 
+Adaptive bandwidth (number of nearest neighbours): 224 AICc value: 7853.111 
+Adaptive bandwidth (number of nearest neighbours): 241 AICc value: 7852.816 
+Adaptive bandwidth (number of nearest neighbours): 230 AICc value: 7852.902 
+Adaptive bandwidth (number of nearest neighbours): 236 AICc value: 7852.702 
+Adaptive bandwidth (number of nearest neighbours): 232 AICc value: 7852.733 
+Adaptive bandwidth (number of nearest neighbours): 234 AICc value: 7852.571 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># Fitting GWR</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>gwr_fit <span class="ot">&lt;-</span> <span class="fu">gwr.basic</span>(gwr_formula, <span class="at">data =</span> HDB_sp, <span class="at">bw =</span> bw, <span class="at">kernel =</span> <span class="st">"bisquare"</span>, <span class="at">adaptive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-3"><a href="#cb21-3"></a></span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="co"># Converting results back to sf</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a>gwr_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(gwr_fit<span class="sc">$</span>SDF)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><strong>Interpretation:</strong> This chunk fits a Geographically Weighted Regression (GWR) model to the data, allowing the predictor coefficients to vary geographically.</li>
+<li><strong>Bandwidth Selection:</strong> The optimal adaptive bandwidth (the number of nearest neighbors for local estimation) is determined using the AICc criterion. The final selected optimal bandwidth is 234 nearest neighbors , which resulted in the lowest AICc value of 7852.571.</li>
+<li><strong>Analysis Relevance:</strong> The GWR model is correctly implemented to address the spatial non-stationarity identified by the OLS residuals. The AICc value (7852.571) for the GWR is lower than the (non-reported) OLS AICc, and the R-squared for GWR will typically be higher, indicating better local model fit.</li>
+</ul>
+</section>
+<section id="comparing-ols-vs-gwr-coefficients-floor-area" class="level1">
+<h1>14. Comparing OLS vs GWR Coefficients (Floor Area)</h1>
+<p>Compare global OLS coefficient for floor_area_sqm against GWR coefficients.Highlights spatial variation in the effect of floor area on resale price.Visualizes the distribution of local coefficients to explore heterogeneity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># Analysis: Comparing Coefficients</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>coef_comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="at">OLS_floor_area =</span> <span class="fu">coef</span>(model_glm)[<span class="st">"floor_area_sqm"</span>],</span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="at">GWR_floor_area_mean =</span> <span class="fu">mean</span>(gwr_sf<span class="sc">$</span>floor_area_sqm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="at">GWR_floor_area_sd   =</span> <span class="fu">sd</span>(gwr_sf<span class="sc">$</span>floor_area_sqm, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-6"><a href="#cb22-6"></a>)</span>
+<span id="cb22-7"><a href="#cb22-7"></a>coef_comparison</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               OLS_floor_area GWR_floor_area_mean GWR_floor_area_sd
+floor_area_sqm        2581.52            4002.054          1401.511</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">ggplot</span>(gwr_sf, <span class="fu">aes</span>(<span class="at">x =</span> floor_area_sqm)) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">fill =</span> <span class="st">"lightgreen"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of GWR Coefficients: Floor Area"</span>, </span>
+<span id="cb24-4"><a href="#cb24-4"></a>       <span class="at">x =</span> <span class="st">"Coefficient"</span>, <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Interpretation:</strong> This chunk compares the coefficient for the floor_area_sqm variable between the global OLS model and the local GWR model.</li>
+<li><strong>OLS Coefficient:</strong> The OLS coefficient is a single value: 2,581.5269. This suggests that globally, a 1 sqm increase in floor area is associated with a 2,581.52 SGD increase in resale price 70.</li>
+<li><strong>GWR Coefficients:</strong> In contrast, the GWR coefficients are a distribution of values: Mean: 4,002.05471. Standard Deviation (SD): 1,401.51172.</li>
+<li><strong>Distribution Plot:</strong> The histogram of GWR coefficients shows the coefficients are not a single value but vary widely, roughly ranging from 1,500 to over 6,000.</li>
+<li><strong>Analysis Relevance:</strong> The large difference between the OLS coefficient (<span class="math inline">\(\approx 2,582\)</span>) and the mean GWR coefficient (<span class="math inline">\(\approx 4,002\)</span>), coupled with the high standard deviation (1,401.5) in the GWR coefficients and the multi-modal histogram distribution, provides quantitative evidence of spatial non-stationarity . This confirms that the relationship between floor area and price is not constant across Singapore but depends heavily on the location.</li>
+</ul>
+</section>
+<section id="visualisation" class="level1">
+<h1>15. Visualisation</h1>
+<p>Generate static maps for HDB resale prices, nearby POIs, and buffers (350m, 1km).Supports exploratory spatial analysis and interpretation of locational influence on prices.Combines point, polygon, and buffer layers for clear spatial context.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)  <span class="co"># static maps</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="co"># HDB Resale Prices</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="fu">tm_shape</span>(HDB_geo) <span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a>  <span class="fu">tm_dots</span>(<span class="at">col =</span> <span class="st">"resale_price"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9"></a>          <span class="at">palette =</span> <span class="st">"YlOrRd"</span>,</span>
+<span id="cb25-10"><a href="#cb25-10"></a>          <span class="at">size =</span> <span class="fl">0.4</span>,</span>
+<span id="cb25-11"><a href="#cb25-11"></a>          <span class="at">border.col =</span> <span class="st">"black"</span>,</span>
+<span id="cb25-12"><a href="#cb25-12"></a>          <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"HDB Resale Prices"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -654,35 +928,12 @@ Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 </c
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># GWR outputs</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="cf">if</span>(<span class="fu">exists</span>(<span class="st">"gwr_sf"</span>) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(gwr_sf)) {</span>
-<span id="cb16-3"><a href="#cb16-3"></a>  </span>
-<span id="cb16-4"><a href="#cb16-4"></a>  <span class="co"># Identifying numeric coefficients (exclude residuals, Local_R2, X, Y)</span></span>
-<span id="cb16-5"><a href="#cb16-5"></a>  coef_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
-<span id="cb16-6"><a href="#cb16-6"></a>    <span class="fu">names</span>(gwr_sf)[<span class="fu">sapply</span>(<span class="fu">st_drop_geometry</span>(gwr_sf), is.numeric)],</span>
-<span id="cb16-7"><a href="#cb16-7"></a>    <span class="fu">c</span>(<span class="st">"residual"</span>, <span class="st">"Local_R2"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span>)</span>
-<span id="cb16-8"><a href="#cb16-8"></a>  )</span>
-<span id="cb16-9"><a href="#cb16-9"></a>  </span>
-<span id="cb16-10"><a href="#cb16-10"></a>  <span class="co"># Plotting first coefficient as example</span></span>
-<span id="cb16-11"><a href="#cb16-11"></a>  <span class="cf">if</span>(<span class="fu">length</span>(coef_cols) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb16-12"><a href="#cb16-12"></a>    map_gwr_coef <span class="ot">&lt;-</span> <span class="fu">plot_numeric_sf_fixed</span>(</span>
-<span id="cb16-13"><a href="#cb16-13"></a>      gwr_sf, coef_cols[<span class="dv">1</span>], <span class="fu">paste</span>(<span class="st">"GWR coefficient:"</span>, coef_cols[<span class="dv">1</span>])</span>
-<span id="cb16-14"><a href="#cb16-14"></a>    )</span>
-<span id="cb16-15"><a href="#cb16-15"></a>    <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(map_gwr_coef)) <span class="fu">print</span>(map_gwr_coef)</span>
-<span id="cb16-16"><a href="#cb16-16"></a>  }</span>
-<span id="cb16-17"><a href="#cb16-17"></a>  </span>
-<span id="cb16-18"><a href="#cb16-18"></a>  <span class="co"># Plotting GWR residuals</span></span>
-<span id="cb16-19"><a href="#cb16-19"></a>  <span class="cf">if</span>(<span class="st">"residual"</span> <span class="sc">%in%</span> <span class="fu">names</span>(gwr_sf)) {</span>
-<span id="cb16-20"><a href="#cb16-20"></a>    map_gwr_resid <span class="ot">&lt;-</span> <span class="fu">plot_numeric_sf_fixed</span>(gwr_sf, <span class="st">"residual"</span>, <span class="st">"GWR residuals"</span>)</span>
-<span id="cb16-21"><a href="#cb16-21"></a>    <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(map_gwr_resid)) <span class="fu">print</span>(map_gwr_resid)</span>
-<span id="cb16-22"><a href="#cb16-22"></a>  }</span>
-<span id="cb16-23"><a href="#cb16-23"></a>  </span>
-<span id="cb16-24"><a href="#cb16-24"></a>  <span class="co"># Plotting GWR Local R2</span></span>
-<span id="cb16-25"><a href="#cb16-25"></a>  <span class="cf">if</span>(<span class="st">"Local_R2"</span> <span class="sc">%in%</span> <span class="fu">names</span>(gwr_sf)) {</span>
-<span id="cb16-26"><a href="#cb16-26"></a>    map_gwr_r2 <span class="ot">&lt;-</span> <span class="fu">plot_numeric_sf_fixed</span>(gwr_sf, <span class="st">"Local_R2"</span>, <span class="st">"GWR Local R2"</span>)</span>
-<span id="cb16-27"><a href="#cb16-27"></a>    <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(map_gwr_r2)) <span class="fu">print</span>(map_gwr_r2)</span>
-<span id="cb16-28"><a href="#cb16-28"></a>  }</span>
-<span id="cb16-29"><a href="#cb16-29"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># Hawker Centres</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="fu">tm_shape</span>(hawker) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"red"</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Hawker Centres"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -690,6 +941,12 @@ Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 </c
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="co"># Supermarkets</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4"></a><span class="fu">tm_shape</span>(supermarkets) <span class="sc">+</span></span>
+<span id="cb27-5"><a href="#cb27-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">shape =</span> <span class="dv">22</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Supermarkets"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -697,6 +954,12 @@ Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 </c
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># CHAS Clinics</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="fu">tm_shape</span>(chas) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"green"</span>, <span class="at">shape =</span> <span class="dv">23</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"CHAS Clinics"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -704,74 +967,148 @@ Adaptive bandwidth (number of nearest neighbours): 1558 AICc value: 92989.89 </c
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="co"># Eldercare Centres</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="fu">tm_shape</span>(eldercare) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"purple"</span>, <span class="at">shape =</span> <span class="dv">24</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Eldercare Centres"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-14-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
-</section>
-<section id="diagonstics-and-outputs" class="level1">
-<h1>16. Diagonstics and Outputs</h1>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># Childcare Centres</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a><span class="fu">tm_shape</span>(childcare) <span class="sc">+</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"orange"</span>, <span class="at">shape =</span> <span class="dv">25</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Childcare Centres"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-14-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co"># Parks</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4"></a><span class="fu">tm_shape</span>(parks) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">size =</span> <span class="fl">0.4</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Parks"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-14-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="co"># Kindergartens</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4"></a><span class="fu">tm_shape</span>(kinderg) <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5"></a>  <span class="fu">tm_symbols</span>(<span class="at">col =</span> <span class="st">"pink"</span>, <span class="at">shape =</span> <span class="dv">22</span>, <span class="at">size =</span> <span class="fl">0.3</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6"></a><span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Kindergartens"</span>, <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-14-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>HDB Resale Prices:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> The map shows a clear spatial pattern: higher resale prices (red/darker colors) are overwhelmingly concentrated in the Central, Southern, and Eastern parts of Singapore (especially around the city fringe). Lower resale prices (yellow/lighter colors) tend to be distributed in the Northern and Western parts (e.g., Woodlands, Choa Chu Kang, Jurong East).</li>
+<li><strong>Analytical Implication:</strong> This strong clustering of prices demonstrates spatial dependence (or spatial autocorrelation). The value of an HDB flat is clearly influenced by the values of its neighbors, confirming that a global model (OLS) is likely inadequate and justifying the use of a local model like GWR.</li>
+</ul>
+<p><strong>Hawker Centres:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Hawker Centres are distributed across the island but show a higher density and clustering in the older, central residential areas. There are noticeable gaps in some newer or less developed parts of the West and Northeast.</li>
+<li><strong>Analytical Implication:</strong> Proximity to a Hawker Centre is generally a desirable amenity. The higher concentration in the central areas, which also have higher resale prices, suggests that the negative effect of distance (<span class="math inline">\(\beta_{\text{dist\_hawker\_km}}\)</span>) on price might be stronger in these dense, central locations.</li>
+</ul>
+<p><strong>SuperMarkets:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Supermarkets show the most dispersed and even distribution of all POIs, covering most residential areas relatively uniformly.</li>
+<li><strong>Analytical Implication:</strong> The uniform distribution implies that most HDB flats are close to a supermarket. This ubiquity likely contributes to the OLS model’s finding that distance to a supermarket is not a significant global predictor, as it is a common convenience everywhere.</li>
+</ul>
+<p><strong>CHAS Clinic:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> CHAS Clinics exhibit a high density, particularly in the Southern and Central planning areas and along major transportation corridors. Similar to supermarkets, coverage is generally good, but with higher concentration in the more populated, established towns.</li>
+<li><strong>Analytical Implication:</strong> The relative closeness to clinics (mean distance 0.722 km ) suggests they are a baseline amenity. Their generally clustered distribution might interact with the spatial pattern of prices, meaning the benefit of proximity could vary across locations.</li>
+</ul>
+<p><strong>Eldercare Centres:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Eldercare Centres have a sparse distribution compared to other amenities, with distinct clusters in a few major HDB towns, and many areas, particularly in the West and extreme North, having low coverage.</li>
+<li><strong>Analytical Implication:</strong> The large mean distance (1.619 km ) and clustered distribution suggest that proximity to eldercare is a rare amenity, likely affecting property values only in the immediate vicinity of the centres, which GWR is better suited to capture locally than OLS.</li>
+</ul>
+<p><strong>Childcare Centres:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Childcare Centres show an extremely high density and widespread distribution across virtually all residential areas. This is indicative of a successful national coverage strategy for this essential service.</li>
+<li><strong>Analytical Implication:</strong> Despite the even coverage, the OLS model found that the distance to childcare was a significant, positive predictor (<span class="math inline">\(\beta = 25575.3\)</span> per km). This counterintuitive positive sign (prices increase as the distance increases) suggests a potential collinearity or spatial confounding issue. The GWR model is necessary to check if this anomalous positive effect is localized or if it’s a global error caused by the correlation of this variable with an unobserved central location factor.</li>
+</ul>
+<p><strong>Parks:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Parks are well-distributed but show some clustering in the Central and Eastern parts . Unlike supermarkets, there are clearer gaps in coverage, suggesting that proximity to a park is not universal.</li>
+<li><strong>Analytical Implication:</strong> Proximity to green spaces is a highly valued amenity. The non-uniform distribution suggests that the premium placed on being near a park may vary significantly. For instance, the value of proximity might be higher in dense central areas compared to green areas in the West.</li>
+</ul>
+<p><strong>Kindergartens:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> Kindergartens are widely dispersed, with a distribution pattern that is denser than parks but less dense than childcare centers. They cover most major towns.</li>
+<li><strong>Analytical Implication:</strong> Proximity to kindergartens was found to be marginally significant with a negative effect (<span class="math inline">\(\beta = -18608.0\)</span> per km) in the OLS model. Similar to the childcare finding, the GWR model must be used to examine if this relationship varies across Singapore, potentially revealing local areas where this amenity is highly valued (negative coefficient) versus areas where it is less relevant (positive or zero coefficient).</li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Basic diagnostics outputs</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">--- Dataset summary ---</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
---- Dataset summary ---</code></pre>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># Buffers</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a>HDB_buffer_350 <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(HDB_geo, <span class="at">dist =</span> <span class="dv">350</span>)</span>
+<span id="cb33-3"><a href="#cb33-3"></a>HDB_buffer_1000 <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(HDB_geo, <span class="at">dist =</span> <span class="dv">1000</span>)</span>
+<span id="cb33-4"><a href="#cb33-4"></a></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="fu">tm_shape</span>(sg_boundary) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6"></a>  <span class="fu">tm_polygons</span>(<span class="at">col =</span> <span class="st">"white"</span>, <span class="at">border.col =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7"></a></span>
+<span id="cb33-8"><a href="#cb33-8"></a>  <span class="co"># HDB points</span></span>
+<span id="cb33-9"><a href="#cb33-9"></a>  <span class="fu">tm_shape</span>(HDB_geo) <span class="sc">+</span></span>
+<span id="cb33-10"><a href="#cb33-10"></a>  <span class="fu">tm_dots</span>(<span class="at">col =</span> <span class="st">"resale_price"</span>, <span class="at">palette =</span> <span class="st">"YlOrRd"</span>, <span class="at">size =</span> <span class="fl">0.4</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">border.col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a></span>
+<span id="cb33-12"><a href="#cb33-12"></a>  <span class="co"># 350m buffer</span></span>
+<span id="cb33-13"><a href="#cb33-13"></a>  <span class="fu">tm_shape</span>(HDB_buffer_350) <span class="sc">+</span></span>
+<span id="cb33-14"><a href="#cb33-14"></a>  <span class="fu">tm_borders</span>(<span class="at">col =</span> <span class="st">"grey70"</span>, <span class="at">lty =</span> <span class="st">"dashed"</span>, <span class="at">lwd =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb33-15"><a href="#cb33-15"></a></span>
+<span id="cb33-16"><a href="#cb33-16"></a>  <span class="co"># 1km buffer</span></span>
+<span id="cb33-17"><a href="#cb33-17"></a>  <span class="fu">tm_shape</span>(HDB_buffer_1000) <span class="sc">+</span></span>
+<span id="cb33-18"><a href="#cb33-18"></a>  <span class="fu">tm_borders</span>(<span class="at">col =</span> <span class="st">"grey50"</span>, <span class="at">lty =</span> <span class="st">"dotted"</span>, <span class="at">lwd =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb33-19"><a href="#cb33-19"></a></span>
+<span id="cb33-20"><a href="#cb33-20"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"HDB Resale Prices with 350m &amp; 1km Buffers"</span>,</span>
+<span id="cb33-21"><a href="#cb33-21"></a>            <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Ex3_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(<span class="fu">st_drop_geometry</span>(HDB_geo)[, <span class="fu">c</span>(<span class="st">"resale_price"</span>,<span class="st">"floor_area_sqm"</span>,<span class="st">"unit_age"</span>,<span class="st">"storey_mid"</span>)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  resale_price     floor_area_sqm      unit_age       storey_mid   
- Min.   : 320000   Min.   : 74.00   Min.   : 1.00   Min.   : 2.00  
- 1st Qu.: 568000   1st Qu.: 88.00   1st Qu.: 9.00   1st Qu.: 5.00  
- Median : 730000   Median : 92.00   Median :18.00   Median :11.00  
- Mean   : 719808   Mean   : 92.26   Mean   :22.28   Mean   :12.88  
- 3rd Qu.: 850000   3rd Qu.: 98.00   3rd Qu.:38.00   3rd Qu.:17.00  
- Max.   :1500000   Max.   :176.00   Max.   :55.00   Max.   :47.00  </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">--- Model rows used ---</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
---- Model rows used ---</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">print</span>(<span class="fu">nrow</span>(model_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 3572</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="cf">if</span>(<span class="fu">exists</span>(<span class="st">"ols_model"</span>)) {</span>
-<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">--- OLS AIC &amp; Adj-R2 ---</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb25-3"><a href="#cb25-3"></a>  <span class="fu">cat</span>(<span class="st">"AIC:"</span>, <span class="fu">AIC</span>(ols_model), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb25-4"><a href="#cb25-4"></a>  <span class="fu">cat</span>(<span class="st">"Adj. R-squared:"</span>, <span class="fu">summary</span>(ols_model)<span class="sc">$</span>adj.r.squared, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb25-5"><a href="#cb25-5"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
---- OLS AIC &amp; Adj-R2 ---
-AIC: 93060.19 
-Adj. R-squared: 0.6208931 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="cf">if</span>(<span class="fu">exists</span>(<span class="st">"gwr_sf"</span>) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(gwr_sf)) {</span>
-<span id="cb27-2"><a href="#cb27-2"></a>  <span class="cf">if</span>(<span class="st">"Local_R2"</span> <span class="sc">%in%</span> <span class="fu">names</span>(gwr_sf)) {</span>
-<span id="cb27-3"><a href="#cb27-3"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">GWR local R2 summary:</span><span class="sc">\n</span><span class="st">"</span>); <span class="fu">print</span>(<span class="fu">summary</span>(gwr_sf<span class="sc">$</span>Local_R2))</span>
-<span id="cb27-4"><a href="#cb27-4"></a>  }</span>
-<span id="cb27-5"><a href="#cb27-5"></a>  <span class="cf">if</span>(<span class="st">"residual"</span> <span class="sc">%in%</span> <span class="fu">names</span>(gwr_sf)) {</span>
-<span id="cb27-6"><a href="#cb27-6"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">GWR residuals summary:</span><span class="sc">\n</span><span class="st">"</span>); <span class="fu">print</span>(<span class="fu">summary</span>(gwr_sf<span class="sc">$</span>residual))</span>
-<span id="cb27-7"><a href="#cb27-7"></a>  }</span>
-<span id="cb27-8"><a href="#cb27-8"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-GWR local R2 summary:
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.5615  0.5854  0.5943  0.6216  0.6066  0.9163 
-
-GWR residuals summary:
-     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
--303102.1  -77186.5  -12564.6    -631.7   64399.4  649027.0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">message</span>(<span class="st">"All done. Files saved: data/rds/HDBresale_sf_integrated.rds, data/rds/ols_model.rds (if OLS fitted), data/rds/gwr_results.rds (if GWR fitted)."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p><strong>HDB Resale Prices with 350m &amp; 1km Buffers:-</strong></p>
+<ul>
+<li><strong>Visual Pattern:</strong> This map overlays the resale price points with two geographic buffers (350m and 1km) around each point .</li>
+<li><strong>Analytical Implication:</strong> This visualization is purely methodological. It visually illustrates the concept of a local neighborhood scale that is fundamental to Geographically Weighted models (like the GWR, which uses an adaptive bandwidth of 234 neighbors) and spatial statistics. It provides context for how the st_distance and count_within_vec functions operate on a local spatial scale.</li>
+</ul>
 </section>
-<section id="saving-integrated-dataset" class="level1">
-<h1>17. Saving integrated dataset</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">saveRDS</span>(HDB_geo, <span class="st">"data/rds/HDBresale_sf_integrated.rds"</span>)</span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="fu">message</span>(<span class="st">"Pipeline completed: OLS, GWR (if enough data), and HDB_sf saved"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<section id="conclusion" class="level1">
+<h1>16. Conclusion</h1>
+<p>This analysis successfully integrates structural and locational factors to model 4-room HDB resale prices in Singapore. The combination of global (OLS) and local (GWR) modeling approaches highlights both overall trends and spatial heterogeneity in price determinants. Visualizations provide clear insight into price distribution, the influence of amenities, and residual patterns, demonstrating the value of geospatial methods in housing price analysis.</p>
+</section>
+<section id="future-work" class="level1">
+<h1>17. Future Work</h1>
+<ul>
+<li>Extend modeling to 3-room and 5-room flats for a comprehensive HDB price analysis.</li>
+<li>Incorporate temporal dynamics to model price trends over multiple quarters.</li>
+<li>Explore additional locational variables such as MRT travel time or school quality scores.</li>
+<li>Implement predictive validation using cross-validation or holdout sets to assess model robustness.</li>
+<li>Automate reproducible workflow with RMarkdown for full reporting and mapping outputs.</li>
+</ul>
 
 
 </section>
