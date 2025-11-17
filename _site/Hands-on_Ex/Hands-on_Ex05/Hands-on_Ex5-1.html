@@ -289,6 +289,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#computing-monte-carlo-gearys-c" id="toc-computing-monte-carlo-gearys-c" class="nav-link" data-scroll-target="#computing-monte-carlo-gearys-c">6.2 Computing Monte Carlo Geary’s C</a></li>
   <li><a href="#visualising-the-monte-carlo-gearys-c" id="toc-visualising-the-monte-carlo-gearys-c" class="nav-link" data-scroll-target="#visualising-the-monte-carlo-gearys-c">6.3 Visualising the Monte Carlo Geary’s C</a></li>
   </ul></li>
+  <li><a href="#local-measures-of-spatial-autocorrelation-local-morans-i-lisa" id="toc-local-measures-of-spatial-autocorrelation-local-morans-i-lisa" class="nav-link" data-scroll-target="#local-measures-of-spatial-autocorrelation-local-morans-i-lisa">Local Measures of Spatial Autocorrelation: Local Moran’s I (LISA)</a></li>
   <li><a href="#spatial-correlogram" id="toc-spatial-correlogram" class="nav-link" data-scroll-target="#spatial-correlogram">7. Spatial Correlogram</a>
   <ul class="collapse">
   <li><a href="#compute-morans-i-correlogram" id="toc-compute-morans-i-correlogram" class="nav-link" data-scroll-target="#compute-morans-i-correlogram">7.1 Compute Moran’s I correlogram</a></li>
@@ -650,17 +651,38 @@ alternative hypothesis: greater</code></pre>
 </div>
 </section>
 </section>
-<section id="spatial-correlogram" class="level1">
-<h1>7. Spatial Correlogram</h1>
-<section id="compute-morans-i-correlogram" class="level2">
-<h2 class="anchored" data-anchor-id="compute-morans-i-correlogram">7.1 Compute Moran’s I correlogram</h2>
+<section id="local-measures-of-spatial-autocorrelation-local-morans-i-lisa" class="level1">
+<h1>Local Measures of Spatial Autocorrelation: Local Moran’s I (LISA)</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>MI_corr <span class="ot">&lt;-</span> <span class="fu">sp.correlogram</span>(wm_q, </span>
-<span id="cb34-2"><a href="#cb34-2"></a>                          hunan<span class="sc">$</span>GDPPC, </span>
-<span id="cb34-3"><a href="#cb34-3"></a>                          <span class="at">order=</span><span class="dv">6</span>, </span>
-<span id="cb34-4"><a href="#cb34-4"></a>                          <span class="at">method=</span><span class="st">"I"</span>, </span>
-<span id="cb34-5"><a href="#cb34-5"></a>                          <span class="at">style=</span><span class="st">"W"</span>)</span>
-<span id="cb34-6"><a href="#cb34-6"></a><span class="fu">plot</span>(MI_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># Computing Local Moran's I</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a>localMI <span class="ot">&lt;-</span> <span class="fu">localmoran</span>(hunan<span class="sc">$</span>GDPPC, </span>
+<span id="cb34-3"><a href="#cb34-3"></a>                      <span class="at">listw =</span> rswm_q, </span>
+<span id="cb34-4"><a href="#cb34-4"></a>                      <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-5"><a href="#cb34-5"></a></span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co"># Adding results back into sf object</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a>hunan<span class="sc">$</span>local_I     <span class="ot">&lt;-</span> localMI[, <span class="dv">1</span>]</span>
+<span id="cb34-8"><a href="#cb34-8"></a>hunan<span class="sc">$</span>local_pval  <span class="ot">&lt;-</span> localMI[, <span class="dv">5</span>]</span>
+<span id="cb34-9"><a href="#cb34-9"></a></span>
+<span id="cb34-10"><a href="#cb34-10"></a><span class="co"># Classifying cluster types</span></span>
+<span id="cb34-11"><a href="#cb34-11"></a>hunan <span class="ot">&lt;-</span> hunan <span class="sc">%&gt;%</span></span>
+<span id="cb34-12"><a href="#cb34-12"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-13"><a href="#cb34-13"></a>    <span class="at">lag_GDPPC =</span> <span class="fu">lag.listw</span>(rswm_q, GDPPC),</span>
+<span id="cb34-14"><a href="#cb34-14"></a>    <span class="at">LISA_cluster =</span> <span class="fu">case_when</span>(</span>
+<span id="cb34-15"><a href="#cb34-15"></a>      GDPPC <span class="sc">&gt;</span> <span class="fu">mean</span>(GDPPC) <span class="sc">&amp;</span> lag_GDPPC <span class="sc">&gt;</span> <span class="fu">mean</span>(lag_GDPPC) <span class="sc">&amp;</span> local_pval <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"High-High"</span>,</span>
+<span id="cb34-16"><a href="#cb34-16"></a>      GDPPC <span class="sc">&lt;</span> <span class="fu">mean</span>(GDPPC) <span class="sc">&amp;</span> lag_GDPPC <span class="sc">&lt;</span> <span class="fu">mean</span>(lag_GDPPC) <span class="sc">&amp;</span> local_pval <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"Low-Low"</span>,</span>
+<span id="cb34-17"><a href="#cb34-17"></a>      GDPPC <span class="sc">&gt;</span> <span class="fu">mean</span>(GDPPC) <span class="sc">&amp;</span> lag_GDPPC <span class="sc">&lt;</span> <span class="fu">mean</span>(lag_GDPPC) <span class="sc">&amp;</span> local_pval <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"High-Low"</span>,</span>
+<span id="cb34-18"><a href="#cb34-18"></a>      GDPPC <span class="sc">&lt;</span> <span class="fu">mean</span>(GDPPC) <span class="sc">&amp;</span> lag_GDPPC <span class="sc">&gt;</span> <span class="fu">mean</span>(lag_GDPPC) <span class="sc">&amp;</span> local_pval <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"Low-High"</span>,</span>
+<span id="cb34-19"><a href="#cb34-19"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Not Significant"</span></span>
+<span id="cb34-20"><a href="#cb34-20"></a>    )</span>
+<span id="cb34-21"><a href="#cb34-21"></a>  )</span>
+<span id="cb34-22"><a href="#cb34-22"></a></span>
+<span id="cb34-23"><a href="#cb34-23"></a><span class="co"># Plotting LISA cluster map</span></span>
+<span id="cb34-24"><a href="#cb34-24"></a><span class="fu">tm_shape</span>(hunan) <span class="sc">+</span></span>
+<span id="cb34-25"><a href="#cb34-25"></a>  <span class="fu">tm_polygons</span>(<span class="st">"LISA_cluster"</span>,</span>
+<span id="cb34-26"><a href="#cb34-26"></a>              <span class="at">palette =</span> <span class="st">"Set1"</span>,</span>
+<span id="cb34-27"><a href="#cb34-27"></a>              <span class="at">title =</span> <span class="st">"Local Moran’s I Cluster Map"</span>) <span class="sc">+</span></span>
+<span id="cb34-28"><a href="#cb34-28"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb34-29"><a href="#cb34-29"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"LISA (Local Moran’s I) Cluster Patterns"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -669,8 +691,28 @@ alternative hypothesis: greater</code></pre>
 </div>
 </div>
 </div>
+</section>
+<section id="spatial-correlogram" class="level1">
+<h1>7. Spatial Correlogram</h1>
+<section id="compute-morans-i-correlogram" class="level2">
+<h2 class="anchored" data-anchor-id="compute-morans-i-correlogram">7.1 Compute Moran’s I correlogram</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="fu">print</span>(MI_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>MI_corr <span class="ot">&lt;-</span> <span class="fu">sp.correlogram</span>(wm_q, </span>
+<span id="cb35-2"><a href="#cb35-2"></a>                          hunan<span class="sc">$</span>GDPPC, </span>
+<span id="cb35-3"><a href="#cb35-3"></a>                          <span class="at">order=</span><span class="dv">6</span>, </span>
+<span id="cb35-4"><a href="#cb35-4"></a>                          <span class="at">method=</span><span class="st">"I"</span>, </span>
+<span id="cb35-5"><a href="#cb35-5"></a>                          <span class="at">style=</span><span class="st">"W"</span>)</span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="fu">plot</span>(MI_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands-on_Ex5-1_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">print</span>(MI_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Spatial correlogram for hunan$GDPPC 
 method: Moran's I
@@ -689,22 +731,22 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <section id="compute-gearys-c-correlogram-and-plot" class="level2">
 <h2 class="anchored" data-anchor-id="compute-gearys-c-correlogram-and-plot">7.2 Compute Geary’s C correlogram and plot</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>GC_corr <span class="ot">&lt;-</span> <span class="fu">sp.correlogram</span>(wm_q, </span>
-<span id="cb37-2"><a href="#cb37-2"></a>                          hunan<span class="sc">$</span>GDPPC, </span>
-<span id="cb37-3"><a href="#cb37-3"></a>                          <span class="at">order=</span><span class="dv">6</span>, </span>
-<span id="cb37-4"><a href="#cb37-4"></a>                          <span class="at">method=</span><span class="st">"C"</span>, </span>
-<span id="cb37-5"><a href="#cb37-5"></a>                          <span class="at">style=</span><span class="st">"W"</span>)</span>
-<span id="cb37-6"><a href="#cb37-6"></a><span class="fu">plot</span>(GC_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>GC_corr <span class="ot">&lt;-</span> <span class="fu">sp.correlogram</span>(wm_q, </span>
+<span id="cb38-2"><a href="#cb38-2"></a>                          hunan<span class="sc">$</span>GDPPC, </span>
+<span id="cb38-3"><a href="#cb38-3"></a>                          <span class="at">order=</span><span class="dv">6</span>, </span>
+<span id="cb38-4"><a href="#cb38-4"></a>                          <span class="at">method=</span><span class="st">"C"</span>, </span>
+<span id="cb38-5"><a href="#cb38-5"></a>                          <span class="at">style=</span><span class="st">"W"</span>)</span>
+<span id="cb38-6"><a href="#cb38-6"></a><span class="fu">plot</span>(GC_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex5-1_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-on_Ex5-1_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="fu">print</span>(GC_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="fu">print</span>(GC_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Spatial correlogram for hunan$GDPPC 
 method: Geary's C

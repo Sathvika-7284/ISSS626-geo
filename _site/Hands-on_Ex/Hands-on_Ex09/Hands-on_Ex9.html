@@ -294,6 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#computing-sam-accessibility" id="toc-computing-sam-accessibility" class="nav-link" data-scroll-target="#computing-sam-accessibility">6.1 Computing SAM accessibility</a></li>
   <li><a href="#visualising-sams-accessibility" id="toc-visualising-sams-accessibility" class="nav-link" data-scroll-target="#visualising-sams-accessibility">6.2 Visualising SAM’s accessibility</a></li>
   <li><a href="#statistical-graphic-visualisation-2" id="toc-statistical-graphic-visualisation-2" class="nav-link" data-scroll-target="#statistical-graphic-visualisation-2">6.3 Statistical graphic visualisation</a></li>
+  <li><a href="#comparing-correlation-between-accessibility-measures" id="toc-comparing-correlation-between-accessibility-measures" class="nav-link" data-scroll-target="#comparing-correlation-between-accessibility-measures">6.4 Comparing correlation between accessibility measures</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -509,7 +510,7 @@ PROJCRS["SVY21 / Singapore TM",
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>acc_Hansen <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ac</span>(hexagons<span class="sc">$</span>demand,</span>
 <span id="cb17-2"><a href="#cb17-2"></a>                            eldercare<span class="sc">$</span>capacity,</span>
 <span id="cb17-3"><a href="#cb17-3"></a>                            distmat_km, </span>
-<span id="cb17-4"><a href="#cb17-4"></a>                            <span class="co">#d0 = 50,</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>                            <span class="at">d0 =</span> <span class="dv">50</span>,</span>
 <span id="cb17-5"><a href="#cb17-5"></a>                            <span class="at">power =</span> <span class="dv">2</span>, </span>
 <span id="cb17-6"><a href="#cb17-6"></a>                            <span class="at">family =</span> <span class="st">"Hansen"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -756,6 +757,38 @@ PROJCRS["SVY21 / Singapore TM",
 <div>
 <figure class="figure">
 <p><img src="Hands-on_Ex9_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comparing-correlation-between-accessibility-measures" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-correlation-between-accessibility-measures">6.4 Comparing correlation between accessibility measures</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># Combining all accessibility measures using original hexagons (no join)</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a></span>
+<span id="cb35-3"><a href="#cb35-3"></a>acc_combined <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="at">accHansen =</span> hexagon_Hansen<span class="sc">$</span>accHansen,</span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="at">accKD2SFCA =</span> hexagon_KD2SFCA<span class="sc">$</span>accKD2SFCA,</span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="at">accSAM =</span> hexagon_SAM<span class="sc">$</span>accSAM</span>
+<span id="cb35-7"><a href="#cb35-7"></a>)</span>
+<span id="cb35-8"><a href="#cb35-8"></a></span>
+<span id="cb35-9"><a href="#cb35-9"></a><span class="co"># Computing correlation matrix</span></span>
+<span id="cb35-10"><a href="#cb35-10"></a>acc_cor <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">cor</span>(acc_combined), <span class="dv">2</span>)</span>
+<span id="cb35-11"><a href="#cb35-11"></a></span>
+<span id="cb35-12"><a href="#cb35-12"></a><span class="co"># Visualising as heatmap</span></span>
+<span id="cb35-13"><a href="#cb35-13"></a><span class="fu">library</span>(ggcorrplot)</span>
+<span id="cb35-14"><a href="#cb35-14"></a></span>
+<span id="cb35-15"><a href="#cb35-15"></a><span class="fu">ggcorrplot</span>(acc_cor,</span>
+<span id="cb35-16"><a href="#cb35-16"></a><span class="at">method =</span> <span class="st">"circle"</span>,</span>
+<span id="cb35-17"><a href="#cb35-17"></a><span class="at">type =</span> <span class="st">"lower"</span>,</span>
+<span id="cb35-18"><a href="#cb35-18"></a><span class="at">lab =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-19"><a href="#cb35-19"></a><span class="at">lab_size =</span> <span class="dv">4</span>,</span>
+<span id="cb35-20"><a href="#cb35-20"></a><span class="at">title =</span> <span class="st">"Correlation between Accessibility Measures"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands-on_Ex9_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

@@ -112,6 +112,7 @@ mpsz_pop2024 <- left_join(mpsz, popdata2024,
 ```
 
 #### Creating centroid points for each planning subzone
+
 ```{r}
 
 # Temporarily disabling s2 due to invalid polygons

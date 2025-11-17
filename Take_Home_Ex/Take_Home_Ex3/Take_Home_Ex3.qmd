@@ -35,7 +35,7 @@ pacman::p_load(tidyverse, sf, tmap, readxl, lwgeom, caret, janitor, stringr, GWm
 ```
 
 | Package | Purpose |
-|-------------------------|-----------------------------------------------|
+|----|----|
 | tidyverse | Collection of packages for data manipulation, cleaning, and visualization. |
 | sf | Handles spatial vector data (points, lines, polygons) and spatial operations. |
 | tmap | Creates static and interactive thematic maps for geospatial visualization. |
